@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../api/client";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -11,7 +12,7 @@ export default function Login() {
   const requestOtp = async () => {
     try {
       await axios.post(
-        "/api/auth/request-email-otp",
+        `${API_BASE}/auth/request-email-otp`,
         { email },
         { withCredentials: true }
       );
