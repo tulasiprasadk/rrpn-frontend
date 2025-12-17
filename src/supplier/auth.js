@@ -2,64 +2,33 @@
 import axios from "axios";
 import { API_BASE } from "../api/client";
 
+
 /**
- * Request OTP for supplier login
+ * Request OTP for supplier login (email only)
  */
-export async function requestOtp({ email, phone }) {
+export async function requestOtp({ email }) {
   try {
-    const response = await axios.post(`${API_BASE}/suppliers/request-otp`, {
-      email,
-      phone,
-    });
+    const response = await axios.post(`/api/supplier/auth/request-email-otp`, { email });
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to request OTP");
+    throw new Error(error.response?.data?.error || "Failed to request OTP");
   }
 }
 
 /**
- * Verify OTP and login supplier
+ * Verify OTP and login supplier (email only)
  */
-export async function verifyOtp({ email, phone, otp }) {
+export async function verifyOtp({ email, otp }) {
   try {
-    const response = await axios.post(`${API_BASE}/suppliers/verify-otp`, {
-      email,
-      phone,
-      otp,
-    });
-    
+    const response = await axios.post(`/api/supplier/auth/verify-email-otp`, { email, otp });
     if (response.data.supplier) {
-      // Store supplier info in localStorage
       localStorage.setItem("supplierToken", response.data.token || "supplier-logged-in");
       localStorage.setItem("supplierId", response.data.supplier.id);
       localStorage.setItem("supplierData", JSON.stringify(response.data.supplier));
     }
-    
     return response.data;
   } catch (error) {
-    throw new Error(error.response?.data?.message || "Failed to verify OTP");
-  }
-}
-
-/**
- * Login supplier with phone number (simple auth)
- */
-export async function loginSupplier({ phone, email }) {
-  try {
-    const response = await axios.post(`${API_BASE}/suppliers/login`, {
-      phone: phone || email,
-    });
-    
-    if (response.data.supplier) {
-      // Store supplier info
-      localStorage.setItem("supplierToken", "supplier-logged-in");
-      localStorage.setItem("supplierId", response.data.supplier.id);
-      localStorage.setItem("supplierData", JSON.stringify(response.data.supplier));
-    }
-    
-    return response.data;
-  } catch (error) {
-    throw new Error(error.response?.data?.message || "Supplier not found");
+    throw new Error(error.response?.data?.error || "Failed to verify OTP");
   }
 }
 

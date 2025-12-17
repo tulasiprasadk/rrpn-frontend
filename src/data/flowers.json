@@ -1,0 +1,120 @@
+[
+  {
+    "category": "Bound Flowers",
+    "products": [
+      {
+        "id": "bound-flowers-11",
+        "name": "Mallige",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "bound-flowers-12",
+        "name": "Sujee mallige",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "bound-flowers-13",
+        "name": "Kanakambara",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "bound-flowers-14",
+        "name": "Kakada",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "bound-flowers-15",
+        "name": "Jajee",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "bound-flowers-16",
+        "name": "Ganere /ganagile",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "bound-flowers-17",
+        "name": "Sevanthige",
+        "price": 150,
+        "unit": "BUNCH"
+      }
+    ]
+  },
+  {
+    "category": "Unbound Flowers",
+    "products": [
+      {
+        "id": "unbound-flowers-0",
+        "name": "Rose ( red)",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-1",
+        "name": "Sevanthige(yellow)",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-2",
+        "name": "Mallige",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-3",
+        "name": "Sujee mallige",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-4",
+        "name": "Kanakambara",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-5",
+        "name": "Kakada",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-6",
+        "name": "Ganere /ganagile",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-7",
+        "name": "Rose (pink)",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-8",
+        "name": "Rose (Yellow)",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-9",
+        "name": "Sevanthige  ( white)",
+        "price": 150,
+        "unit": "BUNCH"
+      },
+      {
+        "id": "unbound-flowers-10",
+        "name": "Sevanthige (blue)",
+        "price": 150,
+        "unit": "BUNCH"
+      }
+    ]
+  }
+]

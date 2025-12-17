@@ -269,6 +269,7 @@ export default function ProductBrowser() {
                     <thead>
                       <tr>
                         <th>Product Name</th>
+                        <th>ಉತ್ಪನ್ನದ ಹೆಸರು</th>
                         <th>Category</th>
                         <th>Sub-Variety</th>
                         <th>Price</th>
@@ -290,11 +291,11 @@ export default function ProductBrowser() {
                             )}
                             <div style={{ display: 'inline-block', verticalAlign: 'middle' }}>
                               <strong>{product.title}</strong>
-                              {product.titleKannada && (
-                                <div style={{ fontSize: '12px', color: '#c8102e', marginTop: '2px' }}>
-                                  {product.titleKannada}
-                                </div>
-                              )}
+                            </div>
+                          </td>
+                          <td className="product-name-kannada">
+                            <div style={{ fontSize: '15px', color: '#c8102e', fontWeight: 600 }}>
+                              {product.titleKannada || ''}
                             </div>
                           </td>
                           <td>{product.Category?.name || '—'}</td>

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import ReactDOM from "react-dom";
 import "./ExploreItem.css";
 
-export default function ExploreItem({ icon, title, desc, longInfo }) {
+export default function ExploreItem({ icon, title, titleKannada, desc, descKannada, longInfo, longInfoKannada }) {
   const [showPopup, setShowPopup] = useState(false);
   const [popupPos, setPopupPos] = useState({ x: 0, y: 0 });
 
@@ -29,7 +29,9 @@ export default function ExploreItem({ icon, title, desc, longInfo }) {
     >
       <span className="explore-icon">{icon}</span>
       <h3 className="explore-title">{title}</h3>
+      <div className="explore-title-kannada" style={{ color: '#c8102e', fontSize: 15, fontWeight: 600, marginBottom: 2 }}>{titleKannada}</div>
       <p className="explore-desc">{desc}</p>
+      <div className="explore-desc-kannada" style={{ color: '#c8102e', fontSize: 13, fontWeight: 500 }}>{descKannada}</div>
 
       {showPopup &&
         ReactDOM.createPortal(
@@ -41,8 +43,8 @@ export default function ExploreItem({ icon, title, desc, longInfo }) {
               top: popupPos.y,
             }}
           >
-            <div className="popup-title">{title}</div>
-            <div className="popup-body">{longInfo}</div>
+            <div className="popup-title">{title} <span style={{ color: '#c8102e', fontWeight: 600, fontSize: 15 }}>{titleKannada}</span></div>
+            <div className="popup-body">{longInfo}<br /><span style={{ color: '#c8102e', fontSize: 14, fontWeight: 500 }}>{longInfoKannada}</span></div>
           </div>,
           document.body
         )}

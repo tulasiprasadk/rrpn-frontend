@@ -2,12 +2,7 @@
 
 import React from "react";
 import axios from "axios";
-import {
-  Routes,
-  Route,
-  Navigate,
-  useLocation
-} from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 
@@ -18,6 +13,8 @@ import WhatsAppFloating from "./components/WhatsAppFloating";
 
 /* USER PAGES */
 import Home from "./pages/Home.jsx";
+import Crackers from "./pages/Crackers.jsx";
+import Flowers from "./pages/Flowers.jsx";
 import ProductBrowser from "./pages/ProductBrowser.jsx";
 import ProductDetail from "./pages/ProductDetail/ProductDetail.jsx";
 import CartPage from "./pages/CartPage.jsx";
@@ -57,31 +54,24 @@ import RequireAdmin from "./components/auth/RequireAdmin.jsx";
 
 import AdminSuppliersList from "./pages/admin/suppliers/AdminSuppliersList.jsx";
 import AdminSupplierDetail from "./pages/admin/suppliers/AdminSupplierDetail.jsx";
-
 import AdminAdsList from "./pages/admin/ads/AdminAdsList.jsx";
 import AdminAdForm from "./pages/admin/ads/AdminAdForm.jsx";
-
 import AnalyticsPage from "./pages/admin/AnalyticsPage.jsx";
-
 import AdminProductsList from "./pages/admin/products/AdminProductsList.jsx";
 import AdminProductForm from "./pages/admin/products/AdminProductForm.jsx";
 import AdminBulkUpload from "./pages/admin/products/AdminBulkUpload.jsx";
 import ProductTranslator from "./pages/admin/ProductTranslator.jsx";
-
 import AdminOrdersList from "./pages/admin/orders/AdminOrdersList.jsx";
 import AdminOrderDetail from "./pages/admin/orders/AdminOrderDetail.jsx";
-
 import AdminCategoriesList from "./pages/admin/categories/AdminCategoriesList.jsx";
 import AdminCategoryForm from "./pages/admin/categories/AdminCategoryForm.jsx";
-
 import AdminVarietiesList from "./pages/admin/varieties/AdminVarietiesList.jsx";
-
 import AdminSettings from "./pages/admin/AdminSettings.jsx";
 import VendorKycApproval from "./pages/admin/VendorKycApproval.jsx";
 import AdminKycApproval from "./pages/admin/AdminKycApproval.jsx";
 import CmsManager from "./pages/admin/CmsManager.jsx";
 
-/* WRAPPER FOR HEADER / FOOTER */
+/* WRAPPER */
 function AppWrapper() {
   const location = useLocation();
   const hideLayout = location.pathname.startsWith("/admin");
@@ -92,15 +82,18 @@ function AppWrapper() {
 
       <div style={{ minHeight: "80vh" }}>
         <Routes>
-
-          {/* ===================== USER ROUTES ===================== */}
+          {/* USER */}
           <Route path="/" element={<Home />} />
           <Route path="/browse" element={<ProductBrowser />} />
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/saved-suppliers" element={<SavedSuppliersPage />} />
           <Route path="/checkout/select-address" element={<SelectAddressPage />} />
 
-          {/* LOGIN + OTP FLOW */}
+          {/* SPECIAL */}
+          <Route path="/crackers" element={<Crackers />} />
+          <Route path="/flowers" element={<Flowers />} />
+
+          {/* AUTH */}
           <Route path="/login" element={<Login />} />
           <Route path="/verify" element={<CustomerVerify />} />
 
@@ -116,7 +109,7 @@ function AppWrapper() {
           <Route path="/my-orders" element={<MyOrdersPage />} />
           <Route path="/my-orders/:id" element={<OrderDetailPage />} />
 
-          {/* PRODUCT & CART */}
+          {/* CART */}
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<CartPage />} />
           <Route path="/checkout" element={<CheckoutReview />} />
@@ -128,8 +121,7 @@ function AppWrapper() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
 
-          {/* ===================== SUPPLIER ROUTES ===================== */}
-          <Route path="/supplier" element={<Navigate to="/supplier/login" replace />} />
+          {/* SUPPLIER */}
           <Route path="/supplier/login" element={<SupplierLogin />} />
           <Route path="/supplier/register" element={<SupplierRegister />} />
           <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
@@ -139,10 +131,8 @@ function AppWrapper() {
           <Route path="/supplier/products/add" element={<AddProduct />} />
           <Route path="/supplier/products/:productId/edit" element={<EditProduct />} />
 
-          {/* ===================== ADMIN LOGIN ===================== */}
+          {/* ADMIN */}
           <Route path="/admin/login" element={<AdminLogin />} />
-
-          {/* ===================== ADMIN PROTECTED ===================== */}
           <Route element={<RequireAdmin />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
@@ -161,15 +151,14 @@ function AppWrapper() {
               <Route path="orders" element={<AdminOrdersList />} />
               <Route path="orders/:id" element={<AdminOrderDetail />} />
               <Route path="categories" element={<AdminCategoriesList />} />
-              <Route path="categories/new" element={<AdminCategoryForm mode="create" />} />
-              <Route path="categories/:id/edit" element={<AdminCategoryForm mode="edit" />} />
+              <Route path="categories/new" element={<AdminCategoryForm />} />
+              <Route path="categories/:id/edit" element={<AdminCategoryForm />} />
               <Route path="varieties" element={<AdminVarietiesList />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="vendors/kyc" element={<VendorKycApproval />} />
               <Route path="kyc-approval" element={<AdminKycApproval />} />
             </Route>
           </Route>
-
         </Routes>
       </div>
 
@@ -179,7 +168,7 @@ function AppWrapper() {
   );
 }
 
-/* MAIN EXPORT */
+/* MAIN */
 export default function App() {
   axios.defaults.withCredentials = true;
 

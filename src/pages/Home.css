@@ -137,9 +137,9 @@
    CONTENT WRAPPER
 ----------------------------------- */
 .content {
-  max-width: 1200px;
-  margin: 40px auto;
-  padding: 0 20px;
+  width: 100%;
+  margin: 40px 0;
+  padding: 0;
   overflow: visible;
   position: relative;
   z-index: 5;
@@ -173,6 +173,7 @@
   position: relative;
   z-index: 10;
   min-height: 100px;
+  width: 100%;
 }
 
 .cat-card {

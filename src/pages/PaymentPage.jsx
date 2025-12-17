@@ -4,11 +4,12 @@ import imageCompression from "browser-image-compression";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function PaymentPage() {
+  const [method, setMethod] = useState("upi");
   const { state } = useLocation();
   const navigate = useNavigate();
 
   const orderId = state?.orderId;
-  const [unr, setUnr] = useState("");
+  const [txnId, setTxnId] = useState("");
   const [file, setFile] = useState(null);
   const [uploadedPath, setUploadedPath] = useState("");
 
@@ -71,25 +72,27 @@ export default function PaymentPage() {
   };
 
   // ------------------------------
-  // Submit UNR
+  // Submit Payment
   // ------------------------------
-  const submitUNR = async () => {
-    if (!unr) {
-      alert("Enter UNR");
+  const submitPayment = async () => {
+    if (!txnId) {
+      alert("Enter Transaction ID");
       return;
     }
 
     try {
       await axios.put(`/api/orders/${orderId}/unr`, {
-        paymentUNR: unr
+        paymentUNR: txnId,
+        paymentMethod: method
       });
 
       // Navigate to thank you page with order details
       navigate("/payment-success", {
         state: {
           orderId: orderId,
-          unr: unr,
-          screenshot: uploadedPath
+          txnId: txnId,
+          screenshot: uploadedPath,
+          paymentMethod: method
         }
       });
     } catch (error) {
@@ -106,21 +109,41 @@ export default function PaymentPage() {
       background: '#fff',
       minHeight: '80vh'
     }}>
+
       <h2 style={{ 
         color: '#333', 
         marginBottom: '10px',
         fontSize: '28px'
       }}>
-        Upload Payment Screenshot
+        Complete Your Payment
       </h2>
-      
-      <p style={{ 
-        color: '#666', 
-        marginBottom: '30px',
-        fontSize: '16px'
-      }}>
-        Please upload your payment proof and enter the UNR number
-      </p>
+
+      <div style={{ marginBottom: 24 }}>
+        <label style={{ fontWeight: 600, fontSize: 17, marginRight: 18 }}>
+          <input type="radio" value="upi" checked={method === "upi"} onChange={() => setMethod("upi")}/> UPI
+        </label>
+        <label style={{ fontWeight: 600, fontSize: 17 }}>
+          <input type="radio" value="pi" checked={method === "pi"} onChange={() => setMethod("pi")}/> Pi Network
+        </label>
+      </div>
+
+      {method === "upi" && (
+        <div style={{ background: '#e6f7ff', padding: 18, borderRadius: 10, marginBottom: 24 }}>
+          <h3 style={{ margin: 0, fontSize: 18 }}>Pay via UPI</h3>
+          <div style={{ margin: '12px 0' }}>
+            <img src="/upi-qr-placeholder.png" alt="UPI QR" style={{ width: 160, height: 160, borderRadius: 8, border: '1.5px solid #007bff' }} />
+          </div>
+          <div style={{ fontSize: 16, marginBottom: 6 }}>UPI ID: <b>yourupi@bank</b> <button style={{ marginLeft: 8, fontSize: 13 }} onClick={() => {navigator.clipboard.writeText('yourupi@bank');}}>Copy</button></div>
+          <div style={{ fontSize: 14, color: '#555' }}>Scan the QR or pay to the UPI ID above. Then upload your payment screenshot and enter the UPI transaction ID below.</div>
+        </div>
+      )}
+      {method === "pi" && (
+        <div style={{ background: '#f3e6ff', padding: 18, borderRadius: 10, marginBottom: 24 }}>
+          <h3 style={{ margin: 0, fontSize: 18 }}>Pay via Pi Network</h3>
+          <div style={{ fontSize: 16, margin: '12px 0' }}>Send payment to: <b>your-pi-username</b></div>
+          <div style={{ fontSize: 14, color: '#555' }}>Open the Pi Network app, send the payment, then upload your screenshot and enter the Pi transaction ID below.</div>
+        </div>
+      )}
 
       <div style={{ 
         background: '#f8f9fa', 
@@ -128,7 +151,7 @@ export default function PaymentPage() {
         borderRadius: '12px',
         marginBottom: '25px'
       }}>
-        <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Step 1: Upload Screenshot</h3>
+        <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Step 1: Upload Payment Screenshot</h3>
         
         <input
           type="file"
@@ -182,13 +205,12 @@ export default function PaymentPage() {
         padding: '25px', 
         borderRadius: '12px'
       }}>
-        <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Step 2: Enter UNR</h3>
-        
+        <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Step 2: Enter Transaction ID</h3>
         <input
           type="text"
-          placeholder="Enter UNR Number"
-          value={unr}
-          onChange={(e) => setUnr(e.target.value)}
+          placeholder={method === 'upi' ? 'Enter UPI Transaction ID' : 'Enter Pi Transaction ID'}
+          value={txnId}
+          onChange={(e) => setTxnId(e.target.value)}
           style={{ 
             padding: '12px', 
             width: '100%',
@@ -198,9 +220,8 @@ export default function PaymentPage() {
             marginBottom: '15px'
           }}
         />
-
         <button 
-          onClick={submitUNR} 
+          onClick={submitPayment} 
           style={{ 
             padding: '14px 28px',
             background: '#28a745',

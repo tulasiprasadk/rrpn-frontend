@@ -1,18 +1,14 @@
+
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-/**
- * Supplier login with phone number and OTP or password
- * Save/overwrite as: src/pages/SupplierLogin.jsx
- */
 export default function SupplierLogin() {
-  const [form, setForm] = useState({ phone: "", password: "", otp: "" });
+  const [form, setForm] = useState({ email: "", otp: "" });
   const [err, setErr] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-  const [usePassword, setUsePassword] = useState(false);
   const navigate = useNavigate();
 
   function update(field) {
@@ -24,20 +20,19 @@ export default function SupplierLogin() {
     setSuccess("");
     setLoading(true);
 
-    if (!form.phone) {
-      setErr("Please provide a phone number.");
+    if (!form.email) {
+      setErr("Please provide your email address.");
       setLoading(false);
       return;
     }
 
     try {
-      const res = await axios.post("/api/suppliers/send-otp", { phone: form.phone });
-      if (res.data.success) {
-        setSuccess(`OTP sent to ${form.phone}. Check console (OTP: ${res.data.otp})`);
+      const res = await axios.post("/api/supplier/auth/request-email-otp", { email: form.email });
+      if (res.data.success || res.data.message) {
+        setSuccess("OTP sent to " + form.email);
         setOtpSent(true);
       }
     } catch (error) {
-      console.error("Send OTP error:", error);
       setErr(error?.response?.data?.error || "Failed to send OTP");
     } finally {
       setLoading(false);
@@ -50,38 +45,24 @@ export default function SupplierLogin() {
     setSuccess("");
     setLoading(true);
 
-    if (!form.phone) {
-      setErr("Please provide a phone number.");
+    if (!form.email) {
+      setErr("Please provide your email address.");
+      setLoading(false);
+      return;
+    }
+    if (!form.otp) {
+      setErr("Please enter the OTP.");
       setLoading(false);
       return;
     }
 
     try {
-      const loginData = { phone: form.phone };
-      if (usePassword) {
-        if (!form.password) {
-          setErr("Please enter your password.");
-          setLoading(false);
-          return;
-        }
-        loginData.password = form.password;
-      } else {
-        if (!form.otp) {
-          setErr("Please enter the OTP.");
-          setLoading(false);
-          return;
-        }
-        loginData.otp = form.otp;
-      }
-
-      const res = await axios.post("/api/suppliers/login", loginData, { withCredentials: true });
-      
-      if (res.data.ok) {
+      const res = await axios.post("/api/supplier/auth/verify-email-otp", { email: form.email, otp: form.otp }, { withCredentials: true });
+      if (res.data.success) {
         setSuccess("Login successful!");
         navigate("/supplier/dashboard");
       }
     } catch (error) {
-      console.error("Login error:", error);
       setErr(error?.response?.data?.error || "Failed to login");
     } finally {
       setLoading(false);
@@ -97,97 +78,65 @@ export default function SupplierLogin() {
 
       <form onSubmit={submit} style={{ maxWidth: 420 }}>
         <label style={{ display: "block", marginBottom: 12 }}>
-          Phone Number
+          Email Address
           <br />
-          <input 
-            type="text" 
-            value={form.phone} 
-            onChange={update("phone")} 
-            placeholder="Enter phone (e.g., 9876543210)"
-            style={{ width: "100%", padding: 10, marginTop: 8, fontSize: 14, border: "1px solid #ccc", borderRadius: 4 }} 
-            required 
+          <input
+            type="email"
+            value={form.email}
+            onChange={update("email")}
+            placeholder="Enter your email"
+            style={{ width: "100%", padding: 10, marginTop: 8, fontSize: 14, border: "1px solid #ccc", borderRadius: 4 }}
+            required
           />
         </label>
 
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-            <input 
-              type="checkbox" 
-              checked={usePassword} 
-              onChange={(e) => {
-                setUsePassword(e.target.checked);
-                setOtpSent(false);
-                setForm({ ...form, otp: "", password: "" });
-              }}
-            />
-            <span>Login with password instead of OTP</span>
-          </label>
-        </div>
-
-        {!usePassword ? (
-          <>
-            {!otpSent ? (
-              <button 
-                type="button"
-                onClick={sendOTP}
-                style={{ 
-                  padding: "10px 20px", 
-                  background: "#1976d2", 
-                  color: "white",
-                  border: "none", 
-                  cursor: "pointer",
-                  borderRadius: 4,
-                  fontSize: 16,
-                  marginBottom: 12
-                }} 
-                disabled={loading}
-              >
-                {loading ? "Sending..." : "Send OTP"}
-              </button>
-            ) : (
-              <label style={{ display: "block", marginBottom: 12 }}>
-                Enter OTP
-                <br />
-                <input 
-                  type="text" 
-                  value={form.otp} 
-                  onChange={update("otp")} 
-                  placeholder="6-digit OTP"
-                  maxLength={6}
-                  style={{ width: "100%", padding: 10, marginTop: 8, fontSize: 14, border: "1px solid #ccc", borderRadius: 4 }} 
-                  required 
-                />
-              </label>
-            )}
-          </>
+        {!otpSent ? (
+          <button
+            type="button"
+            onClick={sendOTP}
+            style={{
+              padding: "10px 20px",
+              background: "#1976d2",
+              color: "white",
+              border: "none",
+              cursor: "pointer",
+              borderRadius: 4,
+              fontSize: 16,
+              marginBottom: 12
+            }}
+            disabled={loading}
+          >
+            {loading ? "Sending..." : "Send OTP"}
+          </button>
         ) : (
           <label style={{ display: "block", marginBottom: 12 }}>
-            Password
+            Enter OTP
             <br />
-            <input 
-              type="password" 
-              value={form.password} 
-              onChange={update("password")} 
-              placeholder="Enter your password"
-              style={{ width: "100%", padding: 10, marginTop: 8, fontSize: 14, border: "1px solid #ccc", borderRadius: 4 }} 
-              required 
+            <input
+              type="text"
+              value={form.otp}
+              onChange={update("otp")}
+              placeholder="6-digit OTP"
+              maxLength={6}
+              style={{ width: "100%", padding: 10, marginTop: 8, fontSize: 14, border: "1px solid #ccc", borderRadius: 4 }}
+              required
             />
           </label>
         )}
 
-        {(otpSent || usePassword) && (
+        {otpSent && (
           <div style={{ marginTop: 12 }}>
-            <button 
-              type="submit" 
-              style={{ 
-                padding: "10px 20px", 
-                background: "#ffd600", 
-                border: "none", 
+            <button
+              type="submit"
+              style={{
+                padding: "10px 20px",
+                background: "#ffd600",
+                border: "none",
                 cursor: "pointer",
                 borderRadius: 4,
                 fontSize: 16,
                 fontWeight: "bold"
-              }} 
+              }}
               disabled={loading}
             >
               {loading ? "Logging in..." : "Login"}

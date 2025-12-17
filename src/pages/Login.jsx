@@ -3,6 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../api/client";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -21,8 +22,9 @@ export default function Login() {
       // IMPORTANT:
       // This uses axios.defaults.baseURL
       // which is set in main.jsx
+
       await axios.post(
-        "/auth/request-email-otp",
+        `${API_BASE}/supplier/auth/request-email-otp`,
         { email }
       );
 
