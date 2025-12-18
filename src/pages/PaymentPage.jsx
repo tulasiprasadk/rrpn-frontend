@@ -149,37 +149,7 @@ export default function PaymentPage() {
           }}
         />
 
-        <button 
-          onClick={uploadScreenshot} 
-          style={{ 
-            padding: '12px 24px',
-            background: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            cursor: 'pointer',
-            fontSize: '16px',
-            fontWeight: 'bold'
-          }}
-        >
-          📤 Upload Screenshot
-        </button>
 
-        {uploadedPath && (
-          <div style={{ marginTop: '20px', textAlign: 'center' }}>
-            <p style={{ color: '#28a745', fontWeight: 'bold', marginBottom: '10px' }}>✅ Screenshot uploaded successfully!</p>
-            <img
-              src={uploadedPath}
-              alt="Payment Proof"
-              style={{ 
-                maxWidth: '100%', 
-                maxHeight: '200px',
-                border: '2px solid #28a745',
-                borderRadius: '8px'
-              }}
-            />
-          </div>
-        )}
       </div>
 
       <div style={{ 
