@@ -80,7 +80,7 @@ export default function ProductBrowser() {
     }
   }
 
->>>>>>> 4e37e52 (Initial commit: working RRnagar frontend)
+
   async function searchProducts(query) {
     try {
       // Check if query matches a category name
