@@ -65,11 +65,6 @@ export default function ProductBrowser() {
   }
 
 
-<<<<<<< HEAD
-  async function loadProductsByCategory(categoryId) {
-    try {
-      const res = await axios.get(`${API_BASE}/products?categoryId=${categoryId}`);
-=======
   async function loadProducts(categoryId, query) {
     try {
       const params = {};
@@ -77,7 +72,13 @@ export default function ProductBrowser() {
       if (query) params.q = query;
       console.log('Loading products with:', params);
       const res = await axios.get('/api/products', { params });
->>>>>>> 4e37e52 (Initial commit: working RRnagar frontend)
+      setProducts(res.data);
+      groupProductsByVariety(res.data);
+      console.log('Loaded products:', res.data);
+    } catch (err) {
+      console.error('Error loading products:', err);
+    }
+  }
       setProducts(res.data);
       groupProductsByVariety(res.data);
       console.log('Loaded products:', res.data);
