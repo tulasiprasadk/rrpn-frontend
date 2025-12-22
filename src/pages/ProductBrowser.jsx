@@ -79,13 +79,6 @@ export default function ProductBrowser() {
       console.error('Error loading products:', err);
     }
   }
-      setProducts(res.data);
-      groupProductsByVariety(res.data);
-      console.log('Loaded products:', res.data);
-    } catch (err) {
-      console.error('Error loading products:', err);
-    }
-  }
 
 <<<<<<< HEAD
 
