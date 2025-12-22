@@ -1,8 +1,8 @@
-// ...existing code...
+
 // src/pages/Flowers.jsx
 
-// ...existing code...
-// ...existing code...
+
+
 import flowers from "../data/flowers.json";
 import { useCrackerCart } from "../context/CrackerCartContext";
 import CartPanel from "../components/CartPanel";

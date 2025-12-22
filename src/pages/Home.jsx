@@ -66,7 +66,7 @@ export default function Home() {
   }, []);
 
   function handleSearchClick() {
-// ...existing code...
+
     setHasSearched(true);
     if (!searchQuery.trim()) {
       setFilteredProducts(products.slice(0, 12));

@@ -286,7 +286,7 @@ export default function ProductBrowser() {
             </div>
           </main>
         ) : (
-          // ...existing code for product/variety display...
+
           <main className="browser-main">
             {Object.keys(groupedProducts).length === 0 ? (
               <div className="empty-state">
