@@ -80,9 +80,7 @@ export default function ProductBrowser() {
     }
   }
 
-<<<<<<< HEAD
-
-
+>>>>>>> 4e37e52 (Initial commit: working RRnagar frontend)
   async function searchProducts(query) {
     try {
       // Check if query matches a category name
@@ -109,9 +107,6 @@ export default function ProductBrowser() {
       console.error('Error searching products:', err);
     }
   }
-
-=======
->>>>>>> 4e37e52 (Initial commit: working RRnagar frontend)
   function groupProductsByVariety(productList) {
     const grouped = {};
     
