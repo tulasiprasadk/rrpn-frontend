@@ -212,11 +212,7 @@ export default function Home() {
 
   return (
     <main className="home" style={{ display: "flex", width: "100%", maxWidth: 1400, margin: "0 auto", alignItems: "stretch" }}>
-      <div style={{ width: 180, flexShrink: 0 }}>
-        <MegaAd position="left" image="/ads/mega-left.png" link="#" />
-      </div>
-
-      <div style={{ flex: 1, minWidth: 0, maxWidth: 1200 }}>
+      <div style={{ flex: 1, minWidth: 0, maxWidth: 1200, margin: '0 auto' }}>
         {/* HERO */}
         <section className="hero">
           <div className="hero-inner">
@@ -321,9 +317,7 @@ export default function Home() {
         </section>
       </div>
 
-      <div style={{ width: 180, flexShrink: 0 }}>
-        <MegaAd position="right" image="/ads/mega-right.png" link="#" />
-      </div>
+
     </main>
   );
 }
