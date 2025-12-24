@@ -96,8 +96,9 @@ export default function Home() {
   async function loadProducts() {
     try {
       const res = await axios.get(`${API_BASE}/products`);
-      setProducts(res.data || []);
+      setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
+      setProducts([]);
       console.error("Error loading products:", err);
     }
   }
@@ -130,7 +131,7 @@ export default function Home() {
   async function loadCategories() {
     try {
       const res = await axios.get(`${API_BASE}/categories`);
-      const data = res.data || [];
+      const data = Array.isArray(res.data) ? res.data : [];
 
       if (!data.length) {
         setCategories(defaultCategories);
