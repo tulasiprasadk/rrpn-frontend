@@ -15,8 +15,9 @@
   z-index: 10;
 }
 .mega-ad img {
-  width: 100%;
-  height: 100%;
+  width: 10%;
+  height: auto;
+  max-height: 90vh;
   object-fit: cover;
   display: block;
   border-radius: 12px;
