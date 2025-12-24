@@ -15,7 +15,8 @@ export default function Browse() {
 
   // Read query params from URL
   const params = new URLSearchParams(location.search);
-  const categoryId = params.get("category");
+  const categoryId = params.get("categoryId");
+
   const searchQuery = params.get("q") || "";
 
   useEffect(() => {
@@ -27,11 +28,11 @@ export default function Browse() {
     setLoading(true);
     try {
       const res = await axios.get(`${API_BASE}/products`, {
-        params: {
-          categoryId,
-          q: searchQuery,
-        },
-      });
+      params: {
+  category: categoryId,
+  q: searchQuery,
+},
+
       setProducts(res.data || []);
     } catch (err) {
       console.error("❌ Failed to load products:", err);

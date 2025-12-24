@@ -16,7 +16,7 @@ function ProductSuppliers({ productId, onClose }) {
 
   const fetchProductSuppliers = async () => {
     try {
-      const res = await fetch(`http://localhost:4000/api/admin/products/${productId}/suppliers`);
+      const res = await fetch(`http://localhost:3000/api/admin/products/${productId}/suppliers`);
       if (res.ok) {
         const data = await res.json();
         setSuppliers(data);
@@ -30,7 +30,7 @@ function ProductSuppliers({ productId, onClose }) {
 
   const fetchAllSuppliers = async () => {
     try {
-      const res = await fetch('http://localhost:4000/api/suppliers');
+      const res = await fetch('http://localhost:3000/api/suppliers');
       if (res.ok) {
         const data = await res.json();
         // Only show approved suppliers
@@ -48,7 +48,7 @@ function ProductSuppliers({ productId, onClose }) {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/admin/products/${productId}/suppliers`, {
+      const res = await fetch(`http://localhost:3000/api/admin/products/${productId}/suppliers`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -79,7 +79,7 @@ function ProductSuppliers({ productId, onClose }) {
 
     try {
       const res = await fetch(
-        `http://localhost:4000/api/admin/products/${productId}/suppliers/${supplierId}`,
+        `http://localhost:3000/api/admin/products/${productId}/suppliers/${supplierId}`,
         { method: 'DELETE' }
       );
 

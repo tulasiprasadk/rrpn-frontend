@@ -50,6 +50,23 @@ export default function Login() {
       >
         Login
       </button>
+
+      <div style={{ marginTop: 30, textAlign: 'center' }}>
+        <a
+          href="/api/customers/auth/google"
+          style={{
+            display: 'inline-block',
+            padding: '10px 20px',
+            background: '#db4437',
+            color: 'white',
+            borderRadius: '5px',
+            textDecoration: 'none',
+            fontWeight: 'bold',
+          }}
+        >
+          Login with Google
+        </a>
+      </div>
     </div>
   );
 }

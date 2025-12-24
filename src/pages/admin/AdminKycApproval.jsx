@@ -167,7 +167,7 @@ export default function AdminKycApproval() {
                   <div className="documents-grid">
                     {supplier.businessLicense && (
                       <a 
-                        href={`http://localhost:4000/${supplier.businessLicense}`} 
+                        href={`http://localhost:3000/${supplier.businessLicense}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="document-link"
@@ -177,7 +177,7 @@ export default function AdminKycApproval() {
                     )}
                     {supplier.gstCertificate && (
                       <a 
-                        href={`http://localhost:4000/${supplier.gstCertificate}`} 
+                        href={`http://localhost:3000/${supplier.gstCertificate}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="document-link"
@@ -187,7 +187,7 @@ export default function AdminKycApproval() {
                     )}
                     {supplier.idProof && (
                       <a 
-                        href={`http://localhost:4000/${supplier.idProof}`} 
+                        href={`http://localhost:3000/${supplier.idProof}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="document-link"
@@ -260,7 +260,7 @@ export default function AdminKycApproval() {
                     <div className="doc-preview">
                       <strong>Business License</strong>
                       <a 
-                        href={`http://localhost:4000/${selectedSupplier.businessLicense}`} 
+                        href={`http://localhost:3000/${selectedSupplier.businessLicense}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="preview-link"
@@ -273,7 +273,7 @@ export default function AdminKycApproval() {
                     <div className="doc-preview">
                       <strong>GST Certificate</strong>
                       <a 
-                        href={`http://localhost:4000/${selectedSupplier.gstCertificate}`} 
+                        href={`http://localhost:3000/${selectedSupplier.gstCertificate}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="preview-link"
@@ -286,7 +286,7 @@ export default function AdminKycApproval() {
                     <div className="doc-preview">
                       <strong>ID Proof</strong>
                       <a 
-                        href={`http://localhost:4000/${selectedSupplier.idProof}`} 
+                        href={`http://localhost:3000/${selectedSupplier.idProof}`} 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="preview-link"

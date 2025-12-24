@@ -1,42 +1,23 @@
 
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import GoogleSignInButton from "../components/GoogleSignInButton";
+  // Google OAuth handler
+  function handleGoogleSignIn() {
+    window.location.href = "/api/suppliers/auth/google";
+  }
 
 export default function SupplierLogin() {
-  const [form, setForm] = useState({ email: "", otp: "" });
+  const [form, setForm] = useState({ phone: "", password: "" });
   const [err, setErr] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
 
   function update(field) {
     return (e) => setForm({ ...form, [field]: e.target.value });
-  }
-
-  async function sendOTP() {
-    setErr("");
-    setSuccess("");
-    setLoading(true);
-
-    if (!form.email) {
-      setErr("Please provide your email address.");
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const res = await axios.post("/api/supplier/auth/request-email-otp", { email: form.email });
-      if (res.data.success || res.data.message) {
-        setSuccess("OTP sent to " + form.email);
-        setOtpSent(true);
-      }
-    } catch (error) {
-      setErr(error?.response?.data?.error || "Failed to send OTP");
-    } finally {
-      setLoading(false);
-    }
   }
 
   async function submit(e) {
@@ -45,25 +26,30 @@ export default function SupplierLogin() {
     setSuccess("");
     setLoading(true);
 
-    if (!form.email) {
-      setErr("Please provide your email address.");
+    if (!form.phone) {
+      setErr("Please provide your phone number.");
       setLoading(false);
       return;
     }
-    if (!form.otp) {
-      setErr("Please enter the OTP.");
+    if (!form.password) {
+      setErr("Please enter your password.");
       setLoading(false);
       return;
     }
 
     try {
-      const res = await axios.post("/api/supplier/auth/verify-email-otp", { email: form.email, otp: form.otp }, { withCredentials: true });
-      if (res.data.success) {
+      const res = await axios.post("/api/suppliers/login", { phone: form.phone, password: form.password }, { withCredentials: true });
+      if (res.data.ok) {
         setSuccess("Login successful!");
         navigate("/supplier/dashboard");
       }
     } catch (error) {
-      setErr(error?.response?.data?.error || "Failed to login");
+      const backendMsg = error?.response?.data?.error || "Failed to login";
+      if (backendMsg.toLowerCase().includes("pending") || backendMsg.toLowerCase().includes("approve")) {
+        setErr("Your account is pending admin approval. Please wait for approval before logging in.");
+      } else {
+        setErr(backendMsg);
+      }
     } finally {
       setLoading(false);
     }
@@ -76,78 +62,61 @@ export default function SupplierLogin() {
       {err && <div style={{ color: "red", marginBottom: 12, padding: 10, background: "#ffebee", borderRadius: 4 }}>{err}</div>}
       {success && <div style={{ color: "green", marginBottom: 12, padding: 10, background: "#e8f5e9", borderRadius: 4 }}>{success}</div>}
 
+
       <form onSubmit={submit} style={{ maxWidth: 420 }}>
         <label style={{ display: "block", marginBottom: 12 }}>
-          Email Address
+          Phone Number
           <br />
           <input
-            type="email"
-            value={form.email}
-            onChange={update("email")}
-            placeholder="Enter your email"
+            type="tel"
+            value={form.phone}
+            onChange={update("phone")}
+            placeholder="Enter your phone number"
             style={{ width: "100%", padding: 10, marginTop: 8, fontSize: 14, border: "1px solid #ccc", borderRadius: 4 }}
             required
           />
         </label>
-
-        {!otpSent ? (
+        <label style={{ display: "block", marginBottom: 12 }}>
+          Password
+          <br />
+          <input
+            type="password"
+            value={form.password}
+            onChange={update("password")}
+            placeholder="Enter your password"
+            style={{ width: "100%", padding: 10, marginTop: 8, fontSize: 14, border: "1px solid #ccc", borderRadius: 4 }}
+            required
+          />
+        </label>
+        <div style={{ marginTop: 12 }}>
           <button
-            type="button"
-            onClick={sendOTP}
+            type="submit"
             style={{
               padding: "10px 20px",
-              background: "#1976d2",
-              color: "white",
+              background: "#ffd600",
               border: "none",
               cursor: "pointer",
               borderRadius: 4,
               fontSize: 16,
-              marginBottom: 12
+              fontWeight: "bold"
             }}
             disabled={loading}
           >
-            {loading ? "Sending..." : "Send OTP"}
+            {loading ? "Logging in..." : "Login"}
           </button>
-        ) : (
-          <label style={{ display: "block", marginBottom: 12 }}>
-            Enter OTP
-            <br />
-            <input
-              type="text"
-              value={form.otp}
-              onChange={update("otp")}
-              placeholder="6-digit OTP"
-              maxLength={6}
-              style={{ width: "100%", padding: 10, marginTop: 8, fontSize: 14, border: "1px solid #ccc", borderRadius: 4 }}
-              required
-            />
-          </label>
-        )}
-
-        {otpSent && (
-          <div style={{ marginTop: 12 }}>
-            <button
-              type="submit"
-              style={{
-                padding: "10px 20px",
-                background: "#ffd600",
-                border: "none",
-                cursor: "pointer",
-                borderRadius: 4,
-                fontSize: 16,
-                fontWeight: "bold"
-              }}
-              disabled={loading}
-            >
-              {loading ? "Logging in..." : "Login"}
-            </button>
-          </div>
-        )}
+        </div>
+        <GoogleSignInButton onClick={handleGoogleSignIn} label="Sign in with Google (Supplier)" />
       </form>
 
-      <p style={{ marginTop: 24, color: "#666" }}>
-        Don't have an account? <a href="/supplier/register" style={{ color: "#1976d2", textDecoration: "underline" }}>Register Here</a>
-      </p>
+      <div style={{ marginTop: 24, color: "#666" }}>
+        <span>
+          Don't have an account? <a href="/supplier/register" style={{ color: "#1976d2", textDecoration: "underline" }}>Register Here</a>
+        </span>
+        <br />
+        <span>
+          <a href="/supplier/forgot-password" style={{ color: "#1976d2", textDecoration: "underline" }}>Forgot Password?</a>
+        </span>
+      </div>
     </main>
   );
 }

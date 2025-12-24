@@ -126,7 +126,7 @@ function AdminNotifications() {
 export default function AdminLayout() {
   const handleLogout = async () => {
     try {
-      await axios.post("http://localhost:4000/api/admin/logout");
+      await axios.post("http://localhost:3000/api/admin/logout");
       window.location.href = "/admin/login";
     } catch (err) {
       console.error("Logout error:", err);

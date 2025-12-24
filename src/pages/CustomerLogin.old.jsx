@@ -13,7 +13,7 @@ export default function CustomerLogin() {
       setError("");
 
       const res = await axios.post(
-        "http://localhost:4000/api/auth/request-otp",
+        "http://localhost:3000/api/auth/request-otp",
         { mobile: phone }   // backend requires "mobile", not "phone"
       );
 
