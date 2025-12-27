@@ -1,5 +1,9 @@
 {
   "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://rrw-backend.vercel.app/api/$1"
+    },
     { "source": "/(.*)", "destination": "/" }
   ]
 }
