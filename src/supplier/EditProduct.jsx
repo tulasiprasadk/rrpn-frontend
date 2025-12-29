@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-const API = process.env.REACT_APP_API_BASE;
+import { API_BASE } from '../api/client';
 
 export default function SupplierEditProduct() {
   const { id } = useParams();
@@ -13,7 +14,7 @@ export default function SupplierEditProduct() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    fetch(`${API}/supplier/products/${id}`, {
+    fetch(`${API_BASE}/supplier/products/${id}`, {
       headers: { Authorization: token ? `Bearer ${token}` : '' }
     })
       .then(r => r.json())
@@ -34,7 +35,7 @@ export default function SupplierEditProduct() {
     setError('');
     const token = localStorage.getItem('token');
     try {
-      const res = await fetch(`${API}/supplier/products/${id}`, {
+      const res = await fetch(`${API_BASE}/supplier/products/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

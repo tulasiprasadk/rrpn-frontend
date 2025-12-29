@@ -1,11 +1,13 @@
+
 import React, { useState } from 'react';
+import { API_BASE } from '../api/client';
 
 export default function AddProduct() {
   const [name,setName] = useState('');
   const [basePrice,setBasePrice] = useState('');
   const [images,setImages] = useState([]);
   const [variants,setVariants] = useState([{ name:'Default', price:'', stock:0 }]);
-  const API = process.env.REACT_APP_API_BASE;
+  // Use API_BASE from client.js
 
   const addVariantRow = () => setVariants([...variants, { name:'', price:'', stock:0 }]);
   const updateVariant = (i, key, val) => {
@@ -21,7 +23,7 @@ export default function AddProduct() {
       name, basePrice: Number(basePrice), images, variants: variants.map(v => ({ name:v.name, price: Number(v.price), stock: Number(v.stock) }))
     };
     const token = localStorage.getItem('token'); // expect supplier JWT
-    const res = await fetch(`${API}/products`, { method:'POST', headers: { 'Content-Type':'application/json', Authorization: token ? `Bearer ${token}` : '' }, body: JSON.stringify(payload) });
+    const res = await fetch(`${API_BASE}/products`, { method:'POST', headers: { 'Content-Type':'application/json', Authorization: token ? `Bearer ${token}` : '' }, body: JSON.stringify(payload) });
     if (res.ok) {
       alert('Product submitted');
       setName(''); setBasePrice(''); setVariants([{ name:'Default', price:'', stock:0 }]);

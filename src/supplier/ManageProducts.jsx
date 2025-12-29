@@ -1,14 +1,15 @@
 
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-const API = process.env.REACT_APP_API_BASE;
+import { API_BASE } from '../api/client';
 
 export default function ManageProducts() {
   const [products, setProducts] = useState([]);
   const navigate = useNavigate();
   useEffect(() => {
     const token = localStorage.getItem('token');
-    fetch(`${API}/products`, { headers: { Authorization: token ? `Bearer ${token}` : '' } })
+    fetch(`${API_BASE}/products`, { headers: { Authorization: token ? `Bearer ${token}` : '' } })
       .then(r => r.json()).then(setProducts).catch(console.error);
   }, []);
   return (

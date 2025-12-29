@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-const API = process.env.REACT_APP_API_BASE;
+import { API_BASE } from '../api/client';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -8,7 +9,7 @@ export default function ProductDetail() {
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
 
   useEffect(()=>{
-    fetch(`${API}/products/${id}`).then(r=>r.json()).then(setProduct).catch(console.error);
+    fetch(`${API_BASE}/products/${id}`).then(r=>r.json()).then(setProduct).catch(console.error);
   },[id]);
 
   if (!product) return <div>Loading…</div>;

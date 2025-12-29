@@ -1,10 +1,11 @@
+
 import React, { useEffect, useState } from 'react';
-const API = process.env.REACT_APP_API_BASE;
+import { API_BASE } from '../api/client';
 
 export default function ProductList() {
   const [items,setItems] = useState([]);
   useEffect(()=> {
-    fetch(`${API}/products`)
+    fetch(`${API_BASE}/products`)
       .then(r=>r.json()).then(setItems).catch(console.error);
   },[]);
   return (
