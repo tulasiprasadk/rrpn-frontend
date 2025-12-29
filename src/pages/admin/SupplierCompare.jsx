@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../../api/client";
 
 export default function SupplierCompare() {
   const [suppliers, setSuppliers] = useState([]);
@@ -11,7 +12,7 @@ export default function SupplierCompare() {
   }, []);
 
   const fetchSuppliers = async () => {
-    const res = await axios.get("/api/admin/suppliers/list");
+    const res = await axios.get(`${API_BASE}/admin/suppliers/list`);
     setSuppliers(res.data.suppliers);
   };
 
@@ -24,7 +25,7 @@ export default function SupplierCompare() {
   const loadComparison = async () => {
     if (selected.length === 0) return;
 
-    const res = await axios.post("/api/admin/suppliers/compare-multi", {
+    const res = await axios.post(`${API_BASE}/admin/suppliers/compare-multi`, {
       supplier_ids: selected,
     });
 

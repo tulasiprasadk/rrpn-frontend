@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
-import { API_BASE } from "../api/client";
+import api from "../api/client";
 
 export default function OrderDetailPage() {
   const { id } = useParams();
@@ -9,7 +8,7 @@ export default function OrderDetailPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await axios.get(`${API_BASE}/orders/${id}`);
+      const res = await api.get(`/orders/${id}`);
       setOrder(res.data);
     }
     load();

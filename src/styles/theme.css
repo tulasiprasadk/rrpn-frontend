@@ -1,0 +1,71 @@
+/* Unified Theme Variables */
+:root {
+  --color-primary: #0d6efd;
+  --color-accent: #ffd600;
+  --color-danger: #d9534f;
+  --color-success: #28a745;
+  --color-bg: #f9f9f9;
+  --color-card: #fff;
+  --color-border: #eee;
+  --color-text: #333;
+  --color-muted: #888;
+  --radius: 10px;
+  --spacing: 16px;
+  --font-main: 'Inter', 'Noto Sans', Arial, sans-serif;
+  --font-size-base: 16px;
+  --font-size-lg: 24px;
+  --font-size-title: 32px;
+}
+
+body {
+  font-family: var(--font-main);
+  font-size: var(--font-size-base);
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.button {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 8px 18px;
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.button:hover {
+  background: var(--color-accent);
+  color: var(--color-text);
+}
+
+.card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  padding: var(--spacing);
+  border: 1px solid var(--color-border);
+}
+
+.title {
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  margin-bottom: var(--spacing);
+}
+
+.price {
+  color: var(--color-danger);
+  font-size: var(--font-size-lg);
+  font-weight: bold;
+}
+
+.muted {
+  color: var(--color-muted);
+}
+
+input, select, textarea {
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  padding: 8px;
+  font-size: var(--font-size-base);
+}

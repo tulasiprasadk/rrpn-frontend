@@ -1,51 +1,83 @@
-import React from "react";
+
+import React, { useMemo } from "react";
 import petServices from "../data/pet_services.json";
+import ProductCard from "../components/ProductCard";
 import CartPanel from "../components/CartPanel";
-import { CrackerCartProvider, useCrackerCart } from "../context/CrackerCartContext";
+import { useQuickCart } from "../context/QuickCartContext";
+
 
 export default function PetServices() {
-  const { addItem } = useCrackerCart();
+  const { addItem } = useQuickCart();
+
+  // Flatten all services into a single array, add category
+  const allServices = useMemo(() =>
+    petServices.flatMap(cat => cat.items.map(service => ({ ...service, category: cat.category }))),
+    [petServices]
+  );
+
+  // Group by subCategory (or category if missing)
+  const grouped = useMemo(() => {
+    const out = {};
+    allServices.forEach((s) => {
+      const v = s.subCategory || s.category || "Other";
+      if (!out[v]) out[v] = [];
+      out[v].push(s);
+    });
+    return out;
+  }, [allServices]);
+
+  function addItemToBag(service) {
+    addItem({
+      id: service.id,
+      title: service.name,
+      titleKannada: service.kn,
+      knDisplay: service.kn,
+      price: service.price,
+      image: service.image,
+      emoji: service.emoji,
+      category: service.category,
+      description: service.priceType ? `${service.priceType}${service.price ? `: ₹${service.price}` : ''}` : undefined,
+    }, 1);
+  }
+
   return (
-    <CrackerCartProvider>
-      <div style={{ display: "flex", minHeight: "100vh", background: "#FFF8E1" }}>
-        {/* LEFT: PET SERVICES */}
-        <div style={{ flex: 1, padding: "24px 32px" }}>
-          <h1 style={{ marginBottom: 8, color: "#C8102E" }}>
-            🐾 Pet Services
-          </h1>
-          <p style={{ color: "#555", marginBottom: 24 }}>
-            Book trusted pet care, grooming, training, and more for your pets in RR Nagar.
-          </p>
-          {petServices.map((cat) => (
-            <div key={cat.category} style={{ marginBottom: 32 }}>
-              <h2 style={{ borderBottom: "2px solid #C8102E", paddingBottom: 6 }}>{cat.category}</h2>
-              <div className="product-grid" style={{ display: "grid", gridTemplateColumns: 'repeat(5, 1fr)', gap: 16, marginTop: 16 }}>
-                {cat.items.map((service) => (
-                  <div
-                    key={service.id}
-                    style={{ border: '1px solid #eee', borderRadius: 12, padding: 12, background: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 110, cursor: 'pointer', transition: 'box-shadow 0.2s', boxShadow: '0 0 0 rgba(0,0,0,0)' }}
-                    onClick={() => addItem({ id: `${cat.category}-${service.name}`, name: service.name, price: service.price, unit: service.unit })}
-                    onMouseOver={e => e.currentTarget.style.boxShadow = '0 2px 12px rgba(200,16,46,0.08)'}
-                    onMouseOut={e => e.currentTarget.style.boxShadow = '0 0 0 rgba(0,0,0,0)'}
-                  >
-                    <span style={{ fontSize: 32 }}>{service.emoji || "🐾"}</span>
-                    <span style={{ fontWeight: 700 }}>{service.name}</span>
-                    {service.kn && (
-                      <span style={{ color: '#C8102E', fontSize: 14, fontWeight: 600, fontFamily: 'Noto Sans Kannada, sans-serif' }}>{service.kn}</span>
-                    )}
-                    {service.subCategory && (
-                      <span style={{ color: '#888', fontSize: 13, fontWeight: 500 }}>{service.subCategory}</span>
-                    )}
-                    <span style={{ fontSize: 13, color: '#555' }}>{service.priceType} {service.price ? `₹${service.price}` : ''}</span>
-                  </div>
-                ))}
-              </div>
+    <div style={{ display: "flex", minHeight: "100vh", background: "#FFFDE7" }}>
+      <div style={{ flex: 1, padding: "24px 32px" }}>
+        <h1 style={{ marginBottom: 8, color: "#C8102E", textAlign: 'center' }}>
+          <span style={{ color: '#C8102E' }}>🐾</span> <span style={{ color: '#C8102E' }}>Pet Services</span>
+        </h1>
+        <p style={{ color: "#C8102E", marginBottom: 24, textAlign: 'center' }}>
+          Book trusted pet care, grooming, training, and more for your pets in RR Nagar.
+        </p>
+        {Object.entries(grouped).map(([variety, items]) => (
+          <div key={variety} style={{ marginBottom: 32, background: '#FFF9C4', borderRadius: 12, padding: 12 }}>
+            <h2 style={{ borderBottom: '2px solid #C8102E', paddingBottom: 6, color: '#C8102E', fontSize: 20, textAlign: 'center' }}>{variety}</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 16, marginTop: 16 }}>
+              {items.map((service) => (
+                <ProductCard
+                  key={service.id}
+                  product={{
+                    id: service.id,
+                    title: service.name,
+                    titleKannada: service.kn,
+                    knDisplay: service.kn,
+                    price: service.price,
+                    image: service.image,
+                    emoji: service.emoji,
+                    category: service.category,
+                    description: service.priceType ? `${service.priceType}${service.price ? `: ₹${service.price}` : ''}` : undefined,
+                  }}
+                  style={{ background: '#FFF9C4', color: '#C8102E' }}
+                  textColor="#C8102E"
+                  emojiColor="#C8102E"
+                  onClick={() => addItemToBag(service)}
+                />
+              ))}
             </div>
-          ))}
-        </div>
-        {/* RIGHT: CART */}
-        <CartPanel orderType="PET_SERVICES" />
+          </div>
+        ))}
       </div>
-    </CrackerCartProvider>
+      <CartPanel orderType="PET_SERVICES" />
+    </div>
   );
 }

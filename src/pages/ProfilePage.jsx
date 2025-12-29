@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api/client";
 import "./ProfilePage.css";
 
 export default function ProfilePage() {
@@ -11,7 +11,7 @@ export default function ProfilePage() {
 
   async function loadProfile() {
     try {
-      const res = await axios.get("/api/customer/profile");
+      const res = await api.get("/customers/profile");
       setProfile(res.data);
     } catch (err) {
       console.error("Profile Load Error:", err);

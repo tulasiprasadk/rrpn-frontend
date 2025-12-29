@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import {
   FiMenu,
   FiX,
@@ -13,9 +14,10 @@ import {
 } from "react-icons/fi";
 import "./Sidebar.css";
 
-export default function Sidebar() {
+function Sidebar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
+  const { logout } = useAuth();
 
   const isActive = (path) => location.pathname === path;
 
@@ -30,7 +32,7 @@ export default function Sidebar() {
       {open && <div className="sidebar-overlay" onClick={() => setOpen(false)} />}
 
       {/* Sidebar */}
-      <aside className={`sidebar ${open ? "open" : ""}`}>
+      <aside className={`sidebar ${open ? "open" : ""}`}> 
 
         {/* Close Button — mobile */}
         <div className="sidebar-close" onClick={() => setOpen(false)}>
@@ -45,7 +47,7 @@ export default function Sidebar() {
 
         {/* Menu Items */}
         <nav className="sidebar-menu">
-          <Link to="/dashboard" className={isActive("/dashboard") ? "active" : ""}>
+          <Link to="/customer/dashboard" className={isActive("/customer/dashboard") ? "active" : ""}>
             <FiHome /> Dashboard
           </Link>
 
@@ -69,7 +71,7 @@ export default function Sidebar() {
             <FiUser /> My Profile
           </Link>
 
-          <button className="logout-btn">
+          <button className="logout-btn" onClick={() => { logout(); window.location.href = "/"; }}>
             <FiLogOut /> Logout
           </button>
         </nav>
@@ -77,3 +79,5 @@ export default function Sidebar() {
     </>
   );
 }
+
+export default Sidebar;

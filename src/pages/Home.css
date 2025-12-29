@@ -189,7 +189,7 @@
 .ads-track,
 .discover-track {
   display: flex;
-  gap: 24px;
+  gap: 12px;
 }
 
 /* ---------- ADS ---------- */
@@ -239,10 +239,11 @@
 }
 
 .discover-item {
-  width: 220px;
+  width: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0;
 }
 
 /* =================================================
@@ -308,6 +309,8 @@
 
   .ad-item,
   .discover-item {
-    width: 90vw;
+    width: 92vw;
+    max-width: 200px;
+    margin: 0 auto;
   }
 }

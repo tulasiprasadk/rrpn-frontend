@@ -1,11 +1,9 @@
-import { useState } from "react";
-import axios from "axios";
-import { useNavigate, useLocation } from "react-router-dom";
-import { API_BASE } from "../api/client";
+import api from "../api/client";
 
 export default function CustomerVerify() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { login } = useAuth();
 
   const email = location.state?.email || "";
   // const [otp, setOtp] = useState("");
@@ -20,24 +18,34 @@ export default function CustomerVerify() {
   });
 
   const handleVerify = async () => {
+    console.log('[CustomerVerify] handleVerify called for email:', email);
     try {
       // Call backend with just email (no OTP)
-      const res = await axios.post(`${API_BASE}/auth/verify-email-otp`, { email }, { withCredentials: true });
-
-      // Check if user has saved addresses
-      try {
-        const addressRes = await axios.get(`${API_BASE}/customer/address`, { withCredentials: true });
-        if (addressRes.data && addressRes.data.length > 0) {
-          navigate("/dashboard");
-        } else {
-          setShowAddressForm(true);
-        }
-      } catch (err) {
-        if (res.data.isNewUser) {
-          setShowAddressForm(true);
-        } else {
-          navigate("/dashboard");
-        }
+      const res = await api.post("/auth/verify-email-otp", { email });
+      // Assume backend returns { user, token }
+      if (res.data && res.data.token && res.data.user) {
+        console.log('[CustomerVerify] login() called with:', res.data.user, res.data.token);
+        login(res.data.user, res.data.token);
+        localStorage.setItem("token", res.data.token);
+        // Wait for next tick to ensure auth state is set
+        setTimeout(async () => {
+          try {
+            const addressRes = await api.get("/customer/address");
+            if (addressRes.data && addressRes.data.length > 0) {
+              navigate("/customer/dashboard");
+            } else {
+              setShowAddressForm(true);
+            }
+          } catch (err) {
+            if (res.data.isNewUser) {
+              setShowAddressForm(true);
+            } else {
+              navigate("/customer/dashboard");
+            }
+          }
+        }, 0);
+      } else {
+        console.log('[CustomerVerify] No user/token in response:', res.data);
       }
     } catch (err) {
       console.error(err);
@@ -54,9 +62,9 @@ export default function CustomerVerify() {
 
       console.log("Submitting address:", address);
       
-      const response = await axios.post(`${API_BASE}/customer/address`, {
+      const response = await api.post("/customer/address", {
         ...address,
-      }, { withCredentials: true });
+      });
 
       console.log("Address saved:", response.data);
       alert("Address saved successfully!");

@@ -1,40 +1,29 @@
-.browse-page {
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-}
-
-.browse-title {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
+/* All styles migrated to theme.css. Use .card, .title, .button, .price, .muted, etc. from theme.css */
 .browse-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 16px;
 }
+/* ==============================
+   GROCERIES GROUP HEADERS
+============================== */
 
-.browse-card {
-  border: 1px solid #eee;
-  border-radius: 10px;
+.grocery-group {
+  margin-bottom: 48px;
+}
+
+.grocery-group-title {
+  margin-bottom: 16px;
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  background: #fff3b0;
   padding: 12px;
-  cursor: pointer;
-  background: #fff;
-  transition: transform 0.15s ease;
+  border-radius: 10px;
 }
 
-.browse-card:hover {
-  transform: translateY(-2px);
+.products-grid {
+  position: relative;
+  z-index: 1;
 }
 
-.browse-card img {
-  width: 100%;
-  height: 140px;
-  object-fit: cover;
-  border-radius: 8px;
-}
-
-.price {
-  font-weight: 600;
-}

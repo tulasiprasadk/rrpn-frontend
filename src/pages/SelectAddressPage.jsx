@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../api/client";
 import { useNavigate } from "react-router-dom";
 
 export default function SelectAddressPage() {
@@ -12,7 +13,7 @@ export default function SelectAddressPage() {
     try {
       setLoading(true);
       setError("");
-      const res = await axios.get("/api/customer/address");
+      const res = await axios.get(`${API_BASE}/customer/address`);
       console.log("Addresses loaded:", res.data);
       setList(res.data);
     } catch (err) {

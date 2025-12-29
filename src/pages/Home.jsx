@@ -6,8 +6,10 @@ import axios from "axios";
 
 import "./Home.css";
 import ExploreItem from "../components/ExploreItem";
+import DiscoverPopup from "../components/DiscoverPopup";
 import MegaAd from "../components/MegaAd";
-import { API_BASE } from "../api/client";
+import api from "../api/client";
+import ProductCard from "../components/ProductCard";
 
 /* ================= ANALYTICS (GA4) ================= */
 const GA_MEASUREMENT_ID = "G-XXXXXXXXXX";
@@ -95,7 +97,7 @@ export default function Home() {
 
   async function loadProducts() {
     try {
-      const res = await axios.get(`${API_BASE}/products`);
+      const res = await api.get("/products");
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setProducts([]);
@@ -103,7 +105,7 @@ export default function Home() {
     }
   }
 
-  async function addToCart(product) {
+  async function addToBag(product) {
     setAddingToCart(product.id);
     try {
       const cart = JSON.parse(localStorage.getItem("cart") || "[]");
@@ -115,7 +117,7 @@ export default function Home() {
       localStorage.setItem("cart", JSON.stringify(cart));
       alert(`✓ ${product.title} added to cart`);
     } catch {
-      alert("Failed to add to cart");
+      alert("Failed to add to bag");
     } finally {
       setAddingToCart(null);
     }
@@ -130,7 +132,7 @@ export default function Home() {
 
   async function loadCategories() {
     try {
-      const res = await axios.get(`${API_BASE}/categories`);
+      const res = await api.get("/categories");
       const data = Array.isArray(res.data) ? res.data : [];
 
       if (!data.length) {
@@ -164,7 +166,7 @@ export default function Home() {
     const name = category.name?.toLowerCase() || "";
     if (name.includes("flower")) return navigate("/flowers");
     if (name.includes("cracker")) return navigate("/crackers");
-    // Removed groceries special-case so it falls through to browse
+    if (name.includes("groc")) return navigate("/groceries");
     if (name.includes("pet")) return navigate("/petservices");
     if (name.includes("local")) return navigate("/localservices");
     if (name.includes("consult")) return navigate("/consultancy");
@@ -183,12 +185,15 @@ export default function Home() {
 
   /* ================= DISCOVER ================= */
   const discover = [
-    { title: "Temples", titleKannada: "ದೇವಾಲಯಗಳು", desc: "Spiritual places", icon: "🛕" },
-    { title: "Parks", titleKannada: "ಉದ್ಯಾನಗಳು", desc: "Green spaces", icon: "🌳" },
-    { title: "IT Parks", titleKannada: "ಐಟಿ ಉದ್ಯಾನಗಳು", desc: "Tech hubs", icon: "💻" },
-    { title: "Education", titleKannada: "ಶಿಕ್ಷಣ", desc: "Schools & colleges", icon: "🎓" },
-    { title: "Entertainment", titleKannada: "ಮನರಂಜನೆ", desc: "Fun places", icon: "🎭" },
+    { title: "Temples", titleKannada: "ದೇವಾಲಯಗಳು", desc: "Spiritual places", icon: "🛕", longInfo: "Temples are a vital part of RR Nagar's culture, offering spiritual solace and community events.", longInfoKannada: "ದೇವಾಲಯಗಳು ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಆಧ್ಯಾತ್ಮಿಕತೆ ಮತ್ತು ಸಮುದಾಯದ ಕೇಂದ್ರಗಳಾಗಿವೆ." },
+    { title: "Parks", titleKannada: "ಉದ್ಯಾನಗಳು", desc: "Green spaces", icon: "🌳", longInfo: "RR Nagar is home to several parks, perfect for morning walks, play, and relaxation.", longInfoKannada: "ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಹಲವಾರು ಉದ್ಯಾನಗಳು ಇವೆ, ವಿಶ್ರಾಂತಿ ಮತ್ತು ಆಟಕ್ಕೆ ಸೂಕ್ತವಾದವು." },
+    { title: "IT Parks", titleKannada: "ಐಟಿ ಉದ್ಯಾನಗಳು", desc: "Tech hubs", icon: "💻", longInfo: "IT Parks in RR Nagar drive innovation and provide jobs to many residents.", longInfoKannada: "ಐಟಿ ಉದ್ಯಾನಗಳು ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಉದ್ಯೋಗ ಮತ್ತು ನವೀನತೆಗೆ ಕಾರಣವಾಗಿವೆ." },
+    { title: "Education", titleKannada: "ಶಿಕ್ಷಣ", desc: "Schools & colleges", icon: "🎓", longInfo: "RR Nagar has top schools and colleges, making it a hub for quality education.", longInfoKannada: "ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಉತ್ತಮ ಶಾಲೆಗಳು ಮತ್ತು ಕಾಲೇಜುಗಳಿವೆ." },
+    { title: "Entertainment", titleKannada: "ಮನರಂಜನೆ", desc: "Fun places", icon: "🎭", longInfo: "Enjoy movies, events, and fun activities in RR Nagar's entertainment spots.", longInfoKannada: "ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಮನರಂಜನೆಗೆ ಹಲವಾರು ಅವಕಾಶಗಳಿವೆ." },
   ];
+  // Discover popup state
+  const [popup, setPopup] = useState({ open: false, item: null, anchor: null });
+  const discoverItemRefs = useRef([]);
 
   const discoverRef = useRef(null);
   const [scrollWidth, setScrollWidth] = useState(0);
@@ -282,9 +287,26 @@ export default function Home() {
             >
               {[...discover, ...discover].map((item, i) => (
                 <div className="discover-item" key={i}>
-                  <ExploreItem {...item} />
+                  <ExploreItem
+                    {...item}
+                    ref={el => discoverItemRefs.current[i] = el}
+                    onClick={() => setPopup({ open: true, item, anchor: { current: discoverItemRefs.current[i] } })}
+                  />
                 </div>
               ))}
+              {popup.open && (
+                <>
+                  <div
+                    style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.08)' }}
+                    onClick={() => setPopup({ open: false, item: null, anchor: null })}
+                  />
+                  <DiscoverPopup
+                    item={popup.item}
+                    anchorRef={popup.anchor}
+                    onClose={() => setPopup({ open: false, item: null, anchor: null })}
+                  />
+                </>
+              )}
             </div>
           </div>
         </section>
@@ -297,20 +319,10 @@ export default function Home() {
               <div
                 key={product.id}
                 className="product-card"
-                onClick={() => navigate(`/product/${product.id}`)}
+                onClick={() => addToBag(product)}
+                style={{ cursor: 'pointer' }}
               >
-                <img src={product.image} alt={product.title} />
-                <h3>{product.title}</h3>
-                <p>₹{product.price}</p>
-                <button
-                  disabled={addingToCart === product.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addToCart(product);
-                  }}
-                >
-                  {addingToCart === product.id ? "Adding…" : "Add to cart"}
-                </button>
+                <ProductCard product={products.find(p => p.id === product.id) || product} />
               </div>
             ))}
           </div>

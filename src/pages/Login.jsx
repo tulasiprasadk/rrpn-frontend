@@ -1,7 +1,6 @@
 // frontend/src/pages/Login.jsx
 
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../api/client";
 
@@ -53,7 +52,7 @@ export default function Login() {
 
       <div style={{ marginTop: 30, textAlign: 'center' }}>
         <a
-          href="/api/customers/auth/google"
+          href={`${API_BASE}/customers/auth/google`}
           style={{
             display: 'inline-block',
             padding: '10px 20px',

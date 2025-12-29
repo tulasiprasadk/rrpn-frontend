@@ -1,6 +1,6 @@
 // Overwrite the bulk upload to compute supplier/platform prices before upload
 import React, { useState } from "react";
-import { post, API_BASE } from "../api/client";
+import { post } from "../api/client";
 import { parsePrice, applyMargin, formatPrice } from "../utils/price";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";

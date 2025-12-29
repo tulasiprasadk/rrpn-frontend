@@ -3,10 +3,13 @@
 const BASE = import.meta.env.VITE_API_BASE || "/api";
 
 // Get all products or search by keyword
-export async function getProducts(query = "") {
+export async function getProducts(query = "", categoryId = "") {
   try {
-    const url = query
-      ? `${BASE}/products?q=${encodeURIComponent(query)}`
+    const params = [];
+    if (query) params.push(`q=${encodeURIComponent(query)}`);
+    if (categoryId) params.push(`categoryId=${encodeURIComponent(categoryId)}`);
+    const url = params.length
+      ? `${BASE}/products?${params.join("&")}`
       : `${BASE}/products`;
 
     const res = await fetch(url);

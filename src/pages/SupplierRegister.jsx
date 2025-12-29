@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from "../api/client";
 import "./SupplierRegister.css";
 
 export default function SupplierRegister() {
@@ -107,7 +108,7 @@ export default function SupplierRegister() {
         formData.append("idProof", files.idProof);
       }
 
-      const response = await axios.post("/api/suppliers/register", formData, {
+      const response = await axios.post(`${API_BASE}/suppliers/register`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
       });
 

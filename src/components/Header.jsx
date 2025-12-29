@@ -1,11 +1,16 @@
 // frontend/src/components/Header.jsx
+
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import "./Header.css";
 import logo from "../assets/logo.png";
+import { useAuth } from "../context/AuthContext";
+
 
 export default function Header() {
   const [bagCount, setBagCount] = useState(0);
+  const { user, logout } = useAuth();
+  const navigate = window.location && window.location.pathname ? null : null; // placeholder for useNavigate if needed
 
   // 🔁 Update bag count from localStorage
   const updateBagCount = () => {
@@ -27,17 +32,33 @@ export default function Header() {
     <header>
       <div className="rn-topbar">
         <div className="rn-logo-wrap">
-          <Link to="/" className="rn-logo-link">
+          <Link to="/" className="rn-logo-link" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textDecoration: 'none'}}>
             <img src={logo} alt="RR Nagar" className="rn-logo" />
-            <div className="rn-subtitle">
-              RR ನಗರದ ಹೊಸ ಡಿಜಿಟಲ್ ಅನುಭವ
-            </div>
+            
+            <div style={{marginTop: 0, color: '#111', fontSize: 16, fontFamily: 'Noto Sans Kannada, system-ui, sans-serif'}}>ತಾಜಾ, ತ್ವರಿತ, ತೃಪ್ತಿಕರ</div>
+            <div style={{marginTop: 0, color: '#888', fontSize: 14, fontWeight: 500}}>Fresh. Fast. Fulfillment.</div>
           </Link>
         </div>
         <nav className="rn-nav">
           <Link className="rn-nav-item" to="/">Home</Link>
           <Link className="rn-nav-item" to="/blog">Blog</Link>
-          <Link className="rn-nav-item" to="/login">Login</Link>
+          {user ? (
+            <>
+              <Link className="rn-nav-item" to="/customer/dashboard">Dashboard</Link>
+              <button
+                className="rn-nav-item"
+                onClick={() => {
+                  logout();
+                  window.location.href = "/";
+                }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer' }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <Link className="rn-nav-item" to="/login">Login</Link>
+          )}
           <Link className="rn-nav-item cart-link" to="/bag">
             🛍️ Bag
             {bagCount > 0 && (

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../api/client";
 import { useNavigate } from "react-router-dom";
 
 export default function MyOrdersPage() {
@@ -8,7 +9,7 @@ export default function MyOrdersPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await axios.get("/api/orders");
+      const res = await axios.get(`${API_BASE}/orders`);
       setOrders(res.data);
     }
     load();

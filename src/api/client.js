@@ -1,30 +1,23 @@
-// frontend/src/api/client.js
 
-const API_BASE = '/api';
 
-export { API_BASE };
+import axios from "axios";
 
-export async function post(endpoint, body) {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include',
-    body: JSON.stringify(body),
-  });
+export const API_BASE =
+  import.meta.env.VITE_API_BASE || "http://localhost:3000/api";
 
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || res.status);
+const api = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+});
+
+// Attach Authorization header with JWT from localStorage
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers = config.headers || {};
+    config.headers["Authorization"] = `Bearer ${token}`;
   }
+  return config;
+});
 
-  return res.json();
-}
-
-export async function get(endpoint) {
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    credentials: 'include',
-  });
-
-  if (!res.ok) throw new Error(res.status);
-  return res.json();
-}
+export default api;

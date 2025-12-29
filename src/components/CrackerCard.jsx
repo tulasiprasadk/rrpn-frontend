@@ -30,7 +30,7 @@ export default function CrackerCard({ product }) {
           cursor: "pointer"
         }}
       >
-        Add to Cart
+        Add to bag
       </button>
     </div>
   );

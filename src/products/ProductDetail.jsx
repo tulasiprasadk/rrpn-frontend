@@ -30,7 +30,7 @@ export default function ProductDetail() {
             ))}
           </div>
           <div style={{ marginTop:12 }}>
-            <button disabled={variant.stock === 0}>Add to cart</button>
+            <button disabled={variant.stock === 0}>Add to bag</button>
           </div>
         </div>
       </div>

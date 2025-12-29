@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../api/client";
 import { useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {
@@ -11,7 +12,7 @@ export default function ProfilePage() {
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get("/api/customer/profile");
+      const res = await axios.get(`${API_BASE}/customer/profile`);
       setForm({
         name: res.data.name || "",
         email: res.data.email || "",
@@ -27,7 +28,7 @@ export default function ProfilePage() {
 
   const saveProfile = async () => {
     try {
-      await axios.put("/api/customer/profile", form);
+      await axios.put(`${API_BASE}/customer/profile`, form);
 
       // Show quick toast
       alert("Profile updated successfully!");

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../../api/client";
 
 export default function SupplierOrders() {
   const [orders, setOrders] = useState([]);
 
   const load = async () => {
-    const res = await axios.get("/api/supplier/orders");
+    const res = await axios.get(`${API_BASE}/supplier/orders`);
     setOrders(res.data);
   };
 

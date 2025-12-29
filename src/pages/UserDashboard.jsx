@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { API_BASE } from "../api/client";
 import { useNavigate } from "react-router-dom";
 import "./UserDashboard.css";
 
@@ -24,7 +25,7 @@ export default function UserDashboard() {
     const reqConfig = { withCredentials: true };
 
     try {
-      const profileRes = await axios.get("/api/customer/profile", reqConfig);
+      const profileRes = await axios.get(`${API_BASE}/customer/profile`, reqConfig);
       setProfile(profileRes.data);
     } catch (err) {
       console.log("Dashboard profile load error:", err);

@@ -1,3 +1,5 @@
+import OAuthSuccess from "./pages/OAuthSuccess";
+import ProtectedRoute from "./ProtectedRoute.jsx";
 // import HomeCompare from "./pages/HomeCompare.jsx";
 import Groceries from "./pages/Groceries.jsx";
 import LocalServices from "./pages/LocalServices.jsx";
@@ -12,6 +14,7 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import { CrackerCartProvider } from "./context/CrackerCartContext";
 import { QuickCartProvider } from "./context/QuickCartContext";
+import { AuthProvider } from "./context/AuthContext";
 
 /* LAYOUT */
 import Header from "./components/Header";
@@ -22,10 +25,11 @@ import WhatsAppFloating from "./components/WhatsAppFloating";
 import Home from "./pages/Home.jsx";
 import Crackers from "./pages/Crackers.jsx";
 import Flowers from "./pages/Flowers.jsx";
+
 import ProductBrowser from "./pages/ProductBrowser.jsx";
 import ProductDetail from "./pages/ProductDetail/ProductDetail.jsx";
 import Products from "./pages/Products.jsx";
-import CartPage from "./pages/CartPage.jsx";
+import BagPage from "./pages/CartPage.jsx";
 import CheckoutReview from "./pages/CheckoutReview.jsx";
 import OrderSuccess from "./pages/OrderSuccess/OrderSuccess.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
@@ -38,6 +42,7 @@ import AddressManagerPage from "./pages/AddressManagerPage.jsx";
 import ProfileEditPage from "./pages/ProfileEditPage.jsx";
 import SavedSuppliersPage from "./pages/SavedSuppliersPage.jsx";
 import UserDashboard from "./pages/UserDashboard.jsx";
+import CustomerDashboard from "./pages/CustomerDashboard.jsx";
 import MyOrdersPage from "./pages/MyOrdersPage.jsx";
 import OrderDetailPage from "./pages/OrderDetailPage.jsx";
 import SelectAddressPage from "./pages/SelectAddressPage.jsx";
@@ -90,9 +95,12 @@ function AppWrapper() {
 
       <div style={{ minHeight: "80vh" }}>
         <Routes>
+          {/* OAUTH BRIDGE PAGE (must be outside ProtectedRoute) */}
+          <Route path="/oauth-success" element={<OAuthSuccess />} />
           {/* USER */}
           <Route path="/" element={<Home />} />
           <Route path="/browse" element={<ProductBrowser />} />
+          <Route path="/groceries" element={<Groceries />} />
           <Route path="/products" element={<Products />} />
           <Route path="/dashboard" element={<UserDashboard />} />
           <Route path="/saved-suppliers" element={<SavedSuppliersPage />} />
@@ -125,11 +133,18 @@ function AppWrapper() {
 
           {/* CART */}
           <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<CartPage />} />
+          <Route path="/bag" element={<BagPage />} />
           <Route path="/checkout" element={<CheckoutReview />} />
           <Route path="/order-success/:orderId" element={<OrderSuccess />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment-success" element={<PaymentSubmitted />} />
+
+          {/* CUSTOMER DASHBOARD (for Google OAuth and direct navigation) */}
+          <Route path="/customer/dashboard" element={
+            <ProtectedRoute>
+              <CustomerDashboard />
+            </ProtectedRoute>
+          } />
 
           {/* LEGAL */}
           <Route path="/privacy" element={<PrivacyPolicy />} />

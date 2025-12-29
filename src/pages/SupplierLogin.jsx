@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_BASE } from "../api/client";
 import GoogleSignInButton from "../components/GoogleSignInButton";
   // Google OAuth handler
   function handleGoogleSignIn() {
@@ -38,7 +39,7 @@ export default function SupplierLogin() {
     }
 
     try {
-      const res = await axios.post("/api/suppliers/login", { phone: form.phone, password: form.password }, { withCredentials: true });
+      const res = await axios.post(`${API_BASE}/suppliers/login`, { phone: form.phone, password: form.password }, { withCredentials: true });
       if (res.data.ok) {
         setSuccess("Login successful!");
         navigate("/supplier/dashboard");

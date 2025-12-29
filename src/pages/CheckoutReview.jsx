@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_BASE } from "../api/client";
+import api from "../api/client";
 
 export default function CheckoutReview() {
   const location = useLocation();
@@ -21,20 +21,20 @@ export default function CheckoutReview() {
         
         // Load address
         try {
-          const res = await axios.get(`${API_BASE}/customer/address`);
-          const list = res.data;
-          const def = list.find((a) => a.isDefault) || null;
+          const res = await api.get("/customer/address");
+          const list = Array.isArray(res.data) ? res.data : [];
+          const def = list.find((a) => a.isDefault) || list[0] || null;
           setDefaultAddress(def);
         } catch (addrErr) {
           console.error("Address loading error:", addrErr);
-          console.error("Response status:", addrErr.response?.status);
-          console.error("Response data:", addrErr.response?.data);
-          
           if (addrErr.response?.status === 401) {
             setError("Please log in to proceed with checkout");
             setTimeout(() => navigate("/login"), 2000);
           } else if (addrErr.code === 'ERR_NETWORK') {
             setError("Cannot connect to server. Please check if the backend is running.");
+          } else if (addrErr.response?.status === 404) {
+            // No address found, but do not block checkout
+            setDefaultAddress(null);
           } else {
             setError(`Failed to load address: ${addrErr.response?.data?.error || addrErr.message}`);
           }
@@ -75,7 +75,7 @@ export default function CheckoutReview() {
       };
 
       console.log("Creating order:", order);
-      const res = await axios.post(`${API_BASE}/orders/create`, order);
+      const res = await api.post("/orders/create", order);
       
       console.log("Order created:", res.data);
       
@@ -97,13 +97,13 @@ export default function CheckoutReview() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Checkout</h2>
+    <div style={{ padding: 20, background: '#FFFDE7', minHeight: '100vh', borderRadius: '18px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}>
+      <h2 style={{ background: '#FFF9C4', padding: '12px 0', borderRadius: '10px', textAlign: 'center', marginBottom: 18 }}>Checkout</h2>
 
       {loading && <div style={{ color: "#666" }}>Loading...</div>}
 
       {error && (
-        <div style={{ color: "crimson", marginBottom: 12, padding: 8, border: "1px solid crimson", borderRadius: 4 }}>
+        <div style={{ color: "crimson", marginBottom: 12, padding: 8, border: "1px solid crimson", borderRadius: 4, background: '#FFF9C4' }}>
           {error}
           {error.includes("log in") && (
             <div style={{ marginTop: 8 }}>
@@ -115,7 +115,7 @@ export default function CheckoutReview() {
 
       {!loading && !error && (
         <>
-          <h3>Delivery Address</h3>
+          <h3 style={{ background: '#FFF9C4', padding: '8px 0', borderRadius: '8px', textAlign: 'center', marginBottom: 12 }}>Delivery Address</h3>
 
           {selectedAddress ? (
             <div
@@ -124,6 +124,7 @@ export default function CheckoutReview() {
                 padding: 15,
                 borderRadius: 8,
                 marginBottom: 10,
+                background: '#FFF9C4'
               }}
             >
               <strong>{selectedAddress.name}</strong> ({selectedAddress.phone})
@@ -144,11 +145,11 @@ export default function CheckoutReview() {
             Change Address
           </button>
 
-          <h3>Order Summary</h3>
+          <h3 style={{ background: '#FFF9C4', padding: '8px 0', borderRadius: '8px', textAlign: 'center', marginBottom: 12 }}>Order Summary</h3>
           {cart.length === 0 ? (
             <p style={{ color: "#999" }}>Your cart is empty</p>
           ) : (
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 20, background: '#FFF9C4', borderRadius: 10, padding: 18, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
               {cart.map((item, idx) => (
                 <div
                   key={idx}
@@ -159,7 +160,8 @@ export default function CheckoutReview() {
                     borderRadius: 5,
                     display: "flex",
                     justifyContent: "space-between",
-                    alignItems: "center"
+                    alignItems: "center",
+                    background: '#FFFDE7'
                   }}
                 >
                   <div>
