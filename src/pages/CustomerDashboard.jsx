@@ -1,10 +1,7 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-<<<<<<< HEAD
 import { API_BASE } from "../api/client";
-=======
->>>>>>> f97d87f8dce02737794187fb19e67f7d7827a941
 import "../components/dashboard/StatCard.css";
 import "../components/dashboard/Sidebar.css";
 import "../components/dashboard/ProfileCard.css";
@@ -24,11 +21,7 @@ const CustomerDashboard = () => {
     if (!user) {
       const token = localStorage.getItem("token");
       if (token) {
-<<<<<<< HEAD
         axios.get(`${API_BASE}/auth/me`, { headers: { Authorization: `Bearer ${token}` } })
-=======
-        axios.get("/api/auth/me", { headers: { Authorization: `Bearer ${token}` } })
->>>>>>> f97d87f8dce02737794187fb19e67f7d7827a941
           .then(res => {
             if (res.data && res.data.loggedIn && res.data.customer) {
               login(res.data.customer, token);
