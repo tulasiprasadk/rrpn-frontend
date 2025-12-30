@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAdminAuth } from "../../../context/AdminAuthContext";
-import { API_BASE } from "../api/client";
+import { API_BASE } from "../config/api";
 
 const AdminProductsList = () => {
   const { adminToken } = useAdminAuth();

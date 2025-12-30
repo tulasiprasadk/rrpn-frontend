@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { API_BASE } from "../../api/client";
+import { API_BASE } from "../../config/api";
 import SupplierFilterBar from "../../components/admin/supplier/SupplierFilterBar";
 import OverviewCards from "../../components/admin/supplier/OverviewCards";
 import SupplierTable from "../../components/admin/supplier/SupplierTable";

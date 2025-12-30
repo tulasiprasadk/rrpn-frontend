@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { API_BASE } from "../api/client";
+import { API_BASE } from "../config/api";
 import { useNavigate } from "react-router-dom";
 
 export default function ProfilePage() {

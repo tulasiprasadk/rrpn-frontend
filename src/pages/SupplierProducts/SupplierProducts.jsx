@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./SupplierProducts.css";
-import { API_BASE } from "../../api/client";
+import { API_BASE } from "../../config/api";
 
 function SupplierProducts() {
   const [products, setProducts] = useState([]);

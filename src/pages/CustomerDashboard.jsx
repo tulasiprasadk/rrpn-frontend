@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import axios from "axios";
-import { API_BASE } from "../api/client";
+import { API_BASE } from "../config/api";
 import "../components/dashboard/StatCard.css";
 import "../components/dashboard/Sidebar.css";
 import "../components/dashboard/ProfileCard.css";

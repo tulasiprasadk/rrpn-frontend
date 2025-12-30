@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_BASE } from "../api/client";
+import { API_BASE } from "../config/api";
 
 /**
  * OTP confirmation page.

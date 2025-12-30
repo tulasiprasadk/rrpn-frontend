@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./EditProduct.css";
-import { API_BASE } from "../../api/client";
+import { API_BASE } from "../../config/api";
 
 export default function EditProduct() {
   const { productId } = useParams();

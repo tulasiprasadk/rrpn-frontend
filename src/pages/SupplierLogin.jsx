@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { API_BASE } from "../api/client";
+import { API_BASE } from "../config/api";
 import GoogleSignInButton from "../components/GoogleSignInButton";
   // Google OAuth handler
   function handleGoogleSignIn() {

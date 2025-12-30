@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import { API_BASE } from "../api/client";
+import { API_BASE } from "../config/api";
 import imageCompression from "browser-image-compression";
 import { useLocation, useNavigate } from "react-router-dom";
 

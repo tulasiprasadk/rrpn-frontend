@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { API_BASE } from "../../api/client";
+import { API_BASE } from "../../config/api";
 // ...existing code...
 import "./ProductDetail.css";
 

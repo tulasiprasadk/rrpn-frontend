@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { API_BASE } from "../../api/client";
+import { API_BASE } from "../../config/api";
 
 export default function SupplierCompare() {
   const [suppliers, setSuppliers] = useState([]);
