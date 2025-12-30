@@ -1,6 +1,7 @@
 // frontend/src/pages/admin/varieties/AdminVarietiesList.jsx
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_BASE } from "../../../config/api";
 import { Link, useNavigate } from "react-router-dom";
 import "./AdminVarietiesList.css";
 
@@ -26,7 +27,7 @@ export default function AdminVarietiesList() {
 
   async function loadCategories() {
     try {
-      const res = await axios.get('/api/categories');
+      const res = await axios.get(`${API_BASE}/categories`);
       setCategories(res.data);
     } catch (err) {
       console.error('Error loading categories:', err);

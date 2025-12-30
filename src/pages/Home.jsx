@@ -9,6 +9,7 @@ import ExploreItem from "../components/ExploreItem";
 import DiscoverPopup from "../components/DiscoverPopup";
 import MegaAd from "../components/MegaAd";
 import api from "../api/client";
+import { API_BASE } from "../config/api";
 import ProductCard from "../components/ProductCard";
 
 /* ================= ANALYTICS (GA4) ================= */
@@ -97,7 +98,7 @@ export default function Home() {
 
   async function loadProducts() {
     try {
-      const res = await api.get("/products");
+      const res = await api.get(`${API_BASE}/products`);
       setProducts(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       setProducts([]);
@@ -132,7 +133,7 @@ export default function Home() {
 
   async function loadCategories() {
     try {
-      const res = await api.get("/categories");
+      const res = await api.get(`${API_BASE}/categories`);
       const data = Array.isArray(res.data) ? res.data : [];
 
       if (!data.length) {

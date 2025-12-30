@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_BASE } from '../../config/api';
 
 export default function ProductTranslator() {
   const [products, setProducts] = useState([]);
@@ -17,7 +18,7 @@ export default function ProductTranslator() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get('/api/products', { withCredentials: true });
+      const res = await axios.get(`${API_BASE}/products`, { withCredentials: true });
       setProducts(res.data);
     } catch (err) {
       console.error('Error fetching products:', err);
