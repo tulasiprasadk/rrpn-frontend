@@ -4,4 +4,5 @@ if (!BASE) {
   throw new Error("❌ VITE_API_BASE is not defined");
 }
 
-export const API_BASE = `${BASE}/api`;
+// ❗ DO NOT append /api here
+export const API_BASE = BASE;
