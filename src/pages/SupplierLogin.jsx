@@ -6,9 +6,9 @@ import axios from "axios";
 import { API_BASE } from "../config/api";
 import GoogleSignInButton from "../components/GoogleSignInButton";
   // Google OAuth handler
-  function handleGoogleSignIn() {
-    window.location.href = "/api/suppliers/auth/google";
-  }
+function handleGoogleSignIn() {
+  window.location.href = `${API_BASE}/api/suppliers/auth/google`;
+}
 
 export default function SupplierLogin() {
   const [form, setForm] = useState({ phone: "", password: "" });
