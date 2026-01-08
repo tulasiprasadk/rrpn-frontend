@@ -35,9 +35,17 @@ function useGoogleAnalytics() {
 }
 
 /* ================= HERO IMAGES ================= */
+import hero1_400 from "../assets/hero-1-400.jpg";
+import hero1_800 from "../assets/hero-1-800.jpg";
 import hero1 from "../assets/hero-1.jpg";
+import hero2_400 from "../assets/hero-2-400.jpg";
+import hero2_800 from "../assets/hero-2-800.jpg";
 import hero2 from "../assets/hero-2.jpg";
+import hero3_400 from "../assets/hero-3-400.jpg";
+import hero3_800 from "../assets/hero-3-800.jpg";
 import hero3 from "../assets/hero-3.jpg";
+import hero4_400 from "../assets/hero-4-400.jpg";
+import hero4_800 from "../assets/hero-4-800.jpg";
 import hero4 from "../assets/hero-4.jpg";
 
 /* ================= ADS ================= */
@@ -71,7 +79,12 @@ export default function Home() {
   const navigate = useNavigate();
 
   /* ================= HERO SLIDER ================= */
-  const heroImages = [hero1, hero2, hero3, hero4];
+  const heroImages = [
+    { src: hero1_800, srcSet: `${hero1_400} 400w, ${hero1_800} 800w, ${hero1} 1600w` },
+    { src: hero2_800, srcSet: `${hero2_400} 400w, ${hero2_800} 800w, ${hero2} 1600w` },
+    { src: hero3_800, srcSet: `${hero3_400} 400w, ${hero3_800} 800w, ${hero3} 1600w` },
+    { src: hero4_800, srcSet: `${hero4_400} 400w, ${hero4_800} 800w, ${hero4} 1600w` },
+  ];
   const [heroIndex, setHeroIndex] = useState(0);
   const [heroSrc, setHeroSrc] = useState(heroImages[0]);
 
@@ -276,7 +289,15 @@ export default function Home() {
         <section className="hero">
           <div className="hero-inner">
             <div className="hero-image">
-              <img src={heroSrc} alt="RR Nagar" loading="lazy" onError={(e)=>{ e.currentTarget.src = '/no-image.png'; e.currentTarget.style.objectFit='cover'; }} />
+              <img
+                src={heroSrc.src}
+                srcSet={heroSrc.srcSet}
+                sizes="(max-width: 800px) 100vw, 1200px"
+                alt="RR Nagar"
+                loading="eager"
+                decoding="async"
+                onError={(e)=>{ e.currentTarget.src = '/no-image.png'; e.currentTarget.style.objectFit='cover'; }}
+              />
             </div>
 
             <div className="hero-text">
