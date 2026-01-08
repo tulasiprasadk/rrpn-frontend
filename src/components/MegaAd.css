@@ -6,18 +6,14 @@
   width: 15vw;                 /* ✅ 15% of page width */
   max-width: 220px;            /* prevent oversized ads */
   min-width: 140px;            /* prevent too-small ads */
-
   height: 420px;               /* ✅ SAME HEIGHT (left & right) */
-
   background: #fffbe6;
   border-radius: 18px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.13);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 13%);
   border: 1.5px solid #ffe082; /* subtle border for debug */
-
   display: flex;
   align-items: center;
   justify-content: center;
-
   overflow: hidden;
   flex-shrink: 0;
   position: relative;
@@ -53,7 +49,7 @@
    (Hide ads on small screens)
 =================================== */
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .mega-ad {
     display: none;
   }

@@ -15,7 +15,7 @@
   display: flex;
   flex-direction: column;
   padding: 16px 12px;
-  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 4px 0 10px rgb(0 0 0 / 20%);
 }
 
 .admin-logo {
@@ -24,10 +24,10 @@
   margin-bottom: 24px;
   cursor: pointer;
   color: #fff;
-  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+  text-shadow: 1px 1px 3px rgb(0 0 0 / 50%);
   text-align: center;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgb(0 0 0 / 20%);
   border-radius: 8px;
 }
 
@@ -57,17 +57,17 @@
   text-decoration: none;
   color: #fff;
   display: block;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 30%);
   transition: all 0.2s ease;
 }
 
 .admin-nav-link:hover {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgb(0 0 0 / 20%);
   transform: translateX(4px);
 }
 
 .admin-nav-link.active {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgb(0 0 0 / 30%);
   color: #ffd600;
   font-weight: 700;
   border-left: 4px solid #ffd600;
@@ -82,7 +82,7 @@
   cursor: pointer;
   font-size: 14px;
   font-weight: 700;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgb(0 0 0 / 20%);
   color: #fff;
   transition: all 0.3s ease;
 }
@@ -90,7 +90,7 @@
 .admin-logout-btn:hover {
   background: #000;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 40%);
 }
 
 /* Main area */
@@ -104,19 +104,19 @@
 .admin-topbar {
   height: 56px;
   background: #ffd600;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+  border-bottom: 2px solid rgb(0 0 0 / 20%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 20px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
 }
 
 .admin-topbar-title {
   font-size: 18px;
   font-weight: 700;
   color: #000;
-  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+  text-shadow: 1px 1px 2px rgb(255 255 255 / 50%);
 }
 
 .admin-topbar-user {
@@ -143,13 +143,13 @@
   font-size: 14px;
   font-weight: 600;
   color: #000;
-  text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.5);
+  text-shadow: 1px 1px 2px rgb(255 255 255 / 50%);
 }
 
 /* Content */
 .admin-content {
   padding: 20px;
-  background: linear-gradient(to bottom, rgba(255, 214, 0, 0.35) 0%, rgba(255, 214, 0, 0.3) 40%, rgba(227, 30, 36, 0.25) 60%, rgba(227, 30, 36, 0.35) 100%) !important;
+  background: linear-gradient(to bottom, rgb(255 214 0 / 35%) 0%, rgb(255 214 0 / 30%) 40%, rgb(227 30 36 / 25%) 60%, rgb(227 30 36 / 35%) 100%) !important;
   min-height: calc(100vh - 56px);
   position: relative;
 }
@@ -165,14 +165,14 @@
   background: white;
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
   border-top: 4px solid #ffd600;
   transition: all 0.3s ease;
 }
 
 .admin-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(227, 30, 36, 0.3);
+  box-shadow: 0 8px 20px rgb(227 30 36 / 30%);
   border-top-color: #e31e24;
 }
 
@@ -197,7 +197,7 @@
   background: white;
   border-radius: 10px;
   padding: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
   overflow-x: auto;
   border-top: 4px solid #ffd600;
 }
@@ -258,7 +258,7 @@
 
 .admin-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
 }
 
 .admin-button.primary {
@@ -288,7 +288,7 @@
   background: #ffd600;
   padding: 3px;
   margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 15%);
 }
 
 .admin-tab {
@@ -304,13 +304,13 @@
 }
 
 .admin-tab:hover {
-  background: rgba(0, 0, 0, 0.1);
+  background: rgb(0 0 0 / 10%);
 }
 
 .admin-tab.active {
   background: #e31e24;
   color: white;
-  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.4);
+  box-shadow: 0 2px 8px rgb(227 30 36 / 40%);
 }
 
 /* Forms */
@@ -318,7 +318,7 @@
   background: white;
   border-radius: 10px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 15%);
   max-width: 500px;
   border-top: 4px solid #ffd600;
 }
@@ -352,7 +352,7 @@
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .admin-sidebar {
     display: none; /* for now; later you can add a mobile menu */
   }

@@ -25,7 +25,7 @@
 }
 
 /* Desktop view: sidebar always open */
-@media (min-width: 900px) {
+@media (width >= 900px) {
   .sidebar {
     transform: translateX(0) !important;
   }
@@ -96,7 +96,7 @@
   display: block;
 }
 
-@media (min-width: 900px) {
+@media (width >= 900px) {
   .sidebar-hamburger {
     display: none;
   }
@@ -109,7 +109,7 @@
   cursor: pointer;
 }
 
-@media (min-width: 900px) {
+@media (width >= 900px) {
   .sidebar-close {
     display: none;
   }
@@ -119,6 +119,6 @@
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgb(0 0 0 / 40%);
   z-index: 150;
 }

@@ -7,7 +7,7 @@
 
 /* ---------- GLOBAL ---------- */
 .home {
-  background: linear-gradient(180deg, #fffaf0 0%, #ffffff 60%);
+  background: linear-gradient(180deg, #fffaf0 0%, #fff 60%);
   font-family: 'Noto Sans Kannada', system-ui, sans-serif;
   padding: 0; /* full-bleed layout so MegaAd touches viewport edges */
   box-sizing: border-box;
@@ -81,7 +81,7 @@
   background: #e31e24;
   border-radius: 14px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(227, 30, 36, 0.15);
+  box-shadow: 0 2px 8px rgb(227 30 36 / 15%);
 }
 
 .hero-search input {
@@ -112,6 +112,7 @@
 .content {
   width: 100%;
   margin: 0; /* remove gap between hero and following content */
+
   /* Ensure content leaves room for footer and decorative elements */
   padding-bottom: calc(var(--footer-height, 72px) + 24px);
 }
@@ -151,13 +152,13 @@
   justify-content: center;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 7%);
   text-align: center;
 }
 
 .cat-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 15%);
 }
 
 .cat-card .icon {
@@ -218,7 +219,7 @@
   align-items: center;
   justify-content: space-between;
   text-decoration: none;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 6px 14px rgb(0 0 0 / 12%);
 }
 
 .ad-item img {
@@ -238,8 +239,8 @@
   width: 100%;
   padding: 14px 10px;
   border-radius: 12px;
-  background: linear-gradient(90deg, rgba(255,238,204,0.9), rgba(255,246,230,0.9));
-  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  background: linear-gradient(90deg, rgb(255 238 204 / 90%), rgb(255 246 230 / 90%));
+  box-shadow: 0 6px 18px rgb(0 0 0 / 6%);
 }
 
 .discover-track {
@@ -272,8 +273,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
   gap: 8px;
-  justify-items: center; /* distribute products equally across rows */
-  align-items: start;
+  place-items: start center; /* distribute products equally across rows */
 }
 
 /* Fresh Picks section theme */
@@ -282,9 +282,10 @@
   background: linear-gradient(90deg, #00FFC6 0%, #00B3FF 33%, #FF00C8 66%, #FFD500 100%);
   padding: 6px; /* reduced padding to shrink box size */
   border-radius: 12px;
-  box-shadow: 0 14px 40px rgba(0,0,0,0.12);
-  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 14px 40px rgb(0 0 0 / 12%);
+  border: 1px solid rgb(255 255 255 / 8%);
   position: relative; /* allow pseudo-element background */
+
   /* avoid overlapping footer — spacing now handled by .content padding */
 }
 
@@ -305,7 +306,7 @@
   transform: translateX(-50%);
   width: 110%;
   height: 120px; /* smaller so it doesn't reach footer */
-  background: radial-gradient(ellipse at center, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.85) 60%, rgba(255,255,255,0.0) 100%);
+  background: radial-gradient(ellipse at center, rgb(255 255 255 / 98%) 0%, rgb(255 255 255 / 85%) 60%, rgb(255 255 255 / 0%) 100%);
   border-radius: 50%;
   z-index: 0;
   pointer-events: none;
@@ -315,31 +316,31 @@
 .fresh-picks .products-grid { position: relative; z-index: 1; }
 
 /* Keep product cards visually solid and readable on neon background */
-.fresh-picks .product-card { background: #fff !important; box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; border-radius: 12px !important; padding-bottom: 6px; }
+.fresh-picks .product-card { background: #fff !important; box-shadow: 0 4px 12px rgb(0 0 0 / 8%) !important; border-radius: 12px !important; padding-bottom: 6px; }
 .fresh-picks .product-card > div:first-child { background: #f6f6f6 !important; }
 .fresh-picks .product-card h3, .fresh-picks .product-card p, .fresh-picks .product-card div { color: #b00018 !important; }
 
 /* Ensure titles and text wrap inside cards and have compact padding */
-.fresh-picks .product-card h3 { white-space: normal !important; overflow-wrap: break-word; padding: 3px 4px 0 4px; margin: 0; font-size: 11px; }
-.fresh-picks .product-card p { padding: 0 4px 4px 4px; margin: 0; font-size: 10px; }
+.fresh-picks .product-card h3 { white-space: normal !important; overflow-wrap: break-word; padding: 3px 4px 0; margin: 0; font-size: 11px; }
+.fresh-picks .product-card p { padding: 0 4px 4px; margin: 0; font-size: 10px; }
 .fresh-picks .product-card { padding-bottom: 6px; }
 
 /* Slightly tighter grid for smaller fresh-picks boxes */
 .fresh-picks .products-grid { gap: 6px; }
 
-@media (max-width: 1200px) {
+@media (width <= 1200px) {
   .fresh-picks .products-grid {
     grid-template-columns: repeat(4, minmax(70px, 1fr));
   }
 }
 
-@media (max-width: 900px) {
+@media (width <= 900px) {
   .fresh-picks .products-grid {
     grid-template-columns: repeat(3, minmax(80px, 1fr));
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .fresh-picks .products-grid {
     grid-template-columns: repeat(2, minmax(90px, 1fr));
   }
@@ -349,7 +350,7 @@
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
@@ -363,25 +364,25 @@
 
 .product-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(227, 30, 36, 0.2);
+  box-shadow: 0 8px 20px rgb(227 30 36 / 20%);
 }
 
 /* =================================================
    RESPONSIVE
 ================================================= */
-@media (max-width: 1100px) {
+@media (width <= 1100px) {
   .cat-row {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (max-width: 700px) {
+@media (width <= 700px) {
   .cat-row {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 480px) {
+@media (width <= 480px) {
   .hero {
     height: 220px;
   }

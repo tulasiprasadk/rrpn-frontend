@@ -5,6 +5,7 @@
   gap: 24px;
   justify-content: center;
 }
+
 .loading, .empty {
   text-align: center;
   color: var(--color-muted);

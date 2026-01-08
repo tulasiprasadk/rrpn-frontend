@@ -1,23 +1,27 @@
-@media (max-width: 600px) {
+@media (width <= 600px) {
   #root {
     padding: 0.5rem;
   }
+
   .card {
     padding: 1em;
     margin-bottom: 1em;
   }
+
   .btn, button, input[type="submit"], input[type="button"] {
     font-size: 1.1em;
     padding: 16px 0;
     min-width: 90vw;
     margin-bottom: 10px;
   }
+
   input, select, textarea {
     font-size: 1.1em;
     padding: 14px 10px;
     min-width: 90vw;
     margin-bottom: 10px;
   }
+
   h1, h2, h3, h4, h5, h6 {
     font-size: 1.2em;
     word-break: break-word;
@@ -40,9 +44,11 @@
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.react:hover {
   filter: drop-shadow(0 0 2em #61dafbaa);
 }
@@ -51,6 +57,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -66,9 +73,10 @@
   padding: 2em;
   background: #fff;
   border-radius: 14px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
   margin-bottom: 1.5em;
 }
+
 /* Modern Button Styles */
 .btn, button, input[type="submit"], input[type="button"] {
   background: #e31e24;
@@ -80,13 +88,15 @@
   font-weight: 700;
   cursor: pointer;
   transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
-  box-shadow: 0 2px 8px rgba(227,30,36,0.08);
+  box-shadow: 0 2px 8px rgb(227 30 36 / 8%);
 }
+
 .btn:hover, button:hover, input[type="submit"]:hover, input[type="button"]:hover {
   background: #c8102e;
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(227,30,36,0.15);
+  box-shadow: 0 4px 16px rgb(227 30 36 / 15%);
 }
+
 .btn:disabled, button:disabled, input[type="submit"]:disabled, input[type="button"]:disabled {
   background: #ccc;
   color: #888;
@@ -103,13 +113,14 @@ input, select, textarea {
   background: #fff;
   transition: border 0.2s;
 }
+
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: #ffd600;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Noto Sans Kannada', 'Inter', system-ui, sans-serif;
+  font-family: 'Noto Sans Kannada', Inter, system-ui, sans-serif;
   font-weight: 800;
   color: #c8102e;
   margin-bottom: 0.5em;
@@ -136,14 +147,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Responsive Breakpoints */
-@media (max-width: 1024px) {
+@media (width <= 1024px) {
   .cat-grid,
   .explore-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (max-width: 768px) {
+@media (width <= 768px) {
   .cat-grid,
   .explore-grid {
     grid-template-columns: 1fr;

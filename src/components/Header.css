@@ -26,14 +26,14 @@
   height: 84px;
   object-fit: contain;
   border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 .rn-subtitle {
   font-size: 20px;
   font-weight: 700;
   color: #fff;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 15%);
   margin-left: 8px;
   font-family: 'Noto Sans Kannada', system-ui, -apple-system, sans-serif;
 }

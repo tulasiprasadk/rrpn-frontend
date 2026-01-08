@@ -12,7 +12,7 @@
   padding: 30px;
   border-radius: 14px;
   border-left: 8px solid #c8102e;
-  box-shadow: 0 5px 12px rgba(0,0,0,0.15);
+  box-shadow: 0 5px 12px rgb(0 0 0 / 15%);
 }
 
 .profile-avatar {
@@ -24,7 +24,6 @@
   border-radius: 50%;
   font-size: 40px;
   font-weight: bold;
-
   display: flex;
   align-items: center;
   justify-content: center;

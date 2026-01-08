@@ -63,7 +63,7 @@
   padding: 80px 20px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
 }
 
 .empty-state p {
@@ -92,13 +92,13 @@
   background: white;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
   transition: all 0.3s ease;
 }
 
 .variety-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(255, 214, 0, 0.3);
+  box-shadow: 0 8px 20px rgb(255 214 0 / 30%);
 }
 
 .variety-header {

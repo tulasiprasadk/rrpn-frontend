@@ -15,7 +15,7 @@
   transform: translateY(0);
 }
 
-@media (max-width: 600px) {
+@media (width <= 600px) {
   .payment-submitted-page h2 {
     font-size: 24px !important;
   }

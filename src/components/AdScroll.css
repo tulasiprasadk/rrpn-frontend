@@ -5,8 +5,8 @@
   overflow: hidden;
   background: linear-gradient(
     90deg,
-    rgba(255, 215, 0, 0.06),
-    rgba(200, 16, 46, 0.04)
+    rgb(255 215 0 / 6%),
+    rgb(200 16 46 / 4%)
   );
   padding: 16px 0;
   box-sizing: border-box;
@@ -27,12 +27,12 @@
   height: 180px;
   object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 10px rgb(0 0 0 / 8%);
   flex: 0 0 auto;
 }
 
 /* slower & smaller on mobile */
-@media (max-width: 640px) {
+@media (width <= 640px) {
   .ad-banner {
     width: 220px;
     height: 88px;
@@ -49,6 +49,7 @@
   0% {
     transform: translateX(0);
   }
+
   100% {
     transform: translateX(-50%);
   }

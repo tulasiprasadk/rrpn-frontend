@@ -18,7 +18,7 @@
   background: #fff8d2;
   padding: 15px;
   border-radius: 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
   margin-bottom: 25px;
   border-left: 5px solid #ffd700;
 }
@@ -67,7 +67,7 @@
   background: #fff;
   padding: 12px;
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
 }
 
 .item-row {
@@ -96,7 +96,7 @@
   padding: 12px;
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgb(0 0 0 / 10%);
 }
 
 /* Timeline */

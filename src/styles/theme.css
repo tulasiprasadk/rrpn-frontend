@@ -11,7 +11,7 @@
   --color-muted: #888;
   --radius: 10px;
   --spacing: 16px;
-  --font-main: 'Inter', 'Noto Sans', Arial, sans-serif;
+  --font-main: 'Inter', 'Noto Sans', arial, sans-serif;
   --font-size-base: 16px;
   --font-size-lg: 24px;
   --font-size-title: 32px;
@@ -34,6 +34,7 @@ body {
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .button:hover {
   background: var(--color-accent);
   color: var(--color-text);
@@ -42,7 +43,7 @@ body {
 .card {
   background: var(--color-card);
   border-radius: var(--radius);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
   padding: var(--spacing);
   border: 1px solid var(--color-border);
 }

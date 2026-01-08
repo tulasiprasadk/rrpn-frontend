@@ -5,6 +5,7 @@
   margin: 40px auto;
   animation: fadeIn 0.3s ease-in-out;
 }
+
 /* WELCOME BOX */
 .dash-welcome {
   background: #ffd500;
@@ -46,10 +47,8 @@
   padding: 35px 20px;
   text-align: center;
   cursor: pointer;
-
   border: 2px solid #ffd500;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-
+  box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
   transition: 0.25s ease;
 }
 
@@ -295,7 +294,7 @@
 
 .order-detailed-item:hover {
   border-color: #ffd500;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
 }
 
 .order-header {
@@ -482,7 +481,7 @@
 
 .supplier-card:hover {
   border-color: #ffd500;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
 }
 
 .supplier-header {
@@ -510,13 +509,13 @@
 
 .supplier-location {
   color: #666;
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
   font-size: 14px;
 }
 
 .supplier-contact {
   color: #666;
-  margin: 0 0 10px 0;
+  margin: 0 0 10px;
   font-size: 14px;
 }
 
@@ -544,7 +543,7 @@
 
 .address-card:hover {
   border-color: #ffd500;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%);
 }
 
 .address-header {
@@ -567,7 +566,7 @@
 }
 
 .address-content p {
-  margin: 0 0 8px 0;
+  margin: 0 0 8px;
   color: #555;
   font-size: 14px;
   line-height: 1.5;

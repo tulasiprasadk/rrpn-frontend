@@ -3,10 +3,12 @@
   min-height: calc(100vh - 200px);
   padding: 40px 20px;
 }
+
 .cart-container {
   max-width: 1000px;
   margin: 0 auto;
 }
+
 .empty-cart {
   text-align: center;
   padding: 60px 20px;

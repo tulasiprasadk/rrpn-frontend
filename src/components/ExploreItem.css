@@ -20,7 +20,7 @@
   position: relative;   /* popup anchor */
   overflow: visible;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 12%);
   font-family: 'Noto Sans Kannada', system-ui, sans-serif;
   box-sizing: border-box;
   margin: 0 6px; /* add horizontal gap so cards don't visually overlap */
@@ -65,9 +65,9 @@
   border-radius: 18px;
   border: 2px solid;
   border-image: linear-gradient(120deg, #ffe84b 60%, #c8102e 100%) 1;
-  box-shadow: 0 8px 32px 0 rgba(200,16,46,0.14),
-    0 2px 8px rgba(255,215,0,0.10),
-    0 1px 6px 0 rgba(255,255,255,0.06) inset;
+  box-shadow: 0 8px 32px 0 rgb(200 16 46 / 14%),
+    0 2px 8px rgb(255 215 0 / 10%),
+    0 1px 6px 0 rgb(255 255 255 / 6%) inset;
   backdrop-filter: blur(6px) saturate(1.05);
   font-family: 'Noto Sans Kannada', system-ui, sans-serif;
   z-index: 999999;
@@ -85,6 +85,7 @@
     opacity: 0;
     transform: translate(-50%, -120%) scale(0.96);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, -110%) scale(1);
@@ -110,11 +111,9 @@
   line-height: 1.5;
   font-weight: 500;
   color: #333;
-
-  background: rgba(255,255,255,0.55);
+  background: rgb(255 255 255 / 55%);
   border-radius: 10px;
   padding: 10px 12px;
-
   white-space: normal;
   text-align: center;
   word-break: break-word;
