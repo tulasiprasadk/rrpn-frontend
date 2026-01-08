@@ -112,6 +112,8 @@
 .content {
   width: 100%;
   margin: 0; /* remove gap between hero and following content */
+  /* Ensure content leaves room for footer and decorative elements */
+  padding-bottom: calc(var(--footer-height, 72px) + 24px);
 }
 
 .section {
@@ -283,9 +285,7 @@
   box-shadow: 0 14px 40px rgba(0,0,0,0.12);
   border: 1px solid rgba(255,255,255,0.08);
   position: relative; /* allow pseudo-element background */
-  /* space below Fresh Picks so its decorative pseudo-element doesn't overlap footer
-     and to accommodate additional product rows as the DB grows */
-  margin-bottom: 140px;
+  /* avoid overlapping footer — spacing now handled by .content padding */
 }
 
 /* Force Fresh Picks to form multiple rows with smaller boxes (compact, evenly distributed) */
@@ -301,10 +301,10 @@
   content: "";
   position: absolute;
   left: 50%;
-  top: 20%;
+  top: 18%;
   transform: translateX(-50%);
   width: 110%;
-  height: 180px; /* reduced to ~50% of previous */
+  height: 120px; /* smaller so it doesn't reach footer */
   background: radial-gradient(ellipse at center, rgba(255,255,255,0.98) 0%, rgba(255,255,255,0.85) 60%, rgba(255,255,255,0.0) 100%);
   border-radius: 50%;
   z-index: 0;

@@ -3,6 +3,8 @@
   --bg: #ffffff;
   --text: #111827;
   --accent: #3b82f6;
+  /* Footer height used to create bottom padding for content so sections don't overlap */
+  --footer-height: 72px;
 }
 
 html, body, #root {

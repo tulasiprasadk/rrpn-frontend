@@ -8,10 +8,10 @@
   );
   border-top: 1px solid #eee;
 
-  /* IMPORTANT: give footer a fixed visual height */
+  /* IMPORTANT: use a CSS variable for footer height so other sections can adapt */
   padding: 0;
   margin-top: 36px;
-  min-height: 72px;
+  min-height: var(--footer-height);
 
   display: flex;
   align-items: center; /* vertical centering */
