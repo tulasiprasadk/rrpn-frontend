@@ -1,0 +1,9 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "at-rule-no-unknown": [true, { "ignoreAtRules": ["apply"] }],
+    "indentation": 2,
+    "max-empty-lines": 2,
+    "string-quotes": "double"
+  }
+}
