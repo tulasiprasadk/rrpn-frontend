@@ -15,6 +15,9 @@
 
   display: flex;
   align-items: center; /* vertical centering */
+  /* ensure footer sits above decorative page elements */
+  position: relative;
+  z-index: 20;
 }
 
 /* --------------------------------

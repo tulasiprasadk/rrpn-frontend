@@ -283,6 +283,9 @@
   box-shadow: 0 14px 40px rgba(0,0,0,0.12);
   border: 1px solid rgba(255,255,255,0.08);
   position: relative; /* allow pseudo-element background */
+  /* space below Fresh Picks so its decorative pseudo-element doesn't overlap footer
+     and to accommodate additional product rows as the DB grows */
+  margin-bottom: 140px;
 }
 
 /* Force Fresh Picks to form multiple rows with smaller boxes (compact, evenly distributed) */
