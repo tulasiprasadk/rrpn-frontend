@@ -437,11 +437,15 @@ export default function Home() {
         </section>
 
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch' }}>
-        <MegaAd image={ad4} link={ads[3].link} position="right" />
-        <MegaAd image={ad2} link={ads[1].link} position="right" />
-        {/* Extra MegaAd slot under top-right */}
-        <MegaAd image={ad2} link={ads[1].link} position="right" />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', justifyContent: 'space-between', minHeight: '100vh', paddingTop: 8, paddingBottom: 8 }}>
+        <div>
+          <MegaAd image={ad4} link={ads[3].link} position="right" />
+          <MegaAd image={ad2} link={ads[1].link} position="right" />
+        </div>
+        {/* Extra MegaAd slot pinned to bottom-right */}
+        <div>
+          <MegaAd image={ad3} link={ads[2].link} position="right" />
+        </div>
       </div>
     </main>
     
