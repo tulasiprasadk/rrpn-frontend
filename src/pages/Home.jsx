@@ -278,7 +278,11 @@ export default function Home() {
 
   return (
     <main className="home" style={{ display: "flex", width: "100vw", margin: 0, padding: 0, alignItems: "stretch" }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch' }}>
+        {/* Keep the original hero image visible on the left column */}
+        <div style={{ padding: 8, borderRadius: 10, background: '#fff', boxShadow: '0 6px 18px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <img src={hero1_400} srcSet={`${hero1_400} 400w, ${hero1_800} 800w, ${hero1} 1600w`} alt="RR Nagar hero" style={{ width: 220, height: 120, objectFit: 'cover', borderRadius: 8 }} loading="lazy" />
+        </div>
         <MegaAd image={ad3} link={ads[2].link} position="left" />
         <MegaAd image={ad1} link={ads[0].link} position="left" />
         {/* Extra MegaAd slot under top-left — Motard partner logo */}
