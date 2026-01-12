@@ -16,8 +16,10 @@ export default function Login() {
       try {
         const res = await api.get('/auth/status');
         if (!mounted) return;
-        setGoogleAvailable(!!res.data.googleConfigured);
-      } catch {
+        console.log('Auth status response:', res.data);
+        setGoogleAvailable(!!res.data?.googleConfigured);
+      } catch (err) {
+        console.error('Error checking auth status:', err);
         // assume not configured
         if (mounted) setGoogleAvailable(false);
       }
