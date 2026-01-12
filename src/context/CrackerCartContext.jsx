@@ -26,14 +26,13 @@ export function CrackerCartProvider({ children }) {
     }
   }, []);
 
-  const addItem = (product) => {
-    // Normalize incoming product shape to ensure `id`, `price`, `title`, and `qty` exist
+  const addItem = (product, qty = 1) => {
     const normalizedProduct = {
       id: product.id || product._id || (product.product && (product.product.id || product.product._id)) || product.sku || null,
       title: product.title || product.name || product.productName || String(product.id || product._id || ''),
       name: product.name || product.title || null,
-      price: Number(product.price || product.amount || 0),
-      qty: typeof product.qty === 'number' && product.qty > 0 ? product.qty : (typeof product.quantity === 'number' && product.quantity > 0 ? product.quantity : 1)
+      price: Number(product.price || product.amount || product.basePrice || 0),
+      qty: typeof qty === 'number' && qty > 0 ? qty : (typeof product.quantity === 'number' && product.quantity > 0 ? product.quantity : 1)
     };
 
     setCart((prev) => {
@@ -47,147 +46,71 @@ export function CrackerCartProvider({ children }) {
       return [...prev, { ...normalizedProduct }];
     });
 
-    // If the user appears logged-in (token present), sync to server cart in background
+    // Save to localStorage
     try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        (async () => {
-          try {
-            await axios.post(`${API_BASE}/cart/add`, { productId: normalizedProduct.id, quantity: normalizedProduct.qty }, { withCredentials: true });
-            window.dispatchEvent(new Event('cart-updated'));
-          } catch {
-            // ignore server sync errors (guest/local cart preserved)
-            console.error('Failed to sync cart to server', err?.message || err);
-            // fallback: persist to localStorage
-            try {
-              const saved = JSON.parse(localStorage.getItem('bag') || '[]');
-              const existing = saved.find(s => String(s.id) === String(normalizedProduct.id));
-              const qtyToAdd = normalizedProduct.qty || 1;
-              if (existing) {
-                existing.qty = (existing.qty || 0) + qtyToAdd;
-              } else {
-                saved.push({ id: normalizedProduct.id, title: normalizedProduct.title, name: normalizedProduct.name, price: normalizedProduct.price, qty: qtyToAdd });
-              }
-              localStorage.setItem('bag', JSON.stringify(saved));
-              window.dispatchEvent(new Event('cart-updated'));
-            } catch {
-              // ignore
-            }
-          }
-        })();
+      const updated = [...cart];
+      const existing = updated.find((p) => String(p.id) === String(normalizedProduct.id));
+      if (existing) {
+        existing.qty += qtyToAdd;
       } else {
-        // update localStorage for legacy usage by other components/pages that read `bag`
-        try {
-          const saved = JSON.parse(localStorage.getItem('bag') || '[]');
-          const existing = saved.find(s => String(s.id) === String(normalizedProduct.id));
-          const qtyToAdd = normalizedProduct.qty || 1;
-          if (existing) {
-            existing.qty = (existing.qty || 0) + qtyToAdd;
-          } else {
-            saved.push({ id: normalizedProduct.id, title: normalizedProduct.title, name: normalizedProduct.name, price: normalizedProduct.price, qty: qtyToAdd });
-          }
-          localStorage.setItem('bag', JSON.stringify(saved));
-          window.dispatchEvent(new Event('cart-updated'));
-        } catch {
-          // ignore
-        }
+        updated.push(normalizedProduct);
       }
+      localStorage.setItem('bag', JSON.stringify(updated));
     } catch {
       // ignore
     }
   };
-    // Remove an item from the cart
-    const removeItem = (productId) => {
-      setCart((prev) => prev.filter(p => String(p.id) !== String(productId)));
+
+  const removeItem = (id) => {
+    setCart((prev) => {
+      const updated = prev.filter((p) => String(p.id) !== String(id));
       try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          (async () => {
-            try {
-              await axios.post(`${API_BASE}/cart/remove`, { productId }, { withCredentials: true });
-              window.dispatchEvent(new Event('cart-updated'));
-            } catch {
-              console.error('Failed to remove from server cart', err?.message || err);
-            }
-          })();
-        }
-      } catch { /* ignore */ }
-    };
-
-    const clearCart = () => {
-      setCart([]);
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          (async () => {
-            try {
-              await axios.post(`${API_BASE}/cart/clear`, {}, { withCredentials: true });
-              window.dispatchEvent(new Event('cart-updated'));
-            } catch {
-              console.error('Failed to clear server cart', err?.message || err);
-            }
-          })();
-        }
-      } catch { /* ignore */ }
-    };
-
-    const updateQty = (id, qty) => {
-      setCart((prev) =>
-        qty <= 0 ? prev.filter((p) => p.id !== id) :
-        prev.map((p) => (p.id === id ? { ...p, qty } : p))
-      );
-
-      // If logged-in, sync the delta to server (cart/add expects quantity to add)
-      try {
-        const token = localStorage.getItem('token');
-        if (token) {
-          const prevSaved = JSON.parse(localStorage.getItem('bag') || '[]');
-          const existing = prevSaved.find(p => String(p.id) === String(id));
-          const prevQty = existing ? Number(existing.qty || existing.quantity || 0) : 0;
-          const delta = qty - prevQty;
-          (async () => {
-            try {
-              if (delta > 0) {
-                await axios.post(`${API_BASE}/cart/add`, { productId: id, quantity: delta }, { withCredentials: true });
-              } else if (qty <= 0) {
-                await axios.post(`${API_BASE}/cart/remove`, { productId: id }, { withCredentials: true });
-              }
-              window.dispatchEvent(new Event('cart-updated'));
-            } catch {
-              console.error('Failed to sync qty update', err?.message || err);
-            }
-          })();
-        }
-      } catch { /* ignore */ }
-    };
-
-    const total = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-
-    // Persist normalized cart to localStorage whenever it changes
-    useEffect(() => {
-      try {
-        const normalized = cart.map(item => ({
-          id: item.id,
-          title: item.title || item.name || String(item.id),
-          name: item.name || item.title || null,
-          price: Number(item.price || 0),
-          qty: Number(item.qty || item.quantity || 0)
-        }));
-        localStorage.setItem('bag', JSON.stringify(normalized));
-        window.dispatchEvent(new Event('cart-updated'));
+        localStorage.setItem('bag', JSON.stringify(updated));
       } catch {
         // ignore
       }
-    }, [cart]);
+      return updated;
+    });
+  };
 
-    return (
-      <CartContext.Provider value={{ cart, addItem, updateQty, removeItem, clearCart, total }}>
-        {children}
-      </CartContext.Provider>
-    );
+  const updateQuantity = (id, qty) => {
+    if (qty <= 0) {
+      removeItem(id);
+      return;
+    }
+    setCart((prev) => {
+      const updated = prev.map((p) =>
+        String(p.id) === String(id) ? { ...p, qty } : p
+      );
+      try {
+        localStorage.setItem('bag', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  const clearCart = () => {
+    setCart([]);
+    try {
+      localStorage.removeItem('bag');
+    } catch {
+      // ignore
+    }
+  };
+
+  return (
+    <CartContext.Provider value={{ cart, addItem, removeItem, updateQuantity, clearCart }}>
+      {children}
+    </CartContext.Provider>
+  );
 }
 
-export const useCrackerCart = () => useContext(CartContext);
-
-
-
+export function useCrackerCart() {
+  const context = useContext(CartContext);
+  if (!context) {
+    throw new Error("useCrackerCart must be used within CrackerCartProvider");
+  }
+  return context;
+}

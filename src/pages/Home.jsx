@@ -1,4 +1,4 @@
-// Home page – hero, categories, ads, discover & products (FINAL CLEAN, LOCKED)
+// Home page – hero, categories, ads, discover & products (RRNP - Same as RRN)
 
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ import MegaAd from "../components/MegaAd";
 import api from "../api/client";
 import ProductCard from "../components/ProductCard";
 import CategoryIcon from "../components/CategoryIcon";
+import WhatsAppFloating from "../components/WhatsAppFloating";
 import { useCrackerCart } from "../context/CrackerCartContext";
 
 /* ================= ANALYTICS (GA4) ================= */
@@ -54,7 +55,6 @@ import ad3 from "../assets/ads/ad3.jpg";
 import ad4 from "../assets/ads/ad4.jpg";
 
 /* ================= FALLBACK CATEGORIES (desired order) ================= */
-// Known emoji mapping (use these instead of DB icons when possible)
 const emojiMap = {
   crackers: "🧨",
   flowers: "💐",
@@ -98,7 +98,7 @@ export default function Home() {
     setHeroSrc(heroImages[heroIndex]);
   }, [heroIndex]);
 
-  /* ================= HERO SEARCH (PURE NAVIGATION) ================= */
+  /* ================= HERO SEARCH ================= */
   const [searchQuery, setSearchQuery] = useState("");
 
   function handleSearchClick() {
@@ -130,9 +130,7 @@ export default function Home() {
     }
   }
 
-  
-
-  /* ================= CATEGORIES (UNCHANGED) ================= */
+  /* ================= CATEGORIES ================= */
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
@@ -150,7 +148,6 @@ export default function Home() {
         return;
       }
 
-      // Map backend categories to include icons/nameKannada from defaults
       const mapped = data.map((cat) => {
         const norm = (cat.name || "").replace(/\s+/g, "").toLowerCase();
         const def = defaultCategories.find(
@@ -163,16 +160,13 @@ export default function Home() {
         };
       });
 
-      // Remove unwanted categories from popular list (robust substring checks)
       const filtered = mapped.filter((c) => {
         const n = (c.name || "").toLowerCase();
         if (!n) return true;
-        // exclude any categories that are fruits, vegetables, or milk products
         if (n.includes("fruit") || n.includes("veget") || n.includes("milk")) return false;
         return true;
       });
 
-      // Enforce desired category order at the top, keep any other categories after
       const desiredOrder = [
         "Crackers",
         "Flowers",
@@ -231,7 +225,6 @@ export default function Home() {
     { title: "Education", titleKannada: "ಶಿಕ್ಷಣ", desc: "Schools & colleges", icon: "🎓", longInfo: "RR Nagar has top schools and colleges, making it a hub for quality education.", longInfoKannada: "ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಉತ್ತಮ ಶಾಲೆಗಳು ಮತ್ತು ಕಾಲೇಜುಗಳಿವೆ." },
     { title: "Entertainment", titleKannada: "ಮನರಂಜನೆ", desc: "Fun places", icon: "🎭", longInfo: "Enjoy movies, events, and fun activities in RR Nagar's entertainment spots.", longInfoKannada: "ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಮನರಂಜನೆಗೆ ಹಲವಾರು ಅವಕಾಶಗಳಿವೆ." },
   ];
-  // Discover popup state
   const [popup, setPopup] = useState({ open: false, item: null, anchor: null });
   const discoverItemRefs = useRef([]);
 
@@ -275,180 +268,175 @@ export default function Home() {
   };
 
   return (
-    <main className="home" style={{ display: "flex", width: "100vw", margin: 0, padding: 0, alignItems: "stretch" }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch' }}>
-        <MegaAd image={ad3} link={ads[2].link} position="left" />
-        <MegaAd image={ad1} link={ads[0].link} position="left" />
-        {/* Extra MegaAd slot under top-left — Motard partner logo */}
-        <MegaAd image={'/motard.svg'} link={'https://motardgears.com'} position="left" />
-      </div>
-      <div style={{ flex: 1, minWidth: 0, maxWidth: 1200, margin: '0 auto' }}>
-        {/* HERO */}
-        <section className="hero">
-          <div className="hero-inner">
-            <div className="hero-image">
-              <img
-                src={heroSrc.src}
-                srcSet={heroSrc.srcSet}
-                sizes="(max-width: 800px) 100vw, 1200px"
-                alt="RR Nagar"
-                loading="eager"
-                decoding="async"
-                onError={(e)=>{ e.currentTarget.src = '/no-image.png'; e.currentTarget.style.objectFit='cover'; }}
-              />
-            </div>
-
-            <div className="hero-text">
-              <h1>ನಮ್ಮಿಂದ ನಿಮಗೆ — ನಿಮ್ಮಷ್ಟೇ ಹತ್ತಿರ.</h1>
-              <p>From Us To You — As Close As You Need Us.</p>
-
-              <div className="hero-search">
-                <input
-                  placeholder="Search groceries, flowers, products…"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={handleKeyPress}
+    <>
+      <main className="home" style={{ display: "flex", width: "100vw", margin: 0, padding: 0, alignItems: "stretch" }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch' }}>
+          <MegaAd image={ad3} link={ads[2].link} position="left" />
+          <MegaAd image={ad1} link={ads[0].link} position="left" />
+          <MegaAd image={'/motard.svg'} link={'https://motardgears.com'} position="left" />
+        </div>
+        <div style={{ flex: 1, minWidth: 0, maxWidth: 1200, margin: '0 auto' }}>
+          {/* HERO */}
+          <section className="hero">
+            <div className="hero-inner">
+              <div className="hero-image">
+                <img
+                  src={heroSrc.src}
+                  srcSet={heroSrc.srcSet}
+                  sizes="(max-width: 800px) 100vw, 1200px"
+                  alt="RR Nagar"
+                  loading="eager"
+                  decoding="async"
+                  onError={(e)=>{ e.currentTarget.src = '/no-image.png'; e.currentTarget.style.objectFit='cover'; }}
                 />
-                <button onClick={handleSearchClick}>Search</button>
               </div>
-            </div>
-          </div>
-        </section>
 
-        {/* CATEGORIES */}
-        <section className="section">
-          <h2 className="section-title">Popular Categories</h2>
-          <div className="cat-row">
-            {categories.map((cat) => (
-              <div
-                key={cat.id}
-                className="cat-card"
-                onClick={() => handleCategoryClick(cat.id)}
-              >
-                <span className="icon"><CategoryIcon category={cat.name} size={40} /></span>
-                <span className="label">{cat.name}</span>
-                <span className="label-kannada">{cat.nameKannada}</span>
-              </div>
-            ))}
-          </div>
-        </section>
+              <div className="hero-text">
+                <h1>ನಮ್ಮಿಂದ ನಿಮಗೆ — ನಿಮ್ಮಷ್ಟೇ ಹತ್ತಿರ.</h1>
+                <p>From Us To You — As Close As You Need Us.</p>
 
-        {/* ADS */}
-        <section className="section">
-          <h2 className="section-title">What’s New in RR Nagar</h2>
-          <div className="ads-viewport">
-            <div className="ads-track">
-              {adsLoop.map((ad, i) => (
-                <a key={i} href={ad.link} target="_blank" rel="noreferrer" className="ad-item">
-                  <div className="ad-title">{ad.title}</div>
-                  <img src={ad.image} alt={ad.title} />
-                  <div className="ad-cta">Tap to view</div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* DISCOVER */}
-        <section className="section">
-          <h2 className="section-title">Discover Around You</h2>
-          <div className="discover-viewport">
-            <div
-              ref={discoverRef}
-              className="discover-track"
-              style={{ "--scroll-width": `${scrollWidth}px` }}
-            >
-              {[...discover, ...discover].map((item, i) => (
-                <div
-                  className="discover-item"
-                  key={i}
-                  onMouseEnter={() => {
-                    if (popupCloseTimer.current) {
-                      clearTimeout(popupCloseTimer.current);
-                      popupCloseTimer.current = null;
-                    }
-                    setPopup({ open: true, item, anchor: { current: discoverItemRefs.current[i] }, source: 'hover' });
-                  }}
-                  onMouseLeave={() => {
-                    // schedule close to allow mouse to travel to popup, only for hover-sourced popups
-                    if (popup?.source === 'hover') {
-                      if (popupCloseTimer.current) clearTimeout(popupCloseTimer.current);
-                      popupCloseTimer.current = setTimeout(() => setPopup({ open: false, item: null, anchor: null, source: null }), 220);
-                    }
-                  }}
-                >
-                  <ExploreItem
-                    {...item}
-                    ref={el => discoverItemRefs.current[i] = el}
-                    onClick={() => setPopup({ open: true, item, anchor: { current: discoverItemRefs.current[i] }, source: 'click' })}
+                <div className="hero-search">
+                  <input
+                    placeholder="Search groceries, flowers, products…"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={handleKeyPress}
                   />
+                  <button onClick={handleSearchClick}>Search</button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* CATEGORIES */}
+          <section className="section">
+            <h2 className="section-title">Popular Categories</h2>
+            <div className="cat-row">
+              {categories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className="cat-card"
+                  onClick={() => handleCategoryClick(cat.id)}
+                >
+                  <span className="icon"><CategoryIcon category={cat.name} size={40} /></span>
+                  <span className="label">{cat.name}</span>
+                  <span className="label-kannada">{cat.nameKannada}</span>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
 
-        {/* Render popup outside the discover-track to avoid clipping from transforms */}
-        {popup.open && (
-          <>
-            {popup.source === 'click' && (
-              <div
-                style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.08)' }}
-                onClick={() => setPopup({ open: false, item: null, anchor: null, source: null })}
-              />
-            )}
-            <DiscoverPopup
-              item={popup.item}
-              anchorRef={popup.anchor}
-              onClose={() => setPopup({ open: false, item: null, anchor: null, source: null })}
-              onMouseEnter={() => {
-                if (popupCloseTimer.current) {
-                  clearTimeout(popupCloseTimer.current);
-                  popupCloseTimer.current = null;
-                }
-              }}
-              onMouseLeave={() => {
-                if (popup?.source === 'hover') {
-                  if (popupCloseTimer.current) clearTimeout(popupCloseTimer.current);
-                  popupCloseTimer.current = setTimeout(() => setPopup({ open: false, item: null, anchor: null, source: null }), 220);
-                }
-              }}
-            />
-          </>
-        )}
-
-        {/* PRODUCTS */}
-        <section className="section fresh-picks">
-          <h2 className="section-title">Fresh Picks for You</h2>
-            <div className="products-grid">
-            {featuredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="product-tile"
-                onClick={() => handleAddFromGrid(product)}
-                style={{ cursor: 'pointer' }}
-              >
-                <ProductCard variant="fresh" product={products.find(p => p.id === product.id) || product} />
+          {/* ADS - Top scrolling banner */}
+          <section className="section">
+            <h2 className="section-title">What's New in RR Nagar</h2>
+            <div className="ads-viewport">
+              <div className="ads-track">
+                {adsLoop.map((ad, i) => (
+                  <a key={i} href={ad.link} target="_blank" rel="noreferrer" className="ad-item">
+                    <div className="ad-title">{ad.title}</div>
+                    <img src={ad.image} alt={ad.title} />
+                    <div className="ad-cta">Tap to view</div>
+                  </a>
+                ))}
               </div>
-            ))}
-          </div>
-        </section>
+            </div>
+          </section>
 
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', justifyContent: 'space-between', minHeight: '100vh', paddingTop: 8, paddingBottom: 8 }}>
-        <div>
-          <MegaAd image={ad4} link={ads[3].link} position="right" />
-          <MegaAd image={ad2} link={ads[1].link} position="right" />
+          {/* DISCOVER */}
+          <section className="section">
+            <h2 className="section-title">Discover Around You</h2>
+            <div className="discover-viewport">
+              <div
+                ref={discoverRef}
+                className="discover-track"
+                style={{ "--scroll-width": `${scrollWidth}px` }}
+              >
+                {[...discover, ...discover].map((item, i) => (
+                  <div
+                    className="discover-item"
+                    key={i}
+                    onMouseEnter={() => {
+                      if (popupCloseTimer.current) {
+                        clearTimeout(popupCloseTimer.current);
+                        popupCloseTimer.current = null;
+                      }
+                      setPopup({ open: true, item, anchor: { current: discoverItemRefs.current[i] }, source: 'hover' });
+                    }}
+                    onMouseLeave={() => {
+                      if (popup?.source === 'hover') {
+                        if (popupCloseTimer.current) clearTimeout(popupCloseTimer.current);
+                        popupCloseTimer.current = setTimeout(() => setPopup({ open: false, item: null, anchor: null, source: null }), 220);
+                      }
+                    }}
+                  >
+                    <ExploreItem
+                      {...item}
+                      ref={el => discoverItemRefs.current[i] = el}
+                      onClick={() => setPopup({ open: true, item, anchor: { current: discoverItemRefs.current[i] }, source: 'click' })}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {popup.open && (
+            <>
+              {popup.source === 'click' && (
+                <div
+                  style={{ position: 'fixed', inset: 0, zIndex: 10000, background: 'rgba(0,0,0,0.08)' }}
+                  onClick={() => setPopup({ open: false, item: null, anchor: null, source: null })}
+                />
+              )}
+              <DiscoverPopup
+                item={popup.item}
+                anchorRef={popup.anchor}
+                onClose={() => setPopup({ open: false, item: null, anchor: null, source: null })}
+                onMouseEnter={() => {
+                  if (popupCloseTimer.current) {
+                    clearTimeout(popupCloseTimer.current);
+                    popupCloseTimer.current = null;
+                  }
+                }}
+                onMouseLeave={() => {
+                  if (popup?.source === 'hover') {
+                    if (popupCloseTimer.current) clearTimeout(popupCloseTimer.current);
+                    popupCloseTimer.current = setTimeout(() => setPopup({ open: false, item: null, anchor: null, source: null }), 220);
+                  }
+                }}
+              />
+            </>
+          )}
+
+          {/* PRODUCTS */}
+          <section className="section fresh-picks">
+            <h2 className="section-title">Fresh Picks for You</h2>
+            <div className="products-grid">
+              {featuredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="product-tile"
+                  onClick={() => handleAddFromGrid(product)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <ProductCard variant="fresh" product={products.find(p => p.id === product.id) || product} />
+                </div>
+              ))}
+            </div>
+          </section>
+
         </div>
-        {/* Extra MegaAd slot pinned to bottom-right */}
-        <div>
-          <MegaAd image={ad3} link={ads[2].link} position="right" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', justifyContent: 'space-between', minHeight: '100vh', paddingTop: 8, paddingBottom: 8 }}>
+          <div>
+            <MegaAd image={ad4} link={ads[3].link} position="right" />
+            <MegaAd image={ad2} link={ads[1].link} position="right" />
+          </div>
+          <div>
+            <MegaAd image={ad3} link={ads[2].link} position="right" />
+          </div>
         </div>
-      </div>
-    </main>
-    
+      </main>
+      <WhatsAppFloating />
+    </>
   );
 }
-
-
-

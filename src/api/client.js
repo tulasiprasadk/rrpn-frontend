@@ -20,8 +20,4 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Do not export API_BASE directly. Always import where needed.
 export default api;
-
-
-

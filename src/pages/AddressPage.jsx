@@ -16,15 +16,15 @@ export default function AddressPage() {
       const res = await api.get("/customers/addresses");
       console.log("Addresses loaded from API:", res.data);
       setList(res.data);
-    } catch {
-      console.error("Failed to load addresses:", err);
-      if (err.response?.status === 401) {
-        setError("Please log in to view your addresses");
-        navigate("/login");
-      } else {
-        setError(err.response?.data?.error || "Failed to load addresses");
-      }
-      setList([]);
+    } catch (err) {
+        console.error("Failed to load addresses:", err);
+        if (err.response?.status === 401) {
+          setError("Please log in to view your addresses");
+          navigate("/login");
+        } else {
+          setError(err.response?.data?.error || "Failed to load addresses");
+        }
+        setList([]);
     } finally {
       setLoading(false);
     }
