@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://rrw-backend.vercel.app/api/$1"
+      "destination": "https://rrpn-backend.vercel.app/api/$1"
     },
     { "source": "/(.*)", "destination": "/" }
   ]
