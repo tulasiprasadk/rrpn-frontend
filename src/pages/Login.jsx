@@ -75,25 +75,29 @@ export default function Login() {
           <div style={{ textAlign: 'center', margin: '14px 0', color: '#999' }}>or</div>
 
           {googleAvailable ? (
-            <a
-              href={`${API_BASE}/customers/auth/google`}
+            <button
+              onClick={() => {
+                window.location.href = `${API_BASE}/customers/auth/google`;
+              }}
               style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 10,
                 padding: '10px 16px',
+                width: '100%',
                 background: '#ffffff',
                 border: '1px solid #e6e6e6',
                 color: '#444',
                 borderRadius: 8,
                 textDecoration: 'none',
                 fontWeight: 600,
+                cursor: 'pointer',
               }}
             >
               <img src="https://developers.google.com/identity/images/g-logo.png" alt="G" style={{ width: 20 }} />
               Sign in with Google
-            </a>
+            </button>
           ) : (
             <div style={{ padding: 12, borderRadius: 8, background: '#fff3f0', border: '1px solid #ffd6cc', color: '#b33' }}>
               Google OAuth is not configured on the server. Contact the dev to set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET.
