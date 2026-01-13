@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../../config/api";
 import "./SupplierDashboard.css";
 
 export default function SupplierDashboard() {
@@ -19,7 +20,7 @@ export default function SupplierDashboard() {
     const init = async () => {
       try {
         const authRes = await fetch(
-          "https://rrnagarfinal-backend.vercel.app/api/supplier/auth/me",
+          `${API_BASE}/supplier/auth/me`,
           { credentials: "include" }
         );
 
@@ -31,7 +32,9 @@ export default function SupplierDashboard() {
         }
 
         // If logged in (or auth check passed), load dashboard stats
-        const res = await fetch("/supplier/dashboard");
+        const res = await fetch(`${API_BASE}/supplier/dashboard`, {
+          credentials: "include"
+        });
         const data = await res.json();
 
         if (res.ok) {
