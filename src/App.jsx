@@ -20,6 +20,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import WhatsAppFloating from "./components/WhatsAppFloating";
+import ConnectionStatus from "./components/ConnectionStatus";
 
 /* USER PAGES */
 import Home from "./pages/Home.jsx";
@@ -195,6 +196,7 @@ function AppWrapper() {
 
       {!hideLayout && <WhatsAppFloating />}
       {!hideLayout && <Footer />}
+      <ConnectionStatus />
     </>
   );
 }

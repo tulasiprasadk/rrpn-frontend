@@ -113,12 +113,16 @@ export default function Home() {
 
   /* ================= PRODUCTS ================= */
   const [products, setProducts] = useState([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState(null);
 
   useEffect(() => {
     loadProducts();
   }, []);
 
   async function loadProducts() {
+    setProductsLoading(true);
+    setProductsError(null);
     try {
       const res = await api.get(`/products`);
       const pdata = res && res.data ? res.data : [];
@@ -126,20 +130,27 @@ export default function Home() {
       setProducts(productsArray);
     } catch (err) {
       setProducts([]);
+      setProductsError(err.message || "Failed to load products");
       console.error("Error loading products:", err);
+    } finally {
+      setProductsLoading(false);
     }
   }
 
   
 
-  /* ================= CATEGORIES (UNCHANGED) ================= */
-  const [categories, setCategories] = useState([]);
+  /* ================= CATEGORIES ================= */
+  const [categories, setCategories] = useState(defaultCategories); // Start with defaults for instant display
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState(null);
 
   useEffect(() => {
     loadCategories();
   }, []);
 
   async function loadCategories() {
+    setCategoriesLoading(true);
+    setCategoriesError(null);
     try {
       const res = await api.get(`/categories`);
       const pdata = res && res.data ? res.data : [];
@@ -194,8 +205,12 @@ export default function Home() {
       });
 
       setCategories(filtered);
-    } catch {
-      setCategories(defaultCategories);
+    } catch (err) {
+      setCategoriesError(err.message || "Failed to load categories");
+      console.error("Error loading categories:", err);
+      // Keep default categories on error
+    } finally {
+      setCategoriesLoading(false);
     }
   }
 
@@ -318,6 +333,16 @@ export default function Home() {
         {/* CATEGORIES */}
         <section className="section">
           <h2 className="section-title">Popular Categories</h2>
+          {categoriesLoading && (
+            <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
+              Loading categories...
+            </div>
+          )}
+          {categoriesError && (
+            <div style={{ textAlign: 'center', padding: '10px', color: '#d32f2f', fontSize: '14px' }}>
+              {categoriesError} (Using default categories)
+            </div>
+          )}
           <div className="cat-row">
             {categories.map((cat) => (
               <div
@@ -420,18 +445,52 @@ export default function Home() {
         {/* PRODUCTS */}
         <section className="section fresh-picks">
           <h2 className="section-title">Fresh Picks for You</h2>
-            <div className="products-grid">
-            {featuredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="product-tile"
-                onClick={() => handleAddFromGrid(product)}
-                style={{ cursor: 'pointer' }}
+          {productsLoading && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              <div style={{ fontSize: '18px', marginBottom: '10px' }}>Loading products...</div>
+              <div style={{ fontSize: '14px' }}>Please wait while we fetch the latest items</div>
+            </div>
+          )}
+          {productsError && !productsLoading && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#d32f2f' }}>
+              <div style={{ fontSize: '18px', marginBottom: '10px' }}>⚠️ Unable to load products</div>
+              <div style={{ fontSize: '14px', marginBottom: '20px' }}>{productsError}</div>
+              <button 
+                onClick={loadProducts}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#1976d2',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '14px'
+                }}
               >
-                <ProductCard variant="fresh" product={products.find(p => p.id === product.id) || product} />
-              </div>
-            ))}
-          </div>
+                Try Again
+              </button>
+            </div>
+          )}
+          {!productsLoading && !productsError && featuredProducts.length === 0 && (
+            <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+              <div style={{ fontSize: '18px' }}>No products available at the moment</div>
+              <div style={{ fontSize: '14px', marginTop: '10px' }}>Check back soon for new items!</div>
+            </div>
+          )}
+          {!productsLoading && !productsError && featuredProducts.length > 0 && (
+            <div className="products-grid">
+              {featuredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="product-tile"
+                  onClick={() => handleAddFromGrid(product)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <ProductCard variant="fresh" product={products.find(p => p.id === product.id) || product} />
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
       </div>
