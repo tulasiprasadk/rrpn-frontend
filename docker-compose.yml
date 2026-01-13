@@ -1,0 +1,57 @@
+﻿
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: rrn
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+    command: sh -c "npm install --no-audit --no-fund && node ./scripts/autoSeedIfEmpty.js || true && npm run dev"
+    ports:
+      - "3001:3000"
+    dns:
+      - 8.8.8.8
+    env_file:
+      - ./backend.env
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+      # Prefer local Postgres inside compose for reproducible dev starts
+      - DB_SSL=false
+      - SESSION_SECRET=dev-secret
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/rrn
+    depends_on:
+      - db
+
+  frontend:
+    image: node:20
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: sh -c "npm install --no-audit --no-fund && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    environment:
+      # Use localhost so the browser (host) can reach the backend at :3001 (mapped)
+      - VITE_API_BASE=http://localhost:3001
+      # Let the Vite dev server inside the container proxy to the backend service
+      - API_PROXY_TARGET=http://backend:3000
+    depends_on:
+      - backend
+
+# Persisted Postgres data is stored under ./postgres-data in the project root
+

@@ -1,0 +1,102 @@
+[
+  {
+    "category": "Veterinary",
+    "items": [
+      { "id": "vet1", "name": "General Vet Consultation", "kn": "ಸಾಮಾನ್ಯ ಪಶು ವೈದ್ಯ ಸಲಹೆ", "subCategory": "Veterinary", "priceType": "Fixed", "price": null },
+      { "id": "vet2", "name": "Home Visit Vet Consultation", "kn": "ಮನೆಗೆ ಭೇಟಿ ಪಶು ವೈದ್ಯ", "subCategory": "Veterinary", "priceType": "Fixed", "price": null },
+      { "id": "vet3", "name": "Vaccination Services", "kn": "ಟೀಕೆ ಸೇವೆಗಳು", "subCategory": "Veterinary", "priceType": "Fixed", "price": null },
+      { "id": "vet4", "name": "Emergency Vet Assistance", "kn": "ತುರ್ತು ಪಶು ವೈದ್ಯ ಸಹಾಯ", "subCategory": "Veterinary", "priceType": "Hourly", "price": null },
+      { "id": "vet5", "name": "Post-Surgery Care Consulting", "kn": "ಶಸ್ತ್ರಚಿಕಿತ್ಸೆ ನಂತರದ ಆರೈಕೆ", "subCategory": "Veterinary", "priceType": "Package", "price": null }
+    ]
+  },
+  {
+    "category": "Grooming",
+    "items": [
+      { "id": "groom1", "name": "Full Body Grooming", "kn": "ಪೂರ್ಣ ದೇಹದ ಗ್ರೂಮಿಂಗ್", "subCategory": "Grooming", "priceType": "Package", "price": null },
+      { "id": "groom2", "name": "Home Grooming Service", "kn": "ಮನೆ ಗ್ರೂಮಿಂಗ್ ಸೇವೆ", "subCategory": "Grooming", "priceType": "Package", "price": null },
+      { "id": "groom3", "name": "Nail Trimming Service", "kn": "ನಖ ಕತ್ತರಿಸುವ ಸೇವೆ", "subCategory": "Grooming", "priceType": "Fixed", "price": null },
+      { "id": "groom4", "name": "De-shedding Treatment", "kn": "ಜುಟ್ಟು ತೆಗೆಯುವ ಚಿಕಿತ್ಸೆ", "subCategory": "Grooming", "priceType": "Fixed", "price": null }
+    ]
+  },
+  {
+    "category": "Training",
+    "items": [
+      { "id": "train1", "name": "Basic Obedience Training", "kn": "ಮೂಲ ಆದೇಶ ತರಬೇತಿ", "subCategory": "Training", "priceType": "Package", "price": null },
+      { "id": "train2", "name": "Advanced Behavior Training", "kn": "ಸುಧಾರಿತ ವರ್ತನೆ ತರಬೇತಿ", "subCategory": "Training", "priceType": "Package", "price": null },
+      { "id": "train3", "name": "Puppy Training Program", "kn": "ಕುಡಲೆ ತರಬೇತಿ ಕಾರ್ಯಕ್ರಮ", "subCategory": "Training", "priceType": "Package", "price": null }
+    ]
+  },
+  {
+    "category": "Boarding & Day Care",
+    "items": [
+      { "id": "board1", "name": "Pet Boarding Service", "kn": "ಪೆಟ್ ಬೋರ್ಡಿಂಗ್ ಸೇವೆ", "subCategory": "Boarding & Day Care", "priceType": "Daily", "price": null },
+      { "id": "board2", "name": "Pet Day Care", "kn": "ಪೆಟ್ ಡೇ ಕೇರ್", "subCategory": "Boarding & Day Care", "priceType": "Daily", "price": null }
+    ]
+  },
+  {
+    "category": "Walking & Sitting",
+    "items": [
+      { "id": "walk1", "name": "Pet Sitting Service", "kn": "ಪೆಟ್ ಸಿಟಿಂಗ್ ಸೇವೆ", "subCategory": "Walking & Sitting", "priceType": "Daily", "price": null },
+      { "id": "walk2", "name": "Dog Walking Service", "kn": "ನಾಯಿ ನಡಿಗೆ ಸೇವೆ", "subCategory": "Walking & Sitting", "priceType": "Monthly", "price": null }
+    ]
+  },
+  {
+    "category": "Health & Wellness",
+    "items": [
+      { "id": "health1", "name": "Pet Nutrition Consulting", "kn": "ಪೆಟ್ ಪೋಷಣಾ ಸಲಹೆ", "subCategory": "Health & Wellness", "priceType": "Hourly", "price": null },
+      { "id": "health2", "name": "Weight Management Program", "kn": "ತೂಕ ನಿರ್ವಹಣಾ ಕಾರ್ಯಕ್ರಮ", "subCategory": "Health & Wellness", "priceType": "Package", "price": null }
+    ]
+  },
+  {
+    "category": "Adoption & Legal",
+    "items": [
+      { "id": "adopt1", "name": "Pet Adoption Assistance", "kn": "ಪೆಟ್ ದತ್ತು ಸಹಾಯ", "subCategory": "Adoption & Legal", "priceType": "Free / Fixed", "price": null },
+      { "id": "adopt2", "name": "Pet Registration Consulting", "kn": "ಪೆಟ್ ನೋಂದಣಿ ಸಲಹೆ", "subCategory": "Adoption & Legal", "priceType": "Fixed", "price": null },
+      { "id": "adopt3", "name": "Pet Travel Documentation", "kn": "ಪೆಟ್ ಪ್ರಯಾಣ ದಾಖಲೆ", "subCategory": "Adoption & Legal", "priceType": "Fixed", "price": null }
+    ]
+  },
+  {
+    "category": "Pet Food - Dogs",
+    "items": [
+      { "id": "food1", "name": "Dry Dog Food", "kn": "ಒಣ ನಾಯಿ ಆಹಾರ", "subCategory": "Pet Food - Dogs", "priceType": "Per Pack", "price": null },
+      { "id": "food2", "name": "Wet Dog Food", "kn": "ತೆಳ್ಳಗಿನ ನಾಯಿ ಆಹಾರ", "subCategory": "Pet Food - Dogs", "priceType": "Per Pack", "price": null },
+      { "id": "food3", "name": "Puppy Food", "kn": "ಕುಡಲೆ ಆಹಾರ", "subCategory": "Pet Food - Dogs", "priceType": "Per Pack", "price": null },
+      { "id": "food4", "name": "Prescription Dog Food", "kn": "ವೈದ್ಯರ ಸಲಹೆಯ ನಾಯಿ ಆಹಾರ", "subCategory": "Pet Food - Dogs", "priceType": "Per Pack", "price": null }
+    ]
+  },
+  {
+    "category": "Pet Food - Cats",
+    "items": [
+      { "id": "catfood1", "name": "Dry Cat Food", "kn": "ಒಣ ಬೆಕ್ಕು ಆಹಾರ", "subCategory": "Pet Food - Cats", "priceType": "Per Pack", "price": null },
+      { "id": "catfood2", "name": "Kitten Food", "kn": "ಮರಿ ಬೆಕ್ಕು ಆಹಾರ", "subCategory": "Pet Food - Cats", "priceType": "Per Pack", "price": null },
+      { "id": "catfood3", "name": "Prescription Cat Food", "kn": "ವೈದ್ಯರ ಸಲಹೆಯ ಬೆಕ್ಕು ಆಹಾರ", "subCategory": "Pet Food - Cats", "priceType": "Per Pack", "price": null }
+    ]
+  },
+  {
+    "category": "Treats & Supplements",
+    "items": [
+      { "id": "treat1", "name": "Dog Treats", "kn": "ನಾಯಿ ಟ್ರೀಟ್ಸ್", "subCategory": "Treats & Supplements", "priceType": "Per Pack", "price": null },
+      { "id": "treat2", "name": "Cat Treats", "kn": "ಬೆಕ್ಕು ಟ್ರೀಟ್ಸ್", "subCategory": "Treats & Supplements", "priceType": "Per Pack", "price": null },
+      { "id": "treat3", "name": "Calcium & Vitamin Supplements", "kn": "ಕ್ಯಾಲ್ಸಿಯಂ ಮತ್ತು ವಿಟಮಿನ್ ಪೂರಕಗಳು", "subCategory": "Treats & Supplements", "priceType": "Per Pack", "price": null },
+      { "id": "treat4", "name": "Joint Care Supplements", "kn": "ಸಂಧಿ ಆರೈಕೆ ಪೂರಕಗಳು", "subCategory": "Treats & Supplements", "priceType": "Per Pack", "price": null }
+    ]
+  },
+  {
+    "category": "Accessories",
+    "items": [
+      { "id": "acc1", "name": "Collar & Leash", "kn": "ಕಾಲರ್ ಮತ್ತು ಲೀಶ್", "subCategory": "Accessories", "priceType": "Per Item", "price": null },
+      { "id": "acc2", "name": "Pet Bowls", "kn": "ಪೆಟ್ ಬೌಲ್‍ಗಳು", "subCategory": "Accessories", "priceType": "Per Item", "price": null },
+      { "id": "acc3", "name": "Pet Beds", "kn": "ಪೆಟ್ ಬೆಡ್‍ಗಳು", "subCategory": "Accessories", "priceType": "Per Item", "price": null },
+      { "id": "acc4", "name": "Pet Toys", "kn": "ಪೆಟ್ ಆಟಿಕೆಗಳು", "subCategory": "Accessories", "priceType": "Per Item", "price": null },
+      { "id": "acc5", "name": "Litter Box & Litter", "kn": "ಲಿಟ್ಟರ್ ಬಾಕ್ಸ್ ಮತ್ತು ಲಿಟ್ಟರ್", "subCategory": "Accessories", "priceType": "Per Pack", "price": null }
+    ]
+  },
+  {
+    "category": "Grooming Products",
+    "items": [
+      { "id": "gprod1", "name": "Pet Shampoo", "kn": "ಪೆಟ್ ಶಾಂಪೂ", "subCategory": "Grooming Products", "priceType": "Per Bottle", "price": null },
+      { "id": "gprod2", "name": "Tick & Flea Control", "kn": "ಟಿಕ್ ಮತ್ತು ಫ್ಲೀ ನಿಯಂತ್ರಣ", "subCategory": "Grooming Products", "priceType": "Per Pack", "price": null },
+      { "id": "gprod3", "name": "Grooming Brushes & Clippers", "kn": "ಗ್ರೂಮಿಂಗ್ ಬ್ರಷ್ ಮತ್ತು ಕ್ಲಿಪ್ಪರ್‍ಗಳು", "subCategory": "Grooming Products", "priceType": "Per Pack", "price": null }
+    ]
+  }
+]

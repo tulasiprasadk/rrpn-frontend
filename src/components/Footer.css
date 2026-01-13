@@ -1,0 +1,112 @@
+.rn-footer {
+  background: linear-gradient(
+    to bottom,
+    #ffd600 0%,
+    #ffd600 50%,
+    #e31e24 50%,
+    #e31e24 100%
+  );
+  border-top: 1px solid #eee;
+
+  /* IMPORTANT: use a CSS variable for footer height so other sections can adapt */
+  padding: 0;
+  margin-top: 36px;
+  min-height: var(--footer-height);
+  display: flex;
+  align-items: center; /* vertical centering */
+
+  /* ensure footer sits above decorative page elements */
+  position: relative;
+  z-index: 20;
+}
+
+/* --------------------------------
+   Footer layout – 3 column grid
+   -------------------------------- */
+.rn-footer-inner {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+
+  /* match header horizontal padding so text sits closer to edges */
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center; /* key fix */
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: none;
+}
+
+/* Left: Contact */
+.rn-footer .left {
+  justify-self: start;
+  text-align: left;
+}
+
+/* Center: Copyright */
+.rn-footer .copyright {
+  justify-self: center;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Right: Links */
+.rn-footer .right {
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Links */
+.rn-footer-inner a {
+  color: #000;
+  text-decoration: none;
+  margin-left: 14px;
+  font-weight: 600;
+}
+
+.rn-footer-inner a:hover {
+  text-decoration: underline;
+}
+
+/* Partner button */
+.partner-link-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  font-family: inherit;
+  padding: 0;
+  margin-left: 14px;
+  color: #000;
+  font-weight: 600;
+}
+
+.partner-link-btn:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------
+   Mobile layout
+   -------------------------------- */
+@media (width <= 780px) {
+@media (width <= 780px) {
+    padding: 12px 0;
+  }
+
+  .rn-footer-inner {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .rn-footer .left,
+  .rn-footer .right,
+  .rn-footer .copyright {
+    justify-self: center;
+    text-align: center;
+    white-space: normal;
+  }
+}

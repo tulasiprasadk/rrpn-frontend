@@ -1,0 +1,445 @@
+/* ===================================
+   RR NAGAR — HOME.CSS (FINAL, LOCKED)
+   Hero = live behavior
+   Categories = perfect squares
+   Ads & Discover aligned
+=================================== */
+
+/* ---------- GLOBAL ---------- */
+.home {
+  background: linear-gradient(180deg, #fffaf0 0%, #fff 60%);
+  font-family: 'Noto Sans Kannada', system-ui, sans-serif;
+  padding: 0; /* full-bleed layout so MegaAd touches viewport edges */
+  box-sizing: border-box;
+}
+
+/* Kannada label font style */
+.label-kannada {
+  font-family: 'Noto Sans Kannada', system-ui, sans-serif !important;
+}
+
+/* =================================================
+   HERO SECTION (MATCHES LIVE)
+================================================= */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  background: #000;
+}
+
+.hero-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+}
+
+.hero-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.78);
+  display: block;
+}
+
+/* Hero text overlay */
+.hero-text {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  padding: 0 20px;
+}
+
+.hero-text h1 {
+  font-size: clamp(26px, 5vw, 38px);
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.hero-text p {
+  font-size: clamp(14px, 2.5vw, 16px);
+  margin-bottom: 16px;
+}
+
+/* ---------- HERO SEARCH ---------- */
+.hero-search {
+  display: flex;
+  align-items: stretch;
+  background: #e31e24;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgb(227 30 36 / 15%);
+}
+
+.hero-search input {
+  border: none;
+  padding: 12px 14px;
+  min-width: 240px;
+  font-size: 15px;
+  outline: none;
+}
+
+.hero-search button {
+  border: none;
+  background: #c8102e;
+  color: #fff;
+  padding: 0 18px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.hero-search button:hover {
+  background: #a00b1c;
+}
+
+/* =================================================
+   CONTENT / SECTIONS
+================================================= */
+.content {
+  width: 100%;
+  margin: 0; /* remove gap between hero and following content */
+
+  /* Ensure content leaves room for footer and decorative elements */
+  padding-bottom: calc(var(--footer-height, 72px) + 24px);
+}
+
+.section {
+  margin: 0;
+  padding: 12px 0; /* keep internal spacing but remove outer gaps */
+  background: #fff;
+}
+
+.section-title {
+  font-size: 26px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 18px;
+  color: #333;
+}
+
+/* =================================================
+   CATEGORIES — PERFECT SQUARE GRID
+================================================= */
+.cat-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 24px;
+  justify-items: center;
+}
+
+.cat-card {
+  background: #ffe84b;
+  width: 130px;
+  height: 130px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 7%);
+  text-align: center;
+}
+
+.cat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 15%);
+}
+
+.cat-card .icon {
+  font-size: 40px;
+  line-height: 1;
+}
+
+.cat-card .label {
+  color: #c8102e;
+  font-weight: 700;
+  font-size: 13px;
+  margin-top: 4px;
+  line-height: 1.1;
+}
+
+.cat-card .label-kannada {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+/* =================================================
+   ADS & DISCOVER — UNIFIED GRID SIZE
+================================================= */
+.ads-viewport,
+.discover-viewport {
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+}
+
+.ads-track,
+.discover-track {
+  display: flex;
+  gap: 16px; /* slightly smaller gap to fit more items */
+  align-items: center;
+  flex-wrap: nowrap; /* keep the horizontal rail single-line */
+}
+
+/* ---------- ADS ---------- */
+.ads-track {
+  animation: ads-scroll 25s linear infinite;
+}
+
+@keyframes ads-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ad-item {
+  width: 220px;
+  height: 200px;
+  background: #ffd700;
+  border-radius: 14px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-decoration: none;
+  box-shadow: 0 6px 14px rgb(0 0 0 / 12%);
+}
+
+.ad-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+.ad-title {
+  font-weight: 700;
+  color: #b00018;
+  text-align: center;
+}
+
+/* ---------- DISCOVER ---------- */
+.discover-viewport {
+  width: 100%;
+  padding: 14px 10px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgb(255 238 204 / 90%), rgb(255 246 230 / 90%));
+  box-shadow: 0 6px 18px rgb(0 0 0 / 6%);
+}
+
+.discover-track {
+  animation: discover-scroll 28s linear infinite;
+}
+
+@keyframes discover-scroll {
+  /* left-to-right motion */
+  from { transform: translateX(0); }
+  to   { transform: translateX(50%); }
+}
+
+.discover-item {
+  width: 220px; /* match ad-item width */
+  height: 200px; /* match ad-item height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  flex: 0 0 auto; /* prevent shrinking/wrapping that can cause overlap */
+  padding: 6px; /* breathing room inside the track */
+  box-sizing: border-box;
+  z-index: 0; /* keep items on same stacking baseline */
+}
+
+/* =================================================
+   PRODUCTS
+================================================= */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+  gap: 8px;
+  place-items: start center; /* distribute products equally across rows */
+}
+
+/* Fresh Picks section theme */
+.fresh-picks {
+  /* bold neon palette */
+  background: linear-gradient(90deg, #00FFC6 0%, #00B3FF 33%, #FF00C8 66%, #FFD500 100%);
+  padding: 6px; /* reduced padding to shrink box size */
+  border-radius: 12px;
+  box-shadow: 0 14px 40px rgb(0 0 0 / 12%);
+  border: 1px solid rgb(255 255 255 / 8%);
+  position: relative; /* allow pseudo-element background */
+
+  /* avoid overlapping footer — spacing now handled by .content padding */
+}
+
+/* Force Fresh Picks to form multiple rows with smaller boxes (compact, evenly distributed)
+   Consolidated block: layout, gap, and stacking context live together to avoid duplicate selectors */
+.fresh-picks .products-grid {
+  /* Desktop: smaller box size (~50% smaller min width) and more columns to evenly distribute items */
+  grid-template-columns: repeat(8, minmax(40px, 1fr));
+  gap: 6px;
+  justify-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+/* Place a large ellipse behind the Fresh Picks content (section-level eclipse) */
+.fresh-picks::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  transform: translateX(-50%);
+  width: 110%;
+  height: 120px; /* smaller so it doesn't reach footer */
+  background: radial-gradient(ellipse at center, rgb(255 255 255 / 98%) 0%, rgb(255 255 255 / 85%) 60%, rgb(255 255 255 / 0%) 100%);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Keep product cards visually solid and readable on neon background */
+.fresh-picks .product-card {
+  background: #fff !important;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 8%) !important;
+  border-radius: 12px !important;
+  padding-bottom: 6px;
+}
+
+.fresh-picks .product-card > div:first-child {
+  background: #f6f6f6 !important;
+}
+
+.fresh-picks .product-card h3,
+.fresh-picks .product-card p,
+.fresh-picks .product-card div {
+  color: #b00018 !important;
+}
+
+/* Ensure titles and text wrap inside cards and have compact padding */
+.fresh-picks .product-card h3 {
+  white-space: normal !important;
+  overflow-wrap: break-word;
+  padding: 3px 4px 0;
+  margin: 0;
+  font-size: 11px;
+}
+.fresh-picks .product-card p {
+  padding: 0 4px 4px;
+  margin: 0;
+  font-size: 10px;
+}
+
+/* Slightly tighter grid for smaller fresh-picks boxes */
+
+@media (width <= 1200px) {
+  .fresh-picks .products-grid {
+    grid-template-columns: repeat(4, minmax(70px, 1fr));
+  }
+}
+
+@media (width <= 900px) {
+  .fresh-picks .products-grid {
+    grid-template-columns: repeat(3, minmax(80px, 1fr));
+  }
+}
+
+@media (width <= 480px) {
+  .fresh-picks .products-grid {
+    grid-template-columns: repeat(2, minmax(90px, 1fr));
+  }
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Ensure product card titles wrap across the site */
+.product-card h3 {
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+/* wrapper used in Home for clickable tiles to avoid nested product-card rules */
+.product-tile {
+  display: block;
+  width: 100%;
+}
+
+.product-tile .product-card {
+  display: block;
+  width: 100%;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgb(227 30 36 / 20%);
+}
+
+/* =================================================
+   RESPONSIVE
+================================================= */
+@media (width <= 1100px) {
+  .cat-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (width <= 700px) {
+  .cat-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (width <= 480px) {
+  .hero {
+    height: 220px;
+  }
+
+  .hero-search {
+    width: 95vw;
+  }
+
+  .cat-row {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .cat-card {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto;
+    scroll-snap-align: start;
+  }
+
+  .ad-item,
+  .discover-item {
+    width: 92vw;
+    max-width: 200px;
+    margin: 0 auto;
+  }
+}

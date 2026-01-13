@@ -1,0 +1,30 @@
+/* All styles migrated to theme.css. Use .card, .title, .button, .price, .muted, etc. from theme.css */
+.browse-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+/* ==============================
+   GROCERIES GROUP HEADERS
+============================== */
+
+.grocery-group {
+  margin-bottom: 48px;
+}
+
+.grocery-group-title {
+  margin-bottom: 16px;
+  font-size: 24px;
+  font-weight: 800;
+  text-align: center;
+  background: #fff3b0;
+  padding: 12px;
+  border-radius: 10px;
+}
+
+.products-grid {
+  position: relative;
+  z-index: 1;
+}
+

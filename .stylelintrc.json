@@ -1,0 +1,8 @@
+{
+  "rules": {
+    "no-duplicate-selectors": true,
+    "no-empty-source": true
+    ,
+    "declaration-block-single-line-max-declarations": 1
+  }
+}

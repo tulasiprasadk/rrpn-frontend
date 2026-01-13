@@ -1,0 +1,156 @@
+/* Dashboard Container - Ensures proper layout */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.dashboard-container main {
+  flex: 1;
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  max-width: calc(100vw - 250px);
+  box-sizing: border-box;
+  min-width: 0;
+  position: relative;
+}
+
+/* Sidebar Container - Always fixed */
+.sidebar {
+  width: 250px;
+  background: #fff;
+  height: 100vh;
+  padding: 20px;
+  position: fixed !important;
+  left: 0;
+  top: 0;
+  border-right: 1px solid #eee;
+  display: flex;
+  flex-direction: column;
+  z-index: 200;
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+}
+
+/* Mobile default = sidebar hidden (duplicate removed — first .sidebar kept above) */
+
+/* Mobile open */
+.sidebar.open {
+  transform: translateX(0);
+}
+
+/* Desktop view: sidebar always open */
+@media (width >= 900px) {
+  .sidebar {
+    transform: translateX(0) !important;
+  }
+}
+
+/* Profile Section */
+.sidebar-profile {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.sidebar-avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+
+.sidebar-username {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Menu Links */
+.sidebar-menu a,
+.logout-btn {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  font-size: 15px;
+  color: #333;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-bottom: 4px;
+  transition: 0.2s;
+}
+
+.sidebar-menu a:hover,
+.logout-btn:hover {
+  background: #ffe88c;
+}
+
+.sidebar-menu a.active {
+  background: #ffd700;
+  font-weight: bold;
+  color: #333 !important;
+}
+
+/* Admin sidebar specific styles */
+.sidebar[style*="background: #e31e24"] .sidebar-menu a:hover,
+.sidebar[style*="background: #e31e24"] .logout-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar[style*="background: #e31e24"] .sidebar-menu a.active {
+  background: #ffd700;
+  color: #333 !important;
+  font-weight: bold;
+}
+
+/* Logout button */
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+/* Hamburger Button */
+.sidebar-hamburger {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  background: #ffd700;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  z-index: 300;
+  display: block;
+}
+
+@media (width >= 900px) {
+  .sidebar-hamburger {
+    display: none;
+  }
+}
+
+/* Close button (mobile) */
+.sidebar-close {
+  display: block;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+@media (width >= 900px) {
+  .sidebar-close {
+    display: none;
+  }
+}
+
+/* Overlay (mobile only) */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(0 0 0 / 40%);
+  z-index: 150;
+}

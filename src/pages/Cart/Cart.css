@@ -1,0 +1,17 @@
+/* All styles migrated to theme.css. Use .card, .title, .button, .price, .muted, etc. from theme.css */
+.cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cart-summary {
+  margin-top: 30px;
+  text-align: right;
+}
+
+.cart-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}

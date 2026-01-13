@@ -1,0 +1,31 @@
+﻿
+# Node / dependency folders
+node_modules
+package-lock.json
+
+# Environment files
+.env
+.env.local
+
+# Build / output
+dist
+build
+
+# Vercel
+.vercel
+
+# Editor / OS
+.DS_Store
+.vscode
+.idea
+
+# Logs, cache, coverage
+*.log
+npm-debug.log
+coverage/
+.cache
+
+# Uploaded files / local data
+postgres-data/
+uploads/
+public/uploads/
