@@ -3,42 +3,109 @@ import React from "react";
 // Small inline SVG icons for common categories/varieties.
 // Keeps bundle small and avoids external assets.
 export default function CategoryIcon({ category, variety, size = 16, className, svg = false, name }) {
-  const key = (name || variety || category || "").toString().toLowerCase();
+  const key = (name || variety || category || "").toString().toLowerCase().trim();
 
-  const contains = (s) => key.indexOf(s) !== -1;
+  // Improved matching: check if key contains the search term, or if search term is at word boundary
+  const contains = (s) => {
+    const lowerS = s.toLowerCase();
+    // Exact match or word boundary match
+    return key === lowerS || 
+           key.indexOf(lowerS) !== -1 || 
+           key.split(/\s+/).some(word => word === lowerS || word.startsWith(lowerS));
+  };
 
   // Emoji-first mapping: try to match product name/variety, then category
+  // Order matters - more specific matches first
   const nameEmojiMap = [
+    // Bakery items - order matters, more specific first
+    ["black forest cake", "🍰"],
+    ["black forest", "🍰"],
+    ["chocolate cake", "🍰"],
+    ["chocolate chip cookies", "🍪"],
+    ["chocolate chip", "🍪"],
+    ["chocolate muffin", "🧁"],
+    ["chocolate pastry", "🥐"],
+    ["butter cookies", "🍪"],
+    ["cup cake", "🧁"],
+    ["cupcake", "🧁"],
+    ["cream roll", "🍰"],
+    ["egg puff", "🥐"],
+    ["eggpuff", "🥐"],
+    ["donut", "🍩"],
+    ["doughnut", "🍩"],
+    ["croissant", "🥐"],
+    ["burger bun", "🍞"],
+    ["bun", "🍞"],
+    ["brown bread", "🍞"],
+    ["cookies", "🍪"],
+    ["cookie", "🍪"],
+    ["pastry", "🥐"],
+    ["cake", "🍰"],
+    ["bread", "🍞"],
+    ["muffin", "🧁"],
+    
+    // Fruits
     ["apple", "🍎"],
     ["pineapple", "🍍"],
     ["banana", "🍌"],
     ["mango", "🥭"],
     ["pear", "🍐"],
-    ["custard", "🍮"],
-    ["pastry", "🥐"],
-    ["cake", "🍰"],
-    ["bread", "🍞"],
-    ["cracker", "🧨"],
-    ["sparkler", "🪔"],
-    ["spark", "✨"],
-    ["firework", "🎆"],
-    ["rose", "🌹"],
-    ["mallige", "🌼"],
-    ["jasmine", "🌸"],
-    ["flower", "💐"],
+    ["orange", "🍊"],
+    ["grapes", "🍇"],
+    ["watermelon", "🍉"],
+    ["strawberry", "🍓"],
+    
+    // Dairy
     ["milk", "🥛"],
     ["cheese", "🧀"],
-    ["egg", "🥚"],
+    ["butter", "🧈"],
+    ["yogurt", "🥛"],
+    ["curd", "🥛"],
+    
+    // Meat & Protein
     ["chicken", "🍗"],
     ["fish", "🐟"],
+    ["egg", "🥚"],
+    ["prawn", "🦐"],
+    
+    // Beverages
     ["tea", "🍵"],
     ["coffee", "☕"],
     ["juice", "🧃"],
     ["water", "💧"],
-    ["soap", "🧼"],
+    ["soda", "🥤"],
+    
+    // Groceries/Staples
     ["rice", "🍚"],
     ["sugar", "🍬"],
     ["salt", "🧂"],
+    ["flour", "🌾"],
+    ["oil", "🫒"],
+    ["dal", "🫘"],
+    ["lentil", "🫘"],
+    
+    // Personal Care
+    ["soap", "🧼"],
+    ["shampoo", "🧴"],
+    ["toothpaste", "🪥"],
+    
+    // Crackers & Fireworks
+    ["cracker", "🧨"],
+    ["sparkler", "🪔"],
+    ["spark", "✨"],
+    ["firework", "🎆"],
+    
+    // Flowers
+    ["rose", "🌹"],
+    ["mallige", "🌼"],
+    ["jasmine", "🌸"],
+    ["flower", "💐"],
+    ["marigold", "🌼"],
+    
+    // Desserts
+    ["custard", "🍮"],
+    ["ice cream", "🍦"],
+    ["pudding", "🍮"],
   ];
 
   for (const [k, em] of nameEmojiMap) {

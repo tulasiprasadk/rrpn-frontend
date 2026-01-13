@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { API_BASE } from "../config/api";
 import GoogleSignInButton from "../components/GoogleSignInButton";
@@ -16,6 +16,7 @@ export default function SupplierLogin() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   function update(field) {
     return (e) => setForm({ ...form, [field]: e.target.value });
@@ -165,10 +166,56 @@ export default function SupplierLogin() {
           </button>
         </div>
 
-        <GoogleSignInButton
-          onClick={handleGoogleSignIn}
-          label="Sign in with Google (Supplier)"
-        />
+      <GoogleSignInButton
+        onClick={handleGoogleSignIn}
+        label="Sign in with Google (Supplier)"
+      />
+
+      {/* Show status messages */}
+      {searchParams.get("pending") === "1" && (
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "12px",
+            background: "#fff3cd",
+            color: "#856404",
+            borderRadius: "4px",
+            border: "1px solid #ffc107",
+          }}
+        >
+          <strong>Account Pending:</strong> Please complete KYC to continue.
+        </div>
+      )}
+
+      {searchParams.get("kyc_pending") === "1" && (
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "12px",
+            background: "#d1ecf1",
+            color: "#0c5460",
+            borderRadius: "4px",
+            border: "1px solid #bee5eb",
+          }}
+        >
+          <strong>KYC Submitted:</strong> Your KYC is under review. You'll be notified once approved.
+        </div>
+      )}
+
+      {searchParams.get("kyc_submitted") === "1" && (
+        <div
+          style={{
+            marginTop: "16px",
+            padding: "12px",
+            background: "#d4edda",
+            color: "#155724",
+            borderRadius: "4px",
+            border: "1px solid #c3e6cb",
+          }}
+        >
+          <strong>KYC Submitted Successfully!</strong> Waiting for admin approval.
+        </div>
+      )}
       </form>
 
       <div style={{ marginTop: 24, color: "#666" }}>

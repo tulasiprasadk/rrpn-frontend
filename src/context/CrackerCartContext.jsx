@@ -27,38 +27,75 @@ export function CrackerCartProvider({ children }) {
   }, []);
 
   const addItem = (product, qty = 1) => {
+    // Extract price from multiple possible fields
+    const rawPrice = product.price || product.amount || product.basePrice || product.Price || 0;
+    const normalizedPrice = Number(rawPrice);
+    
     const normalizedProduct = {
       id: product.id || product._id || (product.product && (product.product.id || product.product._id)) || product.sku || null,
       title: product.title || product.name || product.productName || String(product.id || product._id || ''),
       name: product.name || product.title || null,
-      price: Number(product.price || product.amount || product.basePrice || 0),
+      price: normalizedPrice > 0 ? normalizedPrice : 0,
       qty: typeof qty === 'number' && qty > 0 ? qty : (typeof product.quantity === 'number' && product.quantity > 0 ? product.quantity : 1)
     };
+
+    if (!normalizedProduct.id) {
+      console.error('Cannot add product without ID:', product);
+      alert('Error: Product ID is missing. Please try again.');
+      return;
+    }
+    
+    // Warn if price is 0 (but still allow adding for now)
+    if (normalizedProduct.price === 0) {
+      console.warn('Product added with price 0:', normalizedProduct.title, 'Price fields:', {
+        price: product.price,
+        amount: product.amount,
+        basePrice: product.basePrice,
+        Price: product.Price
+      });
+    }
 
     setCart((prev) => {
       const qtyToAdd = normalizedProduct.qty || 1;
       const existing = prev.find((p) => String(p.id) === String(normalizedProduct.id));
+      let updated;
       if (existing) {
-        return prev.map((p) =>
+        updated = prev.map((p) =>
           String(p.id) === String(normalizedProduct.id) ? { ...p, qty: p.qty + qtyToAdd } : p
         );
-      }
-      return [...prev, { ...normalizedProduct }];
-    });
-
-    // Save to localStorage
-    try {
-      const updated = [...cart];
-      const existing = updated.find((p) => String(p.id) === String(normalizedProduct.id));
-      if (existing) {
-        existing.qty += qtyToAdd;
       } else {
-        updated.push(normalizedProduct);
+        updated = [...prev, { ...normalizedProduct }];
       }
-      localStorage.setItem('bag', JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
+      
+      // Save to localStorage immediately with the updated cart
+      try {
+        localStorage.setItem('bag', JSON.stringify(updated));
+        console.log('CrackerCart: Saved to localStorage, bag now has', updated.length, 'items');
+      } catch (err) {
+        console.error('Failed to save to localStorage:', err);
+      }
+      
+      // Dispatch events IMMEDIATELY (localStorage is synchronous)
+      // Dispatch event with cart data FIRST for immediate update
+      window.dispatchEvent(new CustomEvent('cart-updated-with-data', { 
+        detail: { cart: updated, item: normalizedProduct } 
+      }));
+      
+      // Dispatch standard event as backup
+      window.dispatchEvent(new Event('cart-updated'));
+      
+      console.log('CrackerCart: Events dispatched immediately, cart has', updated.length, 'items');
+      
+      // Also dispatch again after a tiny delay to catch any edge cases
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('cart-updated-with-data', { 
+          detail: { cart: updated, item: normalizedProduct } 
+        }));
+        window.dispatchEvent(new Event('cart-updated'));
+      }, 50);
+      
+      return updated;
+    });
   };
 
   const removeItem = (id) => {
@@ -100,8 +137,19 @@ export function CrackerCartProvider({ children }) {
     }
   };
 
+  // Calculate total
+  const total = cart.reduce((sum, item) => sum + (item.price || 0) * (item.qty || 1), 0);
+
   return (
-    <CartContext.Provider value={{ cart, addItem, removeItem, updateQuantity, clearCart }}>
+    <CartContext.Provider value={{ 
+      cart, 
+      addItem, 
+      removeItem, 
+      updateQuantity, 
+      updateQty: updateQuantity, // Alias for compatibility
+      clearCart,
+      total 
+    }}>
       {children}
     </CartContext.Provider>
   );

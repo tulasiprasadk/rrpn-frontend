@@ -29,3 +29,18 @@
   background: #e31e24;
   color: white;
 }
+
+/* Sortable table headers */
+.admin-table th[style*="cursor: pointer"] {
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.admin-table th[style*="cursor: pointer"]:hover {
+  background: #fff9c4 !important;
+  transform: scale(1.02);
+}
+
+.admin-table th[style*="cursor: pointer"]:active {
+  transform: scale(0.98);
+}

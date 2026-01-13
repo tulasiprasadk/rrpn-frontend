@@ -12,7 +12,7 @@ export default function AdminChangePassword() {
     e.preventDefault();
     setErr('');
     setOk('');
-    if (!form.oldPassword || !form.newPassword) return setErr('Fill fields');
+    if (!form.newPassword) return setErr('New password is required');
     if (form.newPassword !== form.confirm) return setErr('New passwords do not match');
 
     try {
@@ -39,9 +39,9 @@ export default function AdminChangePassword() {
     <div style={{ maxWidth: 520, padding: 20 }}>
       <h2>Change Password</h2>
       <form onSubmit={submit} style={{ display: 'grid', gap: 10 }}>
-        <input type="password" placeholder="Current password" value={form.oldPassword} onChange={update('oldPassword')} />
-        <input type="password" placeholder="New password" value={form.newPassword} onChange={update('newPassword')} />
-        <input type="password" placeholder="Confirm new password" value={form.confirm} onChange={update('confirm')} />
+        <input type="password" placeholder="Current password (Optional - Disabled for Debugging)" value={form.oldPassword} onChange={update('oldPassword')} />
+        <input type="password" placeholder="New password" value={form.newPassword} onChange={update('newPassword')} required />
+        <input type="password" placeholder="Confirm new password" value={form.confirm} onChange={update('confirm')} required />
 
         {err && <div style={{ color: 'red' }}>{err}</div>}
         {ok && <div style={{ color: 'green' }}>{ok}</div>}

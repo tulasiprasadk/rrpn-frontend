@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAdminAuth } from "../../context/AdminAuthContext";
 import { API_BASE } from "../../config/api";
 import "./AdminLogin.css";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
+  const { loginAdmin } = useAdminAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -22,12 +24,21 @@ const AdminLogin = () => {
     setError("");
 
     try {
+      console.log('Attempting admin login (password bypass mode):', form.email);
+      // Password is optional now - send empty string if not provided
+      const loginData = {
+        email: form.email,
+        password: form.password || '' // Optional for debugging
+      };
       const res = await fetch(`${API_BASE}/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: 'include',
-        body: JSON.stringify(form),
+        body: JSON.stringify(loginData),
       });
+      
+      console.log('Login response status:', res.status);
+      console.log('Login response headers:', Object.fromEntries(res.headers.entries()));
 
       let data = null;
       try {
@@ -41,6 +52,11 @@ const AdminLogin = () => {
         const msg = (data && (data.error || data.message)) || `Server error ${res.status}`;
         setError(msg);
         return;
+      }
+
+      // Store admin data in context
+      if (data && data.admin) {
+        loginAdmin(data.admin.id.toString(), data.admin);
       }
 
       // Session is set on backend, just navigate
@@ -66,13 +82,13 @@ const AdminLogin = () => {
           onChange={handleChange}
         />
 
-        <label>Password</label>
+        <label>Password (Optional - Currently Disabled for Debugging)</label>
         <input
-          required
           name="password"
           type="password"
           value={form.password}
           onChange={handleChange}
+          placeholder="Password check is disabled - leave empty"
         />
 
         <button type="submit" className="admin-login-btn">

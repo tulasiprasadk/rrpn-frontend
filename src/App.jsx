@@ -48,22 +48,27 @@ import OrderDetailPage from "./pages/OrderDetailPage.jsx";
 import SelectAddressPage from "./pages/SelectAddressPage.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 import TermsOfService from "./pages/TermsOfService.jsx";
+import Blog from "./pages/Blog.jsx";
 
 /* SUPPLIER PAGES */
 import SupplierLogin from "./pages/SupplierLogin.jsx";
 import SupplierRegister from "./pages/SupplierRegister.jsx";
+import SupplierKYC from "./pages/SupplierKYC.jsx";
 import SupplierDashboard from "./pages/SupplierDashboard/SupplierDashboard.jsx";
 import SupplierOrders from "./pages/SupplierOrders/SupplierOrders.jsx";
 import SupplierOrderDetail from "./pages/SupplierOrderDetail/SupplierOrderDetail.jsx";
 import SupplierProducts from "./pages/SupplierProducts/SupplierProducts.jsx";
 import AddProduct from "./pages/SupplierProducts/AddProduct.jsx";
 import EditProduct from "./pages/SupplierProducts/EditProduct.jsx";
+import SupplierProfile from "./pages/SupplierProfile/SupplierProfile.jsx";
+import SupplierAnalytics from "./pages/SupplierAnalytics/SupplierAnalytics.jsx";
 
 /* ADMIN CORE */
 import AdminLogin from "./pages/admin/AdminLogin.jsx";
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 import RequireAdmin from "./components/auth/RequireAdmin.jsx";
+import CustomerLayout from "./components/dashboard/CustomerLayout.jsx";
 
 import AdminSuppliersList from "./pages/admin/suppliers/AdminSuppliersList.jsx";
 import AdminSupplierDetail from "./pages/admin/suppliers/AdminSupplierDetail.jsx";
@@ -72,6 +77,7 @@ import AdminAdForm from "./pages/admin/ads/AdminAdForm.jsx";
 import AnalyticsPage from "./pages/admin/AnalyticsPage.jsx";
 import AdminProductsList from "./pages/admin/products/AdminProductsList.jsx";
 import AdminProductForm from "./pages/admin/products/AdminProductForm.jsx";
+import AdminManagement from "./pages/admin/AdminManagement.jsx";
 import AdminBulkUpload from "./pages/admin/products/AdminBulkUpload.jsx";
 import ProductTranslator from "./pages/admin/ProductTranslator.jsx";
 import AdminOrdersList from "./pages/admin/orders/AdminOrdersList.jsx";
@@ -80,6 +86,9 @@ import AdminCategoriesList from "./pages/admin/categories/AdminCategoriesList.js
 import AdminCategoryForm from "./pages/admin/categories/AdminCategoryForm.jsx";
 import AdminVarietiesList from "./pages/admin/varieties/AdminVarietiesList.jsx";
 import AdminSettings from "./pages/admin/AdminSettings.jsx";
+import PlatformConfig from "./pages/admin/PlatformConfig.jsx";
+import AdminBlogs from "./pages/admin/AdminBlogs.jsx";
+import AdminBlogForm from "./pages/admin/AdminBlogForm.jsx";
 import VendorKycApproval from "./pages/admin/VendorKycApproval.jsx";
 import AdminKycApproval from "./pages/admin/AdminKycApproval.jsx";
 import CmsManager from "./pages/admin/CmsManager.jsx";
@@ -88,7 +97,12 @@ import AdminChangePassword from "./pages/admin/AdminChangePassword.jsx";
 /* WRAPPER */
 function AppWrapper() {
   const location = useLocation();
-  const hideLayout = location.pathname.startsWith("/admin");
+  const hideLayout = location.pathname.startsWith("/admin") || 
+                     location.pathname.startsWith("/customer") ||
+                     location.pathname.startsWith("/profile") ||
+                     location.pathname.startsWith("/my-orders") ||
+                     location.pathname.startsWith("/address") ||
+                     location.pathname.startsWith("/saved-suppliers");
 
   return (
     <>
@@ -104,7 +118,6 @@ function AppWrapper() {
           <Route path="/groceries" element={<Groceries />} />
           <Route path="/products" element={<Products />} />
           <Route path="/dashboard" element={<UserDashboard />} />
-          <Route path="/saved-suppliers" element={<SavedSuppliersPage />} />
           <Route path="/checkout/select-address" element={<SelectAddressPage />} />
 
           {/* SPECIAL */}
@@ -116,21 +129,25 @@ function AppWrapper() {
           <Route path="/consultancy" element={<Consultancy />} />
           <Route path="/petservices" element={<PetServices />} />
 
+          {/* BLOG */}
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<Blog />} />
+
           {/* AUTH */}
           <Route path="/login" element={<Login />} />
           <Route path="/verify" element={<CustomerVerify />} />
 
-          {/* PROFILE */}
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/profile/edit" element={<ProfileEditPage />} />
-
-          {/* ADDRESS */}
-          <Route path="/address" element={<AddressPage />} />
-          <Route path="/address/manage" element={<AddressManagerPage />} />
-
-          {/* ORDERS */}
-          <Route path="/my-orders" element={<MyOrdersPage />} />
-          <Route path="/my-orders/:id" element={<OrderDetailPage />} />
+          {/* CUSTOMER DASHBOARD PAGES (with sidebar) */}
+          <Route element={<ProtectedRoute><CustomerLayout /></ProtectedRoute>}>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/edit" element={<ProfileEditPage />} />
+            <Route path="/address" element={<AddressPage />} />
+            <Route path="/address/manage" element={<AddressManagerPage />} />
+            <Route path="/my-orders" element={<MyOrdersPage />} />
+            <Route path="/my-orders/:id" element={<OrderDetailPage />} />
+            <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+            <Route path="/saved-suppliers" element={<SavedSuppliersPage />} />
+          </Route>
 
           {/* CART */}
           <Route path="/product/:id" element={<ProductDetail />} />
@@ -140,12 +157,6 @@ function AppWrapper() {
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment-success" element={<PaymentSubmitted />} />
 
-          {/* CUSTOMER DASHBOARD (for Google OAuth and direct navigation) */}
-          <Route path="/customer/dashboard" element={
-            <ProtectedRoute>
-              <CustomerDashboard />
-            </ProtectedRoute>
-          } />
 
           {/* LEGAL */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -154,12 +165,15 @@ function AppWrapper() {
           {/* SUPPLIER */}
           <Route path="/supplier/login" element={<SupplierLogin />} />
           <Route path="/supplier/register" element={<SupplierRegister />} />
+          <Route path="/supplier/kyc" element={<SupplierKYC />} />
           <Route path="/supplier/dashboard" element={<SupplierDashboard />} />
           <Route path="/supplier/orders" element={<SupplierOrders />} />
           <Route path="/supplier/orders/:orderId" element={<SupplierOrderDetail />} />
           <Route path="/supplier/products" element={<SupplierProducts />} />
           <Route path="/supplier/products/add" element={<AddProduct />} />
           <Route path="/supplier/products/:productId/edit" element={<EditProduct />} />
+          <Route path="/supplier/profile" element={<SupplierProfile />} />
+          <Route path="/supplier/analytics" element={<SupplierAnalytics />} />
 
           {/* ADMIN */}
           <Route path="/admin/login" element={<AdminLogin />} />
@@ -185,6 +199,11 @@ function AppWrapper() {
               <Route path="categories/:id/edit" element={<AdminCategoryForm />} />
               <Route path="varieties" element={<AdminVarietiesList />} />
               <Route path="settings" element={<AdminSettings />} />
+              <Route path="platform-config" element={<PlatformConfig />} />
+              <Route path="blogs" element={<AdminBlogs />} />
+              <Route path="blogs/new" element={<AdminBlogForm />} />
+              <Route path="blogs/:id/edit" element={<AdminBlogForm />} />
+              <Route path="admins" element={<AdminManagement />} />
               <Route path="change-password" element={<AdminChangePassword />} />
               <Route path="vendors/kyc" element={<VendorKycApproval />} />
               <Route path="kyc-approval" element={<AdminKycApproval />} />

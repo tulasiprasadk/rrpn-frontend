@@ -7,15 +7,34 @@ export default function AdScroll() {
   const [ads, setAds] = useState([]);
 
   useEffect(() => {
-  axios
-    .get(`${API_BASE}/ads`, { withCredentials: true })
-    .then((res) => {
+    loadScrollingAds();
+  }, []);
+
+  async function loadScrollingAds() {
+    try {
+      // Try CMS API first
+      const cmsRes = await axios.get(`${API_BASE}/cms/scrolling-ads`);
+      if (cmsRes.data && Array.isArray(cmsRes.data) && cmsRes.data.length > 0) {
+        setAds(cmsRes.data.map(ad => ({
+          id: ad.id || Math.random(),
+          title: ad.title || ad.name,
+          imageUrl: ad.image || ad.imageUrl,
+          link: ad.link || ad.url
+        })));
+        return;
+      }
+    } catch (err) {
+      console.log('CMS scrolling ads not available, falling back to regular ads');
+    }
+
+    // Fallback to regular ads API
+    try {
+      const res = await axios.get(`${API_BASE}/ads`, { withCredentials: true });
       if (!Array.isArray(res.data)) {
         setAds([]);
         return;
       }
 
-      // ✅ automation rules
       const automatedAds = res.data
         .filter(
           (ad) =>
@@ -23,15 +42,14 @@ export default function AdScroll() {
             ad.position === "grid" &&
             ad.imageUrl
         )
-        .slice(0, 5); // 🔒 max 5 ads
+        .slice(0, 5);
 
       setAds(automatedAds);
-    })
-    .catch((err) => {
+    } catch (err) {
       console.error("Failed to load ads:", err);
       setAds([]);
-    });
-}, []);
+    }
+  }
 
   // If still no ads, show nothing (expected)
   if (ads.length === 0) return null;

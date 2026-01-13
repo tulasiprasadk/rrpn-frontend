@@ -1,10 +1,29 @@
-/* Sidebar Container */
+/* Dashboard Container - Ensures proper layout */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+  position: relative;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+.dashboard-container main {
+  flex: 1;
+  margin-left: 250px;
+  width: calc(100% - 250px);
+  max-width: calc(100vw - 250px);
+  box-sizing: border-box;
+  min-width: 0;
+  position: relative;
+}
+
+/* Sidebar Container - Always fixed */
 .sidebar {
   width: 250px;
   background: #fff;
   height: 100vh;
   padding: 20px;
-  position: fixed;
+  position: fixed !important;
   left: 0;
   top: 0;
   border-right: 1px solid #eee;
@@ -12,6 +31,9 @@
   flex-direction: column;
   z-index: 200;
   transition: transform 0.3s ease;
+  overflow-y: auto;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 /* Mobile default = sidebar hidden (duplicate removed — first .sidebar kept above) */
@@ -68,6 +90,19 @@
 
 .sidebar-menu a.active {
   background: #ffd700;
+  font-weight: bold;
+  color: #333 !important;
+}
+
+/* Admin sidebar specific styles */
+.sidebar[style*="background: #e31e24"] .sidebar-menu a:hover,
+.sidebar[style*="background: #e31e24"] .logout-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar[style*="background: #e31e24"] .sidebar-menu a.active {
+  background: #ffd700;
+  color: #333 !important;
   font-weight: bold;
 }
 

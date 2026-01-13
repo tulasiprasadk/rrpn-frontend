@@ -218,13 +218,51 @@ export default function Home() {
   const adsLoop = [...ads, ...ads];
 
   /* ================= DISCOVER ================= */
-  const discover = [
+  const defaultDiscover = [
     { title: "Temples", titleKannada: "ದೇವಾಲಯಗಳು", desc: "Spiritual places", icon: "🛕", longInfo: "Temples are a vital part of RR Nagar's culture, offering spiritual solace and community events.", longInfoKannada: "ದೇವಾಲಯಗಳು ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಆಧ್ಯಾತ್ಮಿಕತೆ ಮತ್ತು ಸಮುದಾಯದ ಕೇಂದ್ರಗಳಾಗಿವೆ." },
     { title: "Parks", titleKannada: "ಉದ್ಯಾನಗಳು", desc: "Green spaces", icon: "🌳", longInfo: "RR Nagar is home to several parks, perfect for morning walks, play, and relaxation.", longInfoKannada: "ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಹಲವಾರು ಉದ್ಯಾನಗಳು ಇವೆ, ವಿಶ್ರಾಂತಿ ಮತ್ತು ಆಟಕ್ಕೆ ಸೂಕ್ತವಾದವು." },
     { title: "IT Parks", titleKannada: "ಐಟಿ ಉದ್ಯಾನಗಳು", desc: "Tech hubs", icon: "💻", longInfo: "IT Parks in RR Nagar drive innovation and provide jobs to many residents.", longInfoKannada: "ಐಟಿ ಉದ್ಯಾನಗಳು ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಉದ್ಯೋಗ ಮತ್ತು ನವೀನತೆಗೆ ಕಾರಣವಾಗಿವೆ." },
     { title: "Education", titleKannada: "ಶಿಕ್ಷಣ", desc: "Schools & colleges", icon: "🎓", longInfo: "RR Nagar has top schools and colleges, making it a hub for quality education.", longInfoKannada: "ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಉತ್ತಮ ಶಾಲೆಗಳು ಮತ್ತು ಕಾಲೇಜುಗಳಿವೆ." },
     { title: "Entertainment", titleKannada: "ಮನರಂಜನೆ", desc: "Fun places", icon: "🎭", longInfo: "Enjoy movies, events, and fun activities in RR Nagar's entertainment spots.", longInfoKannada: "ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಮನರಂಜನೆಗೆ ಹಲವಾರು ಅವಕಾಶಗಳಿವೆ." },
   ];
+  const [discover, setDiscover] = useState(defaultDiscover);
+  const [megaAdsLeft, setMegaAdsLeft] = useState([]);
+  const [megaAdsRight, setMegaAdsRight] = useState([]);
+  const [scrollingAds, setScrollingAds] = useState([]);
+
+  // Load CMS content
+  useEffect(() => {
+    loadCMSContent();
+  }, []);
+
+  async function loadCMSContent() {
+    try {
+      // Load discover section
+      const discoverRes = await api.get('/cms/discover');
+      if (discoverRes.data && Array.isArray(discoverRes.data) && discoverRes.data.length > 0) {
+        setDiscover(discoverRes.data);
+      }
+
+      // Load mega ads
+      const [leftRes, rightRes, scrollRes] = await Promise.all([
+        api.get('/cms/mega-ads/left').catch(() => ({ data: [] })),
+        api.get('/cms/mega-ads/right').catch(() => ({ data: [] })),
+        api.get('/cms/scrolling-ads').catch(() => ({ data: [] }))
+      ]);
+
+      if (leftRes.data && Array.isArray(leftRes.data) && leftRes.data.length > 0) {
+        setMegaAdsLeft(leftRes.data);
+      }
+      if (rightRes.data && Array.isArray(rightRes.data) && rightRes.data.length > 0) {
+        setMegaAdsRight(rightRes.data);
+      }
+      if (scrollRes.data && Array.isArray(scrollRes.data) && scrollRes.data.length > 0) {
+        setScrollingAds(scrollRes.data);
+      }
+    } catch (err) {
+      console.error('Error loading CMS content:', err);
+    }
+  }
   const [popup, setPopup] = useState({ open: false, item: null, anchor: null });
   const discoverItemRefs = useRef([]);
 
@@ -254,7 +292,7 @@ export default function Home() {
     calcWidth();
     window.addEventListener("resize", calcWidth);
     return () => window.removeEventListener("resize", calcWidth);
-  }, []);
+  }, [discover]); // Recalculate when discover data changes
 
   const featuredProducts = products.slice(0, 16);
 
@@ -270,10 +308,18 @@ export default function Home() {
   return (
     <>
       <main className="home" style={{ display: "flex", width: "100vw", margin: 0, padding: 0, alignItems: "stretch" }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch' }}>
-          <MegaAd image={ad3} link={ads[2].link} position="left" />
-          <MegaAd image={ad1} link={ads[0].link} position="left" />
-          <MegaAd image={'/motard.svg'} link={'https://motardgears.com'} position="left" />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', justifyContent: 'space-between', minHeight: '100vh', paddingTop: 8, paddingBottom: 8 }}>
+          {megaAdsLeft.length > 0 ? (
+            megaAdsLeft.map((ad, idx) => (
+              <MegaAd key={idx} image={ad.image || ad.imageUrl} link={ad.link || ad.url} position="left" alt={ad.title || ad.alt || "Ad"} />
+            ))
+          ) : (
+            <>
+              <MegaAd image={ad3} link={ads[2].link} position="left" />
+              <MegaAd image={ad1} link={ads[0].link} position="left" />
+              <MegaAd image={'/motard.svg'} link={'https://motardgears.com'} position="left" />
+            </>
+          )}
         </div>
         <div style={{ flex: 1, minWidth: 0, maxWidth: 1200, margin: '0 auto' }}>
           {/* HERO */}
@@ -331,10 +377,10 @@ export default function Home() {
             <h2 className="section-title">What's New in RR Nagar</h2>
             <div className="ads-viewport">
               <div className="ads-track">
-                {adsLoop.map((ad, i) => (
-                  <a key={i} href={ad.link} target="_blank" rel="noreferrer" className="ad-item">
-                    <div className="ad-title">{ad.title}</div>
-                    <img src={ad.image} alt={ad.title} />
+                {(scrollingAds.length > 0 ? [...scrollingAds, ...scrollingAds] : adsLoop).map((ad, i) => (
+                  <a key={i} href={ad.link || ad.url} target="_blank" rel="noreferrer" className="ad-item">
+                    <div className="ad-title">{ad.title || ad.name}</div>
+                    <img src={ad.image || ad.imageUrl} alt={ad.title || ad.name} />
                     <div className="ad-cta">Tap to view</div>
                   </a>
                 ))}
@@ -427,13 +473,17 @@ export default function Home() {
 
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', justifyContent: 'space-between', minHeight: '100vh', paddingTop: 8, paddingBottom: 8 }}>
-          <div>
-            <MegaAd image={ad4} link={ads[3].link} position="right" />
-            <MegaAd image={ad2} link={ads[1].link} position="right" />
-          </div>
-          <div>
-            <MegaAd image={ad3} link={ads[2].link} position="right" />
-          </div>
+          {megaAdsRight.length > 0 ? (
+            megaAdsRight.map((ad, idx) => (
+              <MegaAd key={idx} image={ad.image || ad.imageUrl} link={ad.link || ad.url} position="right" alt={ad.title || ad.alt || "Ad"} />
+            ))
+          ) : (
+            <>
+              <MegaAd image={ad4} link={ads[3]?.link} position="right" />
+              <MegaAd image={ad2} link={ads[1]?.link} position="right" />
+              <MegaAd image={ad3} link={ads[2]?.link} position="right" />
+            </>
+          )}
         </div>
       </main>
       <WhatsAppFloating />

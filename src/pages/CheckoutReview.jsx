@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/client";
+import { API_BASE } from "../config/api";
+import "./CheckoutReview.css";
 
 export default function CheckoutReview() {
   const location = useLocation();
@@ -66,8 +68,27 @@ export default function CheckoutReview() {
   }, [navigate]);
 
   const placeOrder = async () => {
+    // Check if address or guest info is ready
     if (!selectedAddress && !isGuest) {
       alert("Please select a delivery address or checkout as guest");
+      setIsGuest(true);
+      setShowGuestForm(true);
+      return;
+    }
+
+    // If guest, validate guest form
+    if (isGuest) {
+      if (!guestName?.trim() || !guestPhone?.trim() || !guestAddressLine?.trim()) {
+        alert('Please fill name, phone and address to continue as guest');
+        setShowGuestForm(true);
+        return;
+      }
+    }
+
+    // If logged in but no address, require address
+    if (!isGuest && !selectedAddress) {
+      alert("Please select a delivery address");
+      navigate("/address");
       return;
     }
 
@@ -78,63 +99,153 @@ export default function CheckoutReview() {
 
       if (!Array.isArray(cart) || cart.length === 0) {
         alert("Your bag is empty");
+        navigate("/");
         return;
       }
 
-      // Create order with first item (cart items may use different id keys)
+      // Create order with all items (or first item if backend only supports single item)
+      // For now, create order with first item - can be extended to handle multiple items
       const firstItem = cart[0];
+      console.log('🔍 First cart item:', firstItem);
+      console.log('🔍 Full cart:', cart);
+      
       let productId = firstItem && (firstItem.id || firstItem.productId || firstItem.product_id || (firstItem.product && (firstItem.product.id || firstItem.product._id)) || firstItem._id || firstItem.sku);
-      // Coerce to number when possible
-      if (productId != null && !isNaN(Number(productId))) productId = Number(productId);
-      if (!productId) {
-        alert('Invalid product in bag. Please re-add the item from the product page.');
+      
+      console.log('🔍 Extracted productId (before conversion):', productId, 'type:', typeof productId);
+      
+      // Check if this is a service (string ID like "elec5", "plumb1", etc.)
+      const isService = productId && typeof productId === 'string' && !/^\d+$/.test(productId);
+      
+      // For services, we'll allow string IDs and handle them differently
+      // For regular products, coerce to number when possible
+      if (!isService && productId != null && !isNaN(Number(productId)) && productId !== '') {
+        productId = Number(productId);
+      }
+      
+      console.log('🔍 Final productId:', productId, 'type:', typeof productId, 'isService:', isService);
+      
+      // Validate: must have an ID (numeric for products, string for services)
+      if (!productId || productId === '' || (!isService && (productId === 0 || isNaN(productId)))) {
+        console.error('❌ Invalid productId:', productId);
+        console.error('Cart item structure:', firstItem);
+        alert(`Invalid product in bag.\n\nProduct ID: ${productId}\n\nPlease remove this item and re-add it from the product page.`);
         return;
       }
+
+      // Calculate total amount - validate prices first
+      let totalAmount = 0;
+      const itemsWithInvalidPrice = [];
+      
+      cart.forEach(item => {
+        const itemPrice = Number(item.price || 0);
+        const itemQty = Number(item.quantity || item.qty || 1);
+        
+        if (itemPrice <= 0) {
+          itemsWithInvalidPrice.push(item.title || item.name || 'Unknown');
+        } else {
+          totalAmount += itemPrice * itemQty;
+        }
+      });
+      
+      // If any items have invalid prices, show error and prevent order
+      if (itemsWithInvalidPrice.length > 0) {
+        alert(`❌ Cannot proceed: The following items don't have valid prices:\n\n${itemsWithInvalidPrice.join('\n')}\n\nPlease remove these items and re-add them from the product page.`);
+        return;
+      }
+      
+      if (totalAmount <= 0) {
+        alert('❌ Order total is invalid. Please ensure all items have valid prices.');
+        return;
+      }
+      
+      console.log('💰 Calculated total amount:', totalAmount);
 
       if (!isGuest) {
+        // Logged in user
         const order = {
           productId: productId,
           qty: firstItem.quantity || firstItem.qty || 1,
           addressId: selectedAddress.id,
+          totalAmount: totalAmount
         };
         const res = await api.post("/orders/create", order);
         // Clear bag
         localStorage.setItem("bag", JSON.stringify([]));
         localStorage.setItem("cart", JSON.stringify([]));
-        navigate("/payment", { state: { orderId: res.data.orderId, orderDetails: res.data } });
+        navigate("/payment", { 
+          state: { 
+            orderId: res.data.orderId || res.data.id, 
+            orderDetails: res.data,
+            amount: totalAmount
+          } 
+        });
         return;
       }
 
       // Guest flow
       const guestAddr = `${guestAddressLine || ''}${guestCity ? ', ' + guestCity : ''}${guestState ? ', ' + guestState : ''}${guestPincode ? ' - ' + guestPincode : ''}`.trim();
-      if (isGuest) {
-        if (!guestName?.trim() || !guestPhone?.trim() || !guestAddressLine?.trim()) {
-          alert('Please fill name, phone and address to continue as guest');
-          return;
-        }
-      }
+      
+      // For services (string IDs), store service info in paymentInfo JSON field
+      // For regular products, use numeric productId
       const guestOrder = {
-        productId: productId,
+        productId: isService ? null : productId, // null for services
         qty: firstItem.quantity || firstItem.qty || 1,
         customerName: guestName,
         customerPhone: guestPhone,
-        customerAddress: guestAddr
+        customerAddress: guestAddr,
+        totalAmount: totalAmount,
+        // Store service info for services
+        serviceInfo: isService ? {
+          serviceId: productId,
+          serviceName: firstItem.title || firstItem.name || 'Service',
+          serviceCategory: firstItem.category || 'Service'
+        } : null
       };
       console.debug('Creating guest order payload:', guestOrder);
+      console.log('Sending to:', `${API_BASE}/orders/create-guest`);
       const gres = await api.post("/orders/create-guest", guestOrder);
+      console.log('Guest order response:', gres.data);
       localStorage.setItem("bag", JSON.stringify([]));
       localStorage.setItem("cart", JSON.stringify([]));
-      navigate("/payment", { state: { orderId: gres.data.orderId, orderDetails: gres.data } });
+      navigate("/payment", { 
+        state: { 
+          orderId: gres.data.orderId || gres.data.id, 
+          orderDetails: gres.data,
+          amount: totalAmount
+        } 
+      });
       
-    } catch {
+    } catch (err) {
       console.error("Order creation error:", err);
-      alert("Failed to create order: " + (err.response?.data?.error || err.message));
+      console.error("Error response:", err.response);
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || "Unknown error";
+      const statusCode = err.response?.status;
+      
+      if (statusCode === 401) {
+        alert("Please log in to create an order. Redirecting to login...");
+        navigate("/login");
+        return;
+      }
+      
+      if (statusCode === 404) {
+        alert(`Order endpoint not found. Please check if backend is running.\n\nError: ${errorMessage}\n\nStatus: ${statusCode}`);
+        console.error("Backend might not be running or route not mounted. Check:", {
+          url: `${API_BASE}/orders/create`,
+          status: statusCode,
+          error: errorMessage
+        });
+        return;
+      }
+      
+      alert(`Failed to create order: ${errorMessage}\n\nStatus Code: ${statusCode || 'N/A'}`);
     }
   };
 
   return (
-    <div style={{ padding: 20, background: '#FFFDE7', minHeight: '100vh', borderRadius: '18px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}>
-      <h2 style={{ background: '#FFF9C4', padding: '12px 0', borderRadius: '10px', textAlign: 'center', marginBottom: 18 }}>Checkout</h2>
+    <div className="checkout-review-page">
+      <div className="checkout-header">
+        <h2>🛒 Checkout</h2>
+      </div>
 
       {loading && <div style={{ color: "#666" }}>Loading...</div>}
 
@@ -151,18 +262,12 @@ export default function CheckoutReview() {
 
       {!loading && !error && (
         <>
-          <h3 style={{ background: '#FFF9C4', padding: '8px 0', borderRadius: '8px', textAlign: 'center', marginBottom: 12 }}>Delivery Address</h3>
+          <div className="checkout-section">
+            <h3>📍 Delivery Address</h3>
+          </div>
 
           {selectedAddress ? (
-            <div
-              style={{
-                border: "1px solid #ddd",
-                padding: 15,
-                borderRadius: 8,
-                marginBottom: 10,
-                background: '#FFF9C4'
-              }}
-            >
+            <div className="address-card">
               <strong>{selectedAddress.name}</strong> ({selectedAddress.phone})
               <br />
               {selectedAddress.addressLine}, {selectedAddress.city},{" "}
@@ -229,85 +334,78 @@ export default function CheckoutReview() {
             <div style={{ flex: 1 }} />
           </div>
 
-          <h3 style={{ background: '#FFF9C4', padding: '8px 0', borderRadius: '8px', textAlign: 'center', marginBottom: 12 }}>Order Summary</h3>
+          <div className="checkout-section">
+            <h3>📦 Order Summary</h3>
+          </div>
 
-          {/* Two-column layout: left = products (30%), right = sidebar (offers/ads) */}
-          <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ flex: '0 0 30%', minWidth: 260 }}>
+          {/* Two-column layout: left = products (35%), right = sidebar (offers/ads) */}
+          <div className="order-summary-container">
+            <div className="order-items-section">
               {cart.length === 0 ? (
-                <p style={{ color: "#999" }}>Your bag is empty</p>
+                <p style={{ color: "#999", textAlign: 'center', padding: '40px' }}>Your bag is empty</p>
               ) : (
-                <div style={{ marginBottom: 20, background: '#FFF9C4', borderRadius: 10, padding: 12, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+                <div style={{ marginBottom: 20, background: '#FFF9C4', borderRadius: 16, padding: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.1)', border: '2px solid rgba(255, 193, 7, 0.3)' }}>
                   {cart.map((item, idx) => (
-                    <div
-                      key={idx}
-                      style={{
-                        border: "1px solid #eee",
-                        padding: 10,
-                        marginBottom: 10,
-                        borderRadius: 6,
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        background: '#FFFDE7'
-                      }}
-                    >
+                    <div key={idx} className="order-item-card">
                       <div style={{ maxWidth: '70%' }}>
-                        <strong style={{ display: 'block' }}>
+                        <div className="order-item-title">
                           {item.title || item.productName || `Product #${item.id}`}
-                        </strong>
-                        <div style={{ color: '#666', fontSize: 13 }}>Quantity: {item.quantity}</div>
+                        </div>
+                        <div className="order-item-quantity">Quantity: {item.quantity}</div>
                       </div>
-                      <div style={{ fontWeight: "bold", color: "#28a745" }}>
-                        ₹{item.price ? (item.price * item.quantity).toFixed(2) : "N/A"}
+                      <div className="order-item-price">
+                        ₹{item.price && item.price > 0 ? (item.price * item.quantity).toFixed(2) : "N/A"}
                       </div>
                     </div>
                   ))}
 
-                  <div style={{ textAlign: 'right', paddingTop: 10, borderTop: '1px dashed #e0e0e0', fontWeight: 700 }}>
+                  <div className="order-total">
                     Total: ₹{cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0).toFixed(2)}
                   </div>
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
-                <button
-                  onClick={placeOrder}
-                  disabled={!((selectedAddress || isGuest) && cart.length > 0)}
-                  style={{
-                    padding: '12px 20px',
-                    background: (selectedAddress || isGuest) && cart.length > 0 ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
-                    color: (selectedAddress || isGuest) && cart.length > 0 ? 'white' : '#888',
-                    border: 'none',
-                    borderRadius: 8,
-                    fontSize: 15,
-                    fontWeight: 700,
-                    minWidth: 200,
-                    cursor: (selectedAddress || isGuest) && cart.length > 0 ? 'pointer' : 'not-allowed',
-                    boxShadow: (selectedAddress || isGuest) && cart.length > 0 ? '0 6px 18px rgba(46,125,50,0.18)' : 'none'
-                  }}
-                >
-                  Proceed to Payment →
-                </button>
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 16 }}>
+                {(() => {
+                  const canProceed = cart.length > 0 && (
+                    selectedAddress || 
+                    (isGuest && guestName?.trim() && guestPhone?.trim() && guestAddressLine?.trim())
+                  );
+                  return (
+                    <button
+                      onClick={placeOrder}
+                      disabled={!canProceed}
+                      className="payment-button"
+                    >
+                      {!selectedAddress && !isGuest && !showGuestForm ? (
+                        '📍 Select Address First'
+                      ) : isGuest && (!guestName?.trim() || !guestPhone?.trim() || !guestAddressLine?.trim()) ? (
+                        '✏️ Fill Guest Details'
+                      ) : (
+                        '💳 Proceed to Payment →'
+                      )}
+                    </button>
+                  );
+                })()}
               </div>
             </div>
 
-            <aside style={{ flex: '1 1 65%', minWidth: 260 }}>
-              <div style={{ background: 'white', padding: 14, borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', marginBottom: 12 }}>
-                <h4 style={{ margin: '0 0 8px' }}>Special Offers</h4>
-                <p style={{ margin: 0, color: '#555' }}>Buy 2 get 1 free on selected grocery items. Use code <strong>RRGIFT</strong> at checkout.</p>
+            <aside className="promo-sidebar">
+              <div className="promo-card">
+                <h4>🎁 Special Offers</h4>
+                <p>Buy 2 get 1 free on selected grocery items. Use code <strong style={{ color: '#e31e24', fontSize: '16px' }}>RRGIFT</strong> at checkout.</p>
               </div>
 
-              <div style={{ background: '#fff8e1', padding: 14, borderRadius: 10, border: '1px solid #ffe082', marginBottom: 12 }}>
-                <h4 style={{ margin: '0 0 8px' }}>Featured Ad</h4>
-                <div style={{ height: 120, background: 'linear-gradient(90deg,#ffd54f,#ffb300)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3a2b00', fontWeight: 700 }}>
+              <div className="promo-card">
+                <h4>📢 Featured Ad</h4>
+                <div className="featured-ad-box">
                   Advertise here — reach local customers
                 </div>
               </div>
 
-              <div style={{ background: 'white', padding: 14, borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
-                <h4 style={{ margin: '0 0 8px' }}>Quote of the day</h4>
-                <blockquote style={{ margin: 0, color: '#444', fontStyle: 'italic' }}>
+              <div className="promo-card quote-box">
+                <h4>💬 Quote of the day</h4>
+                <blockquote>
                   "Support local — small purchases, big impact." — RR Nagar
                 </blockquote>
               </div>

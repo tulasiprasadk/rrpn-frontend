@@ -27,17 +27,27 @@ export default function PetServices() {
   }, [allServices]);
 
   function addItemToBag(service) {
-    addItem({
+    const serviceWithPrice = {
       id: service.id,
       title: service.name,
+      name: service.name,
       titleKannada: service.kn,
       knDisplay: service.kn,
-      price: service.price,
+      price: Number(service.price || 0),
       image: service.image,
       emoji: service.emoji,
       category: service.category,
       description: service.priceType ? `${service.priceType}${service.price ? `: ₹${service.price}` : ''}` : undefined,
-    }, 1);
+    };
+    
+    console.log('PetServices: Adding service to bag:', serviceWithPrice);
+    addItem(serviceWithPrice, 1);
+    
+    // Dispatch event to ensure CartPanel updates
+    window.dispatchEvent(new Event('cart-updated'));
+    
+    // Show feedback
+    alert(`✓ ${service.name} added to bag!`);
   }
 
   return (
@@ -77,7 +87,15 @@ export default function PetServices() {
           </div>
         ))}
       </div>
-      <CartPanel orderType="PET_SERVICES" />
+      <div style={{
+        position: 'sticky',
+        top: 32,
+        alignSelf: 'flex-start',
+        height: 'fit-content',
+        zIndex: 10
+      }}>
+        <CartPanel orderType="PET_SERVICES" />
+      </div>
     </div>
   );
 }

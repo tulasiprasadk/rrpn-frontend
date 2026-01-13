@@ -2,6 +2,8 @@ import React from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import AdminSidebar from "../../components/dashboard/AdminSidebar";
+import "../../components/dashboard/Sidebar.css";
 import "./AdminLayout.css";
 
 // ================== ADMIN NOTIFICATION BELL ==================
@@ -134,49 +136,34 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="admin-layout">
-      
-      {/* LEFT SIDEBAR */}
-      <aside className="admin-sidebar">
-        <Link to="/" className="admin-logo" style={{ textDecoration: "none", color: "white" }}>
-          🎯 RR Nagar Admin
-          <div style={{ fontSize: 11, marginTop: 5, opacity: 0.8 }}>← Click to go to main site</div>
-        </Link>
-        <nav className="admin-nav">
-
-          <Link to="/admin" className="admin-nav-link">📊 Dashboard</Link>
-          <Link to="/admin/orders" className="admin-nav-link">📦 Orders</Link>
-          <Link to="/admin/suppliers" className="admin-nav-link">🏪 Suppliers</Link>
-          <Link to="/admin/products" className="admin-nav-link">📦 Products</Link>
-          <Link to="/admin/translator" className="admin-nav-link">🌐 Translator</Link>
-          <Link to="/admin/categories" className="admin-nav-link">📂 Categories</Link>
-          <Link to="/admin/varieties" className="admin-nav-link">🌾 Varieties</Link>
-          <Link to="/admin/ads" className="admin-nav-link">📢 Advertisements</Link>
-          <Link to="/admin/change-password" className="admin-nav-link">🔐 Change Password</Link>
-          
-          <button 
-            onClick={handleLogout} 
-            className="admin-nav-link" 
-            style={{ 
-              background: "#dc3545", 
-              color: "white", 
-              border: "none", 
-              cursor: "pointer",
-              marginTop: "auto",
-              textAlign: "left"
-            }}
-          >
-            🚪 Logout
-          </button>
-        </nav>
-      </aside>
+    <div className="admin-layout" style={{ display: 'flex', minHeight: '100vh', background: '#f8f9fa' }}>
+      {/* LEFT SIDEBAR - Using consistent sidebar component */}
+      <AdminSidebar />
 
       {/* MAIN AREA */}
-      <div className="admin-main">
+      <div className="admin-main" style={{ 
+        flex: 1, 
+        marginLeft: '250px', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        minWidth: 0,
+        width: 'calc(100% - 250px)',
+        maxWidth: 'calc(100vw - 250px)',
+        boxSizing: 'border-box'
+      }}>
         
         {/* HEADER */}
-        <header className="admin-topbar">
-          <Link to="/" className="admin-nav-link" style={{ 
+        <header className="admin-topbar" style={{ 
+          height: '56px', 
+          background: '#ffd600', 
+          borderBottom: '2px solid rgba(0,0,0,0.2)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between', 
+          padding: '0 20px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+        }}>
+          <Link to="/" style={{ 
             textDecoration: "none", 
             color: "#e31e24", 
             fontWeight: "bold"
@@ -187,7 +174,7 @@ export default function AdminLayout() {
         </header>
 
         {/* PAGE CONTENT */}
-        <main className="admin-content" style={{ padding: 20 }}>
+        <main className="admin-content" style={{ padding: 20, flex: 1 }}>
           <Outlet />
         </main>
       </div>

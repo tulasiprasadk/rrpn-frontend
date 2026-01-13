@@ -88,16 +88,6 @@ export default function Flowers() {
                         <ProductCard
                           product={product}
                           iconSize={16}
-                          style={{
-                            width: '100%',
-                            minWidth: 0,
-                            maxWidth: '100%',
-                            height: 320,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            boxSizing: 'border-box'
-                          }}
                         />
                       </div>
                     ))}

@@ -6,20 +6,20 @@ import {
   FiX,
   FiHome,
   FiPackage,
-  FiHeart,
-  FiMapPin,
-  FiCreditCard,
+  FiShoppingBag,
+  FiPlus,
+  FiBarChart2,
   FiUser,
   FiLogOut
 } from "react-icons/fi";
 import "./Sidebar.css";
 
-function Sidebar() {
+function SupplierSidebar() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const { user, logout } = useAuth();
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => location.pathname.startsWith(path);
 
   return (
     <>
@@ -41,35 +41,31 @@ function Sidebar() {
 
         {/* Profile Section */}
         <div className="sidebar-profile">
-          <img src="/images/react.svg" alt="User" className="sidebar-avatar" />
-          <h3 className="sidebar-username">{user?.name || "Customer"}</h3>
-          <p style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>Customer Account</p>
+          <img src="/images/react.svg" alt="Supplier" className="sidebar-avatar" />
+          <h3 className="sidebar-username">{user?.name || "Supplier"}</h3>
+          <p style={{ fontSize: "12px", color: "#666", marginTop: "4px" }}>Supplier Account</p>
         </div>
 
         {/* Menu Items */}
         <nav className="sidebar-menu">
-          <Link to="/customer/dashboard" className={isActive("/customer/dashboard") ? "active" : ""}>
+          <Link to="/supplier/dashboard" className={isActive("/supplier/dashboard") ? "active" : ""}>
             <FiHome /> Dashboard
           </Link>
 
-          <Link to="/my-orders" className={isActive("/my-orders") ? "active" : ""}>
-            <FiPackage /> My Orders
+          <Link to="/supplier/products" className={isActive("/supplier/products") ? "active" : ""}>
+            <FiShoppingBag /> Products & Pricing
           </Link>
 
-          <Link to="/saved-shops" className={isActive("/saved-shops") ? "active" : ""}>
-            <FiHeart /> Saved Shops
+          <Link to="/supplier/orders" className={isActive("/supplier/orders") ? "active" : ""}>
+            <FiPackage /> Orders
           </Link>
 
-          <Link to="/address" className={isActive("/address") ? "active" : ""}>
-            <FiMapPin /> My Addresses
+          <Link to="/supplier/analytics" className={isActive("/supplier/analytics") ? "active" : ""}>
+            <FiBarChart2 /> Performance
           </Link>
 
-          <Link to="/payments" className={isActive("/payments") ? "active" : ""}>
-            <FiCreditCard /> Payment History
-          </Link>
-
-          <Link to="/profile" className={isActive("/profile") ? "active" : ""}>
-            <FiUser /> My Profile
+          <Link to="/supplier/profile" className={isActive("/supplier/profile") ? "active" : ""}>
+            <FiUser /> Profile
           </Link>
 
           <button className="logout-btn" onClick={() => { logout(); window.location.href = "/"; }}>
@@ -81,7 +77,4 @@ function Sidebar() {
   );
 }
 
-export default Sidebar;
-
-
-
+export default SupplierSidebar;

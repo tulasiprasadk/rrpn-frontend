@@ -34,11 +34,80 @@ export default function ProductCard({ product, onClick, variant, iconSize }) {
   // Keep backward-compatibility: emoji prop still considered, otherwise use category/variety
   // emoji helper removed — centralized emoji rendering via `CategoryIcon`
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (onClick) {
       onClick(product);
     } else {
-      addItem(product, 1);
+      // Add to bag directly
+      console.log('Adding product to bag:', product);
+      
+      // Check if product has a valid price
+      const currentPrice = Number(product.price || product.amount || product.basePrice || product.Price || 0);
+      
+      // If product doesn't have a valid price, fetch it from API
+      let productWithPrice = product;
+      if (currentPrice <= 0 && product.id) {
+        try {
+          console.log('Product missing price, fetching from API for product ID:', product.id);
+          const { API_BASE } = await import('../config/api');
+          const res = await fetch(`${API_BASE}/products/${product.id}`, {
+            credentials: 'include'
+          });
+          if (res.ok) {
+            const fullProduct = await res.json();
+            const fetchedPrice = Number(fullProduct.price || fullProduct.basePrice || fullProduct.amount || 0);
+            productWithPrice = {
+              ...product,
+              price: fetchedPrice,
+              basePrice: fetchedPrice,
+              amount: fetchedPrice
+            };
+            console.log('✅ Fetched product price from API:', fetchedPrice);
+          } else {
+            console.warn('Failed to fetch product details, status:', res.status);
+          }
+        } catch (err) {
+          console.error('Failed to fetch product price:', err);
+        }
+      }
+      
+      // Validate price before adding
+      const finalPrice = Number(productWithPrice.price || productWithPrice.amount || productWithPrice.basePrice || productWithPrice.Price || 0);
+      if (finalPrice <= 0) {
+        const productName = productWithPrice.title || productWithPrice.name || 'This product';
+        alert(`⚠️ ${productName} doesn't have a price set.\n\nPlease contact support or try another product.`);
+        return;
+      }
+      
+      // Ensure price is included in the product object
+      const productToAdd = {
+        ...productWithPrice,
+        price: finalPrice
+      };
+      
+      addItem(productToAdd, 1);
+      
+      // Dispatch events immediately as backup (context also dispatches, but this ensures it)
+      // Dispatch immediately
+      window.dispatchEvent(new Event('cart-updated'));
+      
+      // Also dispatch after a short delay to ensure it's caught
+      setTimeout(() => {
+        window.dispatchEvent(new Event('cart-updated'));
+        // Also try to read from localStorage and dispatch with data
+        try {
+          const saved = JSON.parse(localStorage.getItem('bag') || '[]');
+          window.dispatchEvent(new CustomEvent('cart-updated-with-data', { 
+            detail: { cart: saved } 
+          }));
+        } catch (err) {
+          console.error('ProductCard: Error reading localStorage for event:', err);
+        }
+      }, 100);
+      
+      // Show feedback
+      const productName = productToAdd.title || productToAdd.name || 'Product';
+      alert(`✓ ${productName} added to bag!`);
     }
   };
   const baseStyle = {
@@ -55,6 +124,10 @@ export default function ProductCard({ product, onClick, variant, iconSize }) {
     padding: 0,
     overflow: 'hidden',
     minWidth: 0,
+    width: '100%',
+    height: '100%',
+    minHeight: '200px',
+    maxHeight: '250px',
   };
 
   const freshOverrides = {

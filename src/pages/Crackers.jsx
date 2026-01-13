@@ -31,11 +31,23 @@ export default function Crackers() {
 
   // Add both English and Kannada name to cart item
   function addItemToBag(product) {
-    addItem({
+    // Ensure price is included
+    const productWithPrice = {
       ...product,
       name: product.title,
+      title: product.title,
       kn: product.titleKannada,
-    }, 1);
+      price: Number(product.price || product.amount || product.basePrice || 0)
+    };
+    
+    console.log('Crackers: Adding product to bag:', productWithPrice);
+    addItem(productWithPrice, 1);
+    
+    // Dispatch event to ensure CartPanel updates
+    window.dispatchEvent(new Event('cart-updated'));
+    
+    // Show feedback
+    alert(`✓ ${product.title} added to bag!`);
   }
 
   React.useEffect(() => {

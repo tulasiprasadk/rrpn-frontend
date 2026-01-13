@@ -99,29 +99,28 @@ export default function Groceries() {
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                        gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
                         gap: 16,
-                        marginTop: 16
+                        marginTop: 16,
+                        alignItems: 'stretch'
                       }}
                     >
                       {items
                         .slice()
                         .sort((a, b) => (a.title || a.name || "").localeCompare(b.title || b.name || ""))
                         .map(product => (
-                          <div style={{ minWidth: 0, display: 'flex' }} key={product.id}>
-                                <ProductCard
-                                  product={{ ...product }}
-                                  iconSize={16}
-                              style={{
-                                width: '100%',
-                                minWidth: 0,
-                                maxWidth: '100%',
-                                height: 320,
-                                display: 'flex',
-                                flexDirection: 'column',
-                                justifyContent: 'space-between',
-                                boxSizing: 'border-box'
-                              }}
+                          <div 
+                            key={product.id}
+                            style={{ 
+                              minWidth: 0, 
+                              display: 'flex',
+                              width: '100%',
+                              height: '100%'
+                            }}
+                          >
+                            <ProductCard
+                              product={{ ...product }}
+                              iconSize={16}
                             />
                           </div>
                         ))}
