@@ -10,8 +10,8 @@ export async function requestOtp({ email }) {
   try {
     const response = await axios.post(`/api/supplier/auth/request-email-otp`, { email });
     return response.data;
-  } catch {
-    throw new Error(error.response?.data?.error || "Failed to request OTP");
+  } catch (err) {
+    throw new Error(err.response?.data?.error || "Failed to request OTP");
   }
 }
 
@@ -27,8 +27,8 @@ export async function verifyOtp({ email, otp }) {
       localStorage.setItem("supplierData", JSON.stringify(response.data.supplier));
     }
     return response.data;
-  } catch {
-    throw new Error(error.response?.data?.error || "Failed to verify OTP");
+  } catch (err) {
+    throw new Error(err.response?.data?.error || "Failed to verify OTP");
   }
 }
 

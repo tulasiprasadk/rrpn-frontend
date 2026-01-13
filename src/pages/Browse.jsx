@@ -27,7 +27,7 @@ export default function Groceries() {
         },
       });
       setProducts(res.data || []);
-    } catch {
+    } catch (err) {
       console.error("❌ Failed to load groceries:", err);
       setProducts([]);
     } finally {

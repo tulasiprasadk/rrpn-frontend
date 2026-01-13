@@ -8,7 +8,7 @@ export const fetchOrder = async (orderId) => {
     if (!res.ok) throw new Error(data.message);
 
     return data;
-  } catch {
+  } catch (err) {
     console.error("Error fetching order:", err);
     return null;
   }

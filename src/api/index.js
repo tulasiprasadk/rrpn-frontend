@@ -22,7 +22,7 @@ export async function getProducts(query = "", categoryId = "") {
     const data = await res.json();
     // Backend may return a wrapper { value: [...], Count }
     return data && data.value ? data.value : data;
-  } catch {
+  } catch (err) {
     console.error("API getProducts error:", err);
     return [];
   }
@@ -38,7 +38,7 @@ export async function getProduct(id) {
     if (!res.ok) throw new Error("Failed to load product");
     const data = await res.json();
     return data && data.value ? data.value : data;
-  } catch {
+  } catch (err) {
     console.error("API getProduct error:", err);
     return null;
   }
@@ -52,7 +52,7 @@ export async function getCategories() {
     const data = await res.json();
     // Backend may return a wrapper { value: [...], Count }
     return data && data.value ? data.value : data || [];
-  } catch {
+  } catch (err) {
     console.error('API getCategories error:', err);
     return [];
   }

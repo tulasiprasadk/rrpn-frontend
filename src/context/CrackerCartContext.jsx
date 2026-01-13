@@ -55,7 +55,7 @@ export function CrackerCartProvider({ children }) {
           try {
             await axios.post(`${API_BASE}/cart/add`, { productId: normalizedProduct.id, quantity: normalizedProduct.qty }, { withCredentials: true });
             window.dispatchEvent(new Event('cart-updated'));
-          } catch {
+          } catch (err) {
             // ignore server sync errors (guest/local cart preserved)
             console.error('Failed to sync cart to server', err?.message || err);
             // fallback: persist to localStorage
@@ -106,7 +106,7 @@ export function CrackerCartProvider({ children }) {
             try {
               await axios.post(`${API_BASE}/cart/remove`, { productId }, { withCredentials: true });
               window.dispatchEvent(new Event('cart-updated'));
-            } catch {
+            } catch (err) {
               console.error('Failed to remove from server cart', err?.message || err);
             }
           })();
@@ -123,7 +123,7 @@ export function CrackerCartProvider({ children }) {
             try {
               await axios.post(`${API_BASE}/cart/clear`, {}, { withCredentials: true });
               window.dispatchEvent(new Event('cart-updated'));
-            } catch {
+            } catch (err) {
               console.error('Failed to clear server cart', err?.message || err);
             }
           })();
@@ -153,7 +153,7 @@ export function CrackerCartProvider({ children }) {
                 await axios.post(`${API_BASE}/cart/remove`, { productId: id }, { withCredentials: true });
               }
               window.dispatchEvent(new Event('cart-updated'));
-            } catch {
+            } catch (err) {
               console.error('Failed to sync qty update', err?.message || err);
             }
           })();
