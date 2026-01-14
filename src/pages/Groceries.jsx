@@ -20,7 +20,7 @@ export default function Groceries() {
       try {
         // Resolve Groceries category id and fetch only that category's products
         const cats = await getCategories();
-        const groceriesCat = cats.find(c => c.name === 'Groceries' || (c.name || '').toLowerCase() === 'groceries');
+        const groceriesCat = cats.find(c => (c.name || '').toLowerCase().includes('groc'));
         // Debug logging for troubleshooting
         console.debug('Groceries page - categories:', cats);
         console.debug('Groceries page - resolved groceriesCat:', groceriesCat);
@@ -35,12 +35,13 @@ export default function Groceries() {
             // fallback: fetch all and filter by Category name
             const allData = await getProducts();
             console.debug("Groceries page - fetched all products (fallback):", allData);
-            const groceries = (allData || []).filter(
-              (p) =>
-                p.Category &&
-                (p.Category.name === "Groceries" ||
-                  (p.Category.name || "").toLowerCase() === "groceries")
+            let groceries = (allData || []).filter(
+              (p) => p.Category && (p.Category.name || "").toLowerCase().includes("groc")
             );
+            // If still empty, show all products to avoid blank page
+            if (groceries.length === 0) {
+              groceries = allData || [];
+            }
             console.debug(
               "Groceries page - filtered groceries count (fallback):",
               (groceries || []).length
@@ -51,12 +52,12 @@ export default function Groceries() {
           // fallback: fetch all and filter by Category name
           const data = await getProducts();
           console.debug("Groceries page - fetched all products (fallback):", data);
-          const groceries = (data || []).filter(
-            (p) =>
-              p.Category &&
-              (p.Category.name === "Groceries" ||
-                (p.Category.name || "").toLowerCase() === "groceries")
+          let groceries = (data || []).filter(
+            (p) => p.Category && (p.Category.name || "").toLowerCase().includes("groc")
           );
+          if (groceries.length === 0) {
+            groceries = data || [];
+          }
           console.debug(
             "Groceries page - filtered groceries count (fallback):",
             (groceries || []).length
