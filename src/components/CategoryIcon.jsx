@@ -13,64 +13,74 @@ export default function CategoryIcon({ category, variety, size = 16, className, 
   const contains = (s) => key.indexOf(s) !== -1;
 
   // Emoji-first mapping: try to match product name/variety, then category
-  // Expanded and improved for better icon matching
+  // IMPORTANT: Longer/more specific terms MUST come first to avoid partial matches
+  // (e.g., "pineapple" before "apple" so "Pineapple Pastry" matches correctly)
   const nameEmojiMap = [
-    // Fruits
-    ["apple", "🍎"], ["apples", "🍎"],
+    // Fruits - Longer names first to avoid partial matches
     ["pineapple", "🍍"], ["pineapples", "🍍"],
+    ["watermelon", "🍉"], ["watermelons", "🍉"],
+    ["strawberry", "🍓"], ["strawberries", "🍓"],
+    ["custard apple", "🍎"], // Specific compound names first
+    ["royal gala", "🍎"], ["fuji", "🍎"], ["washington", "🍎"], ["shimla", "🍎"],
+    ["apple", "🍎"], ["apples", "🍎"], // Generic apple after specific types
     ["banana", "🍌"], ["bananas", "🍌"],
     ["mango", "🥭"], ["mangoes", "🥭"], ["mangos", "🥭"],
     ["pear", "🍐"], ["pears", "🍐"],
     ["orange", "🍊"], ["oranges", "🍊"],
     ["grape", "🍇"], ["grapes", "🍇"],
-    ["watermelon", "🍉"], ["watermelons", "🍉"],
-    ["strawberry", "🍓"], ["strawberries", "🍓"],
     ["cherry", "🍒"], ["cherries", "🍒"],
     ["peach", "🍑"], ["peaches", "🍑"],
     ["kiwi", "🥝"], ["kiwis", "🥝"],
     ["coconut", "🥥"], ["coconuts", "🥥"],
-    // Bakery
-    ["custard", "🍮"], ["custards", "🍮"],
+    // Bakery - Specific items first
+    ["pineapple pastry", "🍍"], // Compound names first
+    ["custard pastry", "🍮"],
     ["pastry", "🥐"], ["pastries", "🥐"],
+    ["custard", "🍮"], ["custards", "🍮"],
     ["cake", "🍰"], ["cakes", "🍰"],
     ["bread", "🍞"], ["breads", "🍞"],
     ["cookie", "🍪"], ["cookies", "🍪"],
     ["donut", "🍩"], ["donuts", "🍩"],
     // Crackers/Fireworks
-    ["cracker", "🧨"], ["crackers", "🧨"],
+    ["firework", "🎆"], ["fireworks", "🎆"],
     ["sparkler", "🪔"], ["sparklers", "🪔"],
+    ["cracker", "🧨"], ["crackers", "🧨"],
     ["spark", "✨"], ["sparks", "✨"],
-    ["firework", "🎆"], ["fireworks", "🎆"], ["rocket", "🚀"],
+    ["rocket", "🚀"],
     // Flowers
-    ["rose", "🌹"], ["roses", "🌹"],
+    ["sunflower", "🌻"], ["sunflowers", "🌻"],
     ["mallige", "🌼"], ["malliges", "🌼"],
     ["jasmine", "🌸"], ["jasmines", "🌸"],
-    ["flower", "💐"], ["flowers", "💐"],
     ["lotus", "🪷"], ["lotuses", "🪷"],
-    ["sunflower", "🌻"], ["sunflowers", "🌻"],
+    ["rose", "🌹"], ["roses", "🌹"],
+    ["flower", "💐"], ["flowers", "💐"],
     // Dairy & Proteins
+    ["chicken", "🍗"], ["chickens", "🍗"],
     ["milk", "🥛"], ["milks", "🥛"],
     ["cheese", "🧀"], ["cheeses", "🧀"],
     ["egg", "🥚"], ["eggs", "🥚"],
-    ["chicken", "🍗"], ["chickens", "🍗"],
-    ["fish", "🐟"], ["fishes", "🐟"], ["fish", "🐟"],
+    ["fish", "🐟"], ["fishes", "🐟"],
     ["meat", "🥩"], ["meats", "🥩"],
     // Beverages
-    ["tea", "🍵"], ["teas", "🍵"],
     ["coffee", "☕"], ["coffees", "☕"],
     ["juice", "🧃"], ["juices", "🧃"],
+    ["tea", "🍵"], ["teas", "🍵"],
     ["water", "💧"], ["waters", "💧"],
     // Groceries
+    ["wheat", "🌾"], ["wheats", "🌾"],
+    ["lentil", "🫘"], ["lentils", "🫘"],
+    ["dal", "🫘"], ["dals", "🫘"],
     ["soap", "🧼"], ["soaps", "🧼"],
     ["rice", "🍚"], ["rices", "🍚"],
     ["sugar", "🍬"], ["sugars", "🍬"],
     ["salt", "🧂"], ["salts", "🧂"],
     ["oil", "🫒"], ["oils", "🫒"],
-    ["wheat", "🌾"], ["wheats", "🌾"],
-    ["dal", "🫘"], ["dals", "🫘"], ["lentil", "🫘"], ["lentils", "🫘"],
   ];
 
-  for (const [k, em] of nameEmojiMap) {
+  // Sort by length (longest first) to match more specific terms first
+  const sortedMap = [...nameEmojiMap].sort((a, b) => b[0].length - a[0].length);
+
+  for (const [k, em] of sortedMap) {
     if (contains(k)) return svg ? null : (
       <span className={className} style={{ fontSize: size, lineHeight: 1, display: 'inline-block' }}>{em}</span>
     );
