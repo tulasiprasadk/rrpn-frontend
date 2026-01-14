@@ -22,7 +22,7 @@ export default function Header() {
   const updateBagCount = () => {
     const bag = JSON.parse(localStorage.getItem("bag") || "[]");
     const count = bag.reduce(
-      (sum, item) => sum + (item.quantity || 0),
+      (sum, item) => sum + (item.quantity || item.qty || 0),
       0
     );
     setBagCount(count);
@@ -30,8 +30,16 @@ export default function Header() {
 
   useEffect(() => {
     updateBagCount();
+    // Listen to both storage events and custom cart-updated events
     window.addEventListener("storage", updateBagCount);
-    return () => window.removeEventListener("storage", updateBagCount);
+    window.addEventListener("cart-updated", updateBagCount);
+    // Also poll periodically to catch updates from same tab
+    const interval = setInterval(updateBagCount, 1000);
+    return () => {
+      window.removeEventListener("storage", updateBagCount);
+      window.removeEventListener("cart-updated", updateBagCount);
+      clearInterval(interval);
+    };
   }, []);
 
   const handleLogout = () => {

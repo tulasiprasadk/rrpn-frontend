@@ -297,6 +297,7 @@
   justify-items: center;
   position: relative;
   z-index: 1;
+  padding: 20px; /* Add padding for consistent spacing */
 }
 
 /* Place a large ellipse behind the Fresh Picks content (section-level eclipse) */
@@ -346,26 +347,25 @@
   font-size: 10px;
 }
 
-/* Slightly tighter grid for smaller fresh-picks boxes */
-
+/* Responsive grid - maintain consistent sizing */
 @media (width <= 1200px) {
   .fresh-picks .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
   }
 }
 
 @media (width <= 900px) {
   .fresh-picks .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
   }
 }
 
 @media (width <= 480px) {
   .fresh-picks .products-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
   }
 }
 

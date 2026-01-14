@@ -290,8 +290,8 @@ export default function Home() {
   };
 
   return (
-    <main className="home" style={{ display: "flex", width: "100vw", margin: 0, padding: 0, alignItems: "stretch" }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch' }}>
+    <main className="home" style={{ display: "flex", width: "100vw", margin: 0, padding: 0, alignItems: "flex-start" }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch', alignSelf: 'flex-start' }}>
         <MegaAd image={ad3} link={ads[2].link} position="left" />
         <MegaAd image={ad1} link={ads[0].link} position="left" />
         {/* Extra MegaAd slot under top-left — Motard partner logo */}
@@ -494,15 +494,11 @@ export default function Home() {
         </section>
 
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', justifyContent: 'space-between', minHeight: '100vh', paddingTop: 8, paddingBottom: 8 }}>
-        <div>
-          <MegaAd image={ad4} link={ads[3].link} position="right" />
-          <MegaAd image={ad2} link={ads[1].link} position="right" />
-        </div>
-        {/* Extra MegaAd slot pinned to bottom-right */}
-        <div>
-          <MegaAd image={ad3} link={ads[2].link} position="right" />
-        </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch', alignSelf: 'flex-start' }}>
+        <MegaAd image={ad4} link={ads[3].link} position="right" />
+        <MegaAd image={ad2} link={ads[1].link} position="right" />
+        {/* Extra MegaAd slot */}
+        <MegaAd image={ad3} link={ads[2].link} position="right" />
       </div>
     </main>
     

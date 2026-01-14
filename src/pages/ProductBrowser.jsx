@@ -72,7 +72,8 @@ function ProductBrowser() {
 						<ProductCard
 							key={product.id}
 							product={product}
-							onClick={() => navigate(`/product/${product.id}`)}
+							// Remove onClick - let ProductCard handle add to cart by default
+							// User can click product name to navigate to detail page if needed
 						/>
 					))}
 				</div>
