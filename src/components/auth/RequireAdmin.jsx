@@ -3,6 +3,7 @@
 
 import { Navigate, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { API_BASE } from "../../config/api";
 
 const RequireAdmin = () => {
   const [isChecking, setIsChecking] = useState(true);
@@ -10,10 +11,15 @@ const RequireAdmin = () => {
 
   useEffect(() => {
     // Check if admin is logged in via session
-    fetch("/api/admin/me", { credentials: 'include' })
-      .then(res => res.json())
-      .then(data => {
-        setIsAuthenticated(data.loggedIn);
+    fetch(`${API_BASE}/admin/me`, { credentials: "include" })
+      .then(async (res) => {
+        if (!res.ok) {
+          return { loggedIn: false };
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setIsAuthenticated(!!data?.loggedIn);
         setIsChecking(false);
       })
       .catch(() => {
