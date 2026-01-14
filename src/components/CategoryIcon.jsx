@@ -17,64 +17,154 @@ export default function CategoryIcon({ category, variety, size = 16, className, 
   // (e.g., "pineapple" before "apple" so "Pineapple Pastry" matches correctly)
   const nameEmojiMap = [
     // Fruits - Longer names first to avoid partial matches
-    ["pineapple", "🍍"], ["pineapples", "🍍"],
     ["watermelon", "🍉"], ["watermelons", "🍉"],
+    ["muskmelon", "🍈"], ["muskmelons", "🍈"],
+    ["dragon fruit", "🐉"], ["dragonfruit", "🐉"],
+    ["custard apple", "🍎"], ["sitaphal", "🍎"], ["seethaphal", "🍎"],
+    ["pomegranate", "🍎"], ["pomegranates", "🍎"],
     ["strawberry", "🍓"], ["strawberries", "🍓"],
-    ["custard apple", "🍎"], // Specific compound names first
+    ["blueberry", "🫐"], ["blueberries", "🫐"],
+    ["pineapple", "🍍"], ["pineapples", "🍍"], ["ananas", "🍍"],
     ["royal gala", "🍎"], ["fuji", "🍎"], ["washington", "🍎"], ["shimla", "🍎"],
-    ["apple", "🍎"], ["apples", "🍎"], // Generic apple after specific types
-    ["banana", "🍌"], ["bananas", "🍌"],
+    ["alphonso", "🥭"], ["badami", "🥭"], ["totapuri", "🥭"], ["banganapalli", "🥭"],
+    ["nagpur", "🍊"], ["mosambi", "🍊"], ["sweet lime", "🍊"],
+    ["green grapes", "🍇"], ["black grapes", "🍇"],
+    ["guava", "🍈"], ["guavas", "🍈"], ["chikoo", "🍈"], ["sapota", "🍈"],
+    ["papaya", "🍈"], ["papayas", "🍈"],
+    ["apricot", "🍑"], ["apricots", "🍑"],
+    ["apple", "🍎"], ["apples", "🍎"],
+    ["banana", "🍌"], ["bananas", "🍌"], ["yelakki", "🍌"], ["nendran", "🍌"], ["robusta", "🍌"], ["poovan", "🍌"],
     ["mango", "🥭"], ["mangoes", "🥭"], ["mangos", "🥭"],
     ["pear", "🍐"], ["pears", "🍐"],
     ["orange", "🍊"], ["oranges", "🍊"],
     ["grape", "🍇"], ["grapes", "🍇"],
     ["cherry", "🍒"], ["cherries", "🍒"],
     ["peach", "🍑"], ["peaches", "🍑"],
+    ["plum", "🟣"], ["plums", "🟣"],
     ["kiwi", "🥝"], ["kiwis", "🥝"],
     ["coconut", "🥥"], ["coconuts", "🥥"],
+    ["fig", "🟣"], ["figs", "🟣"],
+    
+    // Vegetables - Longer names first
+    ["cluster beans", "🫛"], ["french beans", "🫛"], ["broad beans", "🫛"],
+    ["ladies finger", "🫛"], ["okra", "🫛"],
+    ["bottle gourd", "🥒"], ["ridge gourd", "🥒"], ["ash gourd", "🥒"],
+    ["sweet corn", "🌽"], ["corn", "🌽"],
+    ["green peas", "🫛"], ["peas", "🫛"],
+    ["cauliflower", "🥦"], ["cauliflowers", "🥦"],
+    ["cabbage", "🥬"], ["cabbages", "🥬"],
+    ["capsicum", "🫑"], ["bell pepper", "🫑"],
+    ["brinjal", "🍆"], ["eggplant", "🍆"],
+    ["beetroot", "🥕"], ["beet", "🥕"],
+    ["carrot", "🥕"], ["carrots", "🥕"],
+    ["radish", "🥕"], ["radishes", "🥕"],
+    ["potato", "🥔"], ["potatoes", "🥔"], ["jyothi", "🥔"],
+    ["onion", "🧅"], ["onions", "🧅"],
+    ["tomato", "🍅"], ["tomatoes", "🍅"],
+    ["pumpkin", "🎃"], ["pumpkins", "🎃"],
+    ["chow chow", "🥒"], ["chayote", "🥒"],
+    ["tinda", "🥒"], ["tindas", "🥒"],
+    ["raw banana", "🍌"], ["raw papaya", "🍈"],
+    
+    // Leafy Vegetables
+    ["coriander leaves", "🌿"], ["coriander", "🌿"], ["kothambari", "🌿"],
+    ["mint leaves", "🌿"], ["mint", "🌿"], ["pudina", "🌿"],
+    ["fenugreek leaves", "🌿"], ["fenugreek", "🌿"], ["menthya", "🌿"],
+    ["dill leaves", "🌿"], ["dill", "🌿"], ["shepu", "🌿"],
+    ["amaranthus", "🌿"], ["harive", "🌿"],
+    ["basale soppu", "🌿"], ["colocasia leaves", "🌿"], ["kasave", "🌿"],
+    ["gongura", "🌿"], ["palak", "🌿"], ["spinach", "🌿"],
+    
     // Bakery - Specific items first
-    ["pineapple pastry", "🍍"], // Compound names first
-    ["custard pastry", "🍮"],
+    ["pineapple pastry", "🍍"], ["custard pastry", "🍮"],
+    ["fruit cake", "🍰"], ["plum cake", "🍰"],
+    ["cream roll", "🥐"], ["croissant", "🥐"],
+    ["burger bun", "🍞"], ["hot dog bun", "🍞"],
+    ["khari biscuit", "🍪"], ["rusk", "🍞"],
+    ["muffin", "🧁"], ["cup cake", "🧁"], ["cupcake", "🧁"],
     ["pastry", "🥐"], ["pastries", "🥐"],
     ["custard", "🍮"], ["custards", "🍮"],
     ["cake", "🍰"], ["cakes", "🍰"],
-    ["bread", "🍞"], ["breads", "🍞"],
-    ["cookie", "🍪"], ["cookies", "🍪"],
+    ["bread", "🍞"], ["breads", "🍞"], ["bun", "🍞"], ["pav", "🍞"], ["toast", "🍞"],
+    ["cookie", "🍪"], ["cookies", "🍪"], ["biscuit", "🍪"],
     ["donut", "🍩"], ["donuts", "🍩"],
-    // Crackers/Fireworks
+    
+    // Crackers/Fireworks - Specific first
+    ["flower pot", "🎆"], ["flower pots", "🎆"],
+    ["electric sparklers", "🪔"], ["crackling sparklers", "🪔"],
+    ["aerial jumbo shooters", "🚀"], ["aerial turbo shooters", "🚀"],
+    ["combo pack", "🎆"], ["celebration products", "🎆"],
+    ["rainbow smoke", "💨"], ["money bank", "💰"],
     ["firework", "🎆"], ["fireworks", "🎆"],
     ["sparkler", "🪔"], ["sparklers", "🪔"],
     ["cracker", "🧨"], ["crackers", "🧨"],
     ["spark", "✨"], ["sparks", "✨"],
-    ["rocket", "🚀"],
-    // Flowers
+    ["rocket", "🚀"], ["shooters", "🚀"],
+    
+    // Flowers - Specific first
+    ["sujee mallige", "🌼"], ["kanakambara", "🌼"], ["kakada", "🌼"],
+    ["jajee", "🌼"], ["ganere", "🌼"], ["ganagile", "🌼"], ["sevanthige", "🌼"],
     ["sunflower", "🌻"], ["sunflowers", "🌻"],
-    ["mallige", "🌼"], ["malliges", "🌼"],
-    ["jasmine", "🌸"], ["jasmines", "🌸"],
+    ["mallige", "🌼"], ["malliges", "🌼"], ["jasmine", "🌸"], ["jasmines", "🌸"],
     ["lotus", "🪷"], ["lotuses", "🪷"],
-    ["rose", "🌹"], ["roses", "🌹"],
-    ["flower", "💐"], ["flowers", "💐"],
-    // Dairy & Proteins
-    ["chicken", "🍗"], ["chickens", "🍗"],
-    ["milk", "🥛"], ["milks", "🥛"],
+    ["rose", "🌹"], ["roses", "🌹"], ["gulabi", "🌹"],
+    ["flower", "💐"], ["flowers", "💐"], ["bouquet", "💐"],
+    
+    // Dairy & Milk Products
+    ["toned milk", "🥛"], ["double toned milk", "🥛"], ["full cream milk", "🥛"],
+    ["a2 cow milk", "🥛"], ["flavoured milk", "🥛"],
+    ["curd", "🥛"], ["yogurt", "🥛"], ["yoghurt", "🥛"], ["majjige", "🥛"],
+    ["ice cream", "🍦"], ["icecream", "🍦"],
+    ["butter", "🧈"], ["butters", "🧈"],
     ["cheese", "🧀"], ["cheeses", "🧀"],
+    ["milk", "🥛"], ["milks", "🥛"],
+    
+    // Proteins
+    ["chicken", "🍗"], ["chickens", "🍗"],
     ["egg", "🥚"], ["eggs", "🥚"],
     ["fish", "🐟"], ["fishes", "🐟"],
     ["meat", "🥩"], ["meats", "🥩"],
-    // Beverages
-    ["coffee", "☕"], ["coffees", "☕"],
-    ["juice", "🧃"], ["juices", "🧃"],
-    ["tea", "🍵"], ["teas", "🍵"],
-    ["water", "💧"], ["waters", "💧"],
-    // Groceries
+    
+    // Staples/Groceries - Specific first
+    ["sona masuri", "🍚"], ["basmati rice", "🍚"], ["brown rice", "🍚"],
+    ["wheat flour", "🌾"], ["ragi flour", "🌾"], ["jowar flour", "🌾"], ["maida", "🌾"],
+    ["toor dal", "🫘"], ["moong dal", "🫘"], ["chana dal", "🫘"], ["urad dal", "🫘"], ["masoor dal", "🫘"],
+    ["sunflower oil", "🫒"], ["groundnut oil", "🫒"], ["coconut oil", "🫒"], ["mustard oil", "🫒"],
+    ["turmeric powder", "🧂"], ["chilli powder", "🧂"], ["coriander powder", "🧂"],
+    ["garam masala", "🧂"], ["sambar powder", "🧂"], ["rasam powder", "🧂"],
+    ["tea powder", "🍵"], ["coffee powder", "☕"],
+    ["poha", "🍚"], ["avalakki", "🍚"],
+    ["vermicelli", "🍜"], ["shavige", "🍜"],
+    ["noodles", "🍜"], ["pasta", "🍝"],
+    ["papad", "🍘"], ["happala", "🍘"],
+    ["breakfast cereal", "🥣"], ["cereal", "🥣"],
+    ["jaggery", "🍬"], ["bella", "🍬"],
+    ["rice", "🍚"], ["rices", "🍚"],
     ["wheat", "🌾"], ["wheats", "🌾"],
     ["lentil", "🫘"], ["lentils", "🫘"],
     ["dal", "🫘"], ["dals", "🫘"],
+    ["sugar", "🍬"], ["sugars", "🍬"], ["sakkare", "🍬"],
+    ["salt", "🧂"], ["salts", "🧂"], ["uppu", "🧂"],
+    ["oil", "🫒"], ["oils", "🫒"], ["enne", "🫒"],
+    
+    // Beverages
+    ["coffee", "☕"], ["coffees", "☕"], ["kafi", "☕"],
+    ["juice", "🧃"], ["juices", "🧃"],
+    ["tea", "🍵"], ["teas", "🍵"], ["chaha", "🍵"],
+    ["water", "💧"], ["waters", "💧"],
+    
+    // Other Groceries
     ["soap", "🧼"], ["soaps", "🧼"],
-    ["rice", "🍚"], ["rices", "🍚"],
-    ["sugar", "🍬"], ["sugars", "🍬"],
-    ["salt", "🧂"], ["salts", "🧂"],
-    ["oil", "🫒"], ["oils", "🫒"],
+    
+    // Services (fallback icons)
+    ["consultation", "📋"], ["consultancy", "📋"], ["tax", "📋"],
+    ["plumbing", "🔧"], ["plumber", "🔧"],
+    ["electrician", "⚡"], ["wiring", "⚡"], ["fan", "⚡"],
+    ["carpenter", "🪚"], ["furniture", "🪚"],
+    ["cleaning", "🧹"], ["deep cleaning", "🧹"],
+    ["pest control", "🐛"], ["cockroach", "🐛"], ["termite", "🐛"], ["mosquito", "🐛"],
+    ["ac service", "❄️"], ["ro service", "💧"], ["geyser", "💧"],
+    ["pet", "🐾"], ["dog", "🐕"], ["cat", "🐈"], ["veterinary", "🐾"], ["grooming", "✂️"],
   ];
 
   // Sort by length (longest first) to match more specific terms first
