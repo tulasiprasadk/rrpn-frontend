@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { API_BASE } from "../config/api";
 import { useNavigate } from "react-router-dom";
+import api from "../api/client";
 
 export default function SelectAddressPage() {
   const [list, setList] = useState([]);
@@ -13,10 +12,10 @@ export default function SelectAddressPage() {
     try {
       setLoading(true);
       setError("");
-      const res = await axios.get(`${API_BASE}/customer/address`);
+      const res = await api.get("/customer/address");
       console.log("Addresses loaded:", res.data);
-      setList(res.data);
-    } catch {
+      setList(Array.isArray(res.data) ? res.data : []);
+    } catch (err) {
       console.error("Address load error:", err);
       if (err.response?.status === 401) {
         setError("Please login first");

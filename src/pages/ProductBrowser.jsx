@@ -1,17 +1,9 @@
 // frontend/src/pages/ProductBrowser.jsx
 
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-
-
-
-// ...existing code...
-
-
 import { getProducts } from "../api";
-
-
+import ProductCard from "../components/ProductCard";
 
 function ProductBrowser() {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -77,22 +69,11 @@ function ProductBrowser() {
 			) : (
 				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 20 }}>
 					{products.map((product) => (
-						<div
+						<ProductCard
 							key={product.id}
-							style={{ border: '1px solid #eee', borderRadius: 8, padding: 16, background: '#fff', cursor: 'pointer' }}
+							product={product}
 							onClick={() => navigate(`/product/${product.id}`)}
-						>
-							<img
-								src={product.imageUrl || product.image || "/images/product-placeholder.png"}
-								alt={product.title}
-								style={{ width: '100%', height: 140, objectFit: 'cover', borderRadius: 6, marginBottom: 10 }}
-								loading="lazy"
-							/>
-							<h3 style={{ fontSize: 18, margin: '8px 0 4px 0' }}>{product.title}</h3>
-							<div style={{ color: '#e31e24', fontWeight: 700, fontSize: 16 }}>₹{product.price}</div>
-							<div style={{ fontSize: 13, color: '#666', marginTop: 4 }}>{product.variety || product.subVariety}</div>
-							<div style={{ fontSize: 13, color: '#777', marginTop: 4 }}>{product.description}</div>
-						</div>
+						/>
 					))}
 				</div>
 			)}
