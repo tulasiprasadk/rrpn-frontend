@@ -11,6 +11,7 @@ import {
   Legend,
 } from "chart.js";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import { API_BASE } from "../../config/api";
 
 ChartJS.register(
   CategoryScale,
@@ -30,30 +31,38 @@ const AdminDashboard = () => {
   const [ordersData, setOrdersData] = useState([]);
 
   useEffect(() => {
-    // Dashboard stats
-    fetch("/api/admin/stats", {
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => setStats(data))
-      .catch(err => console.error('Stats error:', err));
+    const token = localStorage.getItem("adminToken");
+    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    // Revenue chart
-    fetch("/api/admin/charts/revenue", {
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => setRevenueData(data))
-      .catch(err => console.error('Revenue error:', err));
+    const fetchJson = async (url) => {
+      const res = await fetch(url, { credentials: "include", headers });
+      if (!res.ok) {
+        throw new Error(`Request failed: ${res.status}`);
+      }
+      return res.json();
+    };
 
-    // Orders chart
-    fetch("/api/admin/charts/orders", {
-      credentials: 'include'
-    })
-      .then(res => res.json())
-      .then(data => setOrdersData(data))
-      .catch(err => console.error('Orders error:', err));
-
+    Promise.all([
+      fetchJson(`${API_BASE}/admin/stats`),
+      fetchJson(`${API_BASE}/admin/charts/revenue`),
+      fetchJson(`${API_BASE}/admin/charts/orders`),
+    ])
+      .then(([statsData, revenue, orders]) => {
+        setStats(statsData);
+        setRevenueData(revenue || []);
+        setOrdersData(orders || []);
+      })
+      .catch((err) => {
+        console.error("Admin dashboard load error:", err);
+        setStats({
+          totalOrders: 0,
+          totalRevenue: 0,
+          totalSuppliers: 0,
+          totalAds: 0,
+        });
+        setRevenueData([]);
+        setOrdersData([]);
+      });
   }, []);
 
   if (!stats) return <div>Loading dashboard...</div>;

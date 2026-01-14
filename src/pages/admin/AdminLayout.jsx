@@ -1,7 +1,6 @@
 import React from "react";
 import { Outlet, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import api from "../../api/client";
 import { translate, isKannadaEnabled } from "../../utils/kannadaTranslator";
 import "./AdminLayout.css";
@@ -12,7 +11,7 @@ function AdminNotifications() {
   const [open, setOpen] = useState(false);
 
   async function load() {
-    const res = await axios.get("/api/admin/notifications");
+    const res = await api.get("/admin/notifications");
     setList(res.data);
   }
 
@@ -102,7 +101,7 @@ function AdminNotifications() {
           {list.length > 0 && (
             <button
               onClick={async () => {
-                await axios.put("/api/admin/notifications/mark-read");
+                await api.put("/admin/notifications/mark-read");
                 setList([]);
               }}
               style={{
