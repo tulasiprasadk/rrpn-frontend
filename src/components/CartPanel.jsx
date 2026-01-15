@@ -14,17 +14,30 @@ export default function CartPanel() {
   const [loading, setLoading] = useState(true);
   const { cart } = useCrackerCart();
 
+  const readLocalBag = () => {
+    try {
+      const bagData = JSON.parse(localStorage.getItem("bag") || "[]");
+      return Array.isArray(bagData) ? bagData : [];
+    } catch {
+      return [];
+    }
+  };
+
   const loadBag = async () => {
+    // Always try localStorage first (source of truth for bag UI)
+    const localBag = readLocalBag();
+
     if (user) {
       try {
         const res = await api.get("/cart");
-        setBag(res.data.items || []);
+        const serverItems = res.data?.items || [];
+        setBag(serverItems.length > 0 ? serverItems : localBag);
       } catch {
-        setBag([]);
+        setBag(localBag);
       }
     } else {
-      // use in-memory CrackerCart context for guest users
-      setBag(Array.isArray(cart) ? cart : []);
+      // use in-memory CrackerCart context for guest users, fallback to local bag
+      setBag(Array.isArray(cart) && cart.length ? cart : localBag);
     }
     setLoading(false);
   };
@@ -32,7 +45,7 @@ export default function CartPanel() {
   useEffect(() => {
     loadBag();
     // Listen for localStorage changes (for guests) — keep for legacy flows
-    const onStorage = () => !user && loadBag();
+    const onStorage = () => loadBag();
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
      
