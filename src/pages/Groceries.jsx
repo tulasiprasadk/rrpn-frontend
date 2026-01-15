@@ -21,20 +21,14 @@ export default function Groceries() {
         // Resolve Groceries category id and fetch only that category's products
         const cats = await getCategories();
         const groceriesCat = cats.find(c => (c.name || '').toLowerCase().includes('groc'));
-        // Debug logging for troubleshooting
-        console.debug('Groceries page - categories:', cats);
-        console.debug('Groceries page - resolved groceriesCat:', groceriesCat);
-
         if (groceriesCat && groceriesCat.id) {
           const data = await getProducts("", groceriesCat.id);
-          console.debug(`Groceries page - fetched products for categoryId=${groceriesCat.id}:`, data);
 
           if (Array.isArray(data) && data.length > 0) {
             if (mounted) setProducts(data || []);
           } else {
             // fallback: fetch all and filter by Category name
             const allData = await getProducts();
-            console.debug("Groceries page - fetched all products (fallback):", allData);
             let groceries = (allData || []).filter(
               (p) => p.Category && (p.Category.name || "").toLowerCase().includes("groc")
             );
@@ -42,26 +36,17 @@ export default function Groceries() {
             if (groceries.length === 0) {
               groceries = allData || [];
             }
-            console.debug(
-              "Groceries page - filtered groceries count (fallback):",
-              (groceries || []).length
-            );
             if (mounted) setProducts(groceries);
           }
         } else {
           // fallback: fetch all and filter by Category name
           const data = await getProducts();
-          console.debug("Groceries page - fetched all products (fallback):", data);
           let groceries = (data || []).filter(
             (p) => p.Category && (p.Category.name || "").toLowerCase().includes("groc")
           );
           if (groceries.length === 0) {
             groceries = data || [];
           }
-          console.debug(
-            "Groceries page - filtered groceries count (fallback):",
-            (groceries || []).length
-          );
           if (mounted) setProducts(groceries);
         }
       } catch (e) {
