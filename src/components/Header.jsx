@@ -12,11 +12,10 @@ export default function Header() {
   const { user, logout } = useAuth();
   const [isSupplier, setIsSupplier] = useState(false);
 
-  // Check if user is supplier
-  useEffect(() => {
+  const updateSupplierFlag = () => {
     const supplierToken = localStorage.getItem("supplierToken");
     setIsSupplier(!!supplierToken);
-  }, []);
+  };
 
   // 🔁 Update bag count from localStorage
   const updateBagCount = () => {
@@ -30,14 +29,20 @@ export default function Header() {
 
   useEffect(() => {
     updateBagCount();
+    updateSupplierFlag();
     // Listen to both storage events and custom cart-updated events
     window.addEventListener("storage", updateBagCount);
     window.addEventListener("cart-updated", updateBagCount);
+    window.addEventListener("storage", updateSupplierFlag);
     // Also poll periodically to catch updates from same tab
-    const interval = setInterval(updateBagCount, 1000);
+    const interval = setInterval(() => {
+      updateBagCount();
+      updateSupplierFlag();
+    }, 1000);
     return () => {
       window.removeEventListener("storage", updateBagCount);
       window.removeEventListener("cart-updated", updateBagCount);
+      window.removeEventListener("storage", updateSupplierFlag);
       clearInterval(interval);
     };
   }, []);

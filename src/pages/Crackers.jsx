@@ -100,7 +100,7 @@ export default function Crackers() {
                 .map(([variety, items]) => (
                   <div key={variety} style={{ marginBottom: 32, background: '#FFF9C4', borderRadius: 12, padding: 12 }}>
                     <h2 style={{ borderBottom: '2px solid #C8102E', paddingBottom: 6, color: '#C8102E', fontSize: 20, textAlign: 'center' }}>{variety}</h2>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 16, marginTop: 16 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 20, marginTop: 16, alignItems: 'stretch' }}>
                       {items
                         .slice()
                         .sort((a, b) => (a.title || a.name || "").localeCompare(b.title || b.name || ""))
@@ -116,7 +116,7 @@ export default function Crackers() {
                               image: product.image,
                               variety: product.variety || product.title,
                             }}
-                             iconSize={18}
+                             iconSize={16}
                             onClick={() => addItemToBag(product)}
                           />
                         ))}

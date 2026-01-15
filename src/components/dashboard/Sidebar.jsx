@@ -55,7 +55,7 @@ function Sidebar() {
             <FiPackage /> My Orders
           </Link>
 
-          <Link to="/saved-shops" className={isActive("/saved-shops") ? "active" : ""}>
+          <Link to="/saved-suppliers" className={isActive("/saved-suppliers") ? "active" : ""}>
             <FiHeart /> Saved Shops
           </Link>
 
@@ -63,7 +63,7 @@ function Sidebar() {
             <FiMapPin /> My Addresses
           </Link>
 
-          <Link to="/payments" className={isActive("/payments") ? "active" : ""}>
+          <Link to="/my-orders" className={isActive("/my-orders") ? "active" : ""}>
             <FiCreditCard /> Payment History
           </Link>
 

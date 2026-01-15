@@ -77,7 +77,8 @@ export default function Flowers() {
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
                     gap: 20,
-                    marginTop: 16
+                    marginTop: 16,
+                    alignItems: "stretch"
                   }}
                 >
                   {items

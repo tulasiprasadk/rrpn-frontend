@@ -125,6 +125,8 @@ function AdminNotifications() {
 // ================== ADMIN LAYOUT ==================
 
 export default function AdminLayout() {
+  const [kannadaEnabled, setKannadaEnabled] = useState(isKannadaEnabled());
+
   const handleLogout = async () => {
     try {
       await api.post("/admin/logout");
@@ -145,15 +147,15 @@ export default function AdminLayout() {
         </Link>
         <nav className="admin-nav">
 
-          <Link to="/admin" className="admin-nav-link">📊 Dashboard</Link>
-          <Link to="/admin/orders" className="admin-nav-link">📦 Orders</Link>
-          <Link to="/admin/suppliers" className="admin-nav-link">🏪 Suppliers</Link>
-          <Link to="/admin/products" className="admin-nav-link">📦 Products</Link>
-          <Link to="/admin/translator" className="admin-nav-link">🌐 Translator</Link>
-          <Link to="/admin/categories" className="admin-nav-link">📂 Categories</Link>
-          <Link to="/admin/varieties" className="admin-nav-link">🌾 Varieties</Link>
-          <Link to="/admin/ads" className="admin-nav-link">📢 Advertisements</Link>
-          <Link to="/admin/change-password" className="admin-nav-link">🔐 Change Password</Link>
+          <Link to="/admin" className="admin-nav-link">📊 {translate("Dashboard", kannadaEnabled)}</Link>
+          <Link to="/admin/orders" className="admin-nav-link">📦 {translate("Orders", kannadaEnabled)}</Link>
+          <Link to="/admin/suppliers" className="admin-nav-link">🏪 {translate("Suppliers", kannadaEnabled)}</Link>
+          <Link to="/admin/products" className="admin-nav-link">📦 {translate("Products", kannadaEnabled)}</Link>
+          <Link to="/admin/translator" className="admin-nav-link">🌐 {translate("Translator", kannadaEnabled)}</Link>
+          <Link to="/admin/categories" className="admin-nav-link">📂 {translate("Categories", kannadaEnabled)}</Link>
+          <Link to="/admin/varieties" className="admin-nav-link">🌾 {translate("Varieties", kannadaEnabled)}</Link>
+          <Link to="/admin/ads" className="admin-nav-link">📢 {translate("Advertisements", kannadaEnabled)}</Link>
+          <Link to="/admin/change-password" className="admin-nav-link">🔐 {translate("Change Password", kannadaEnabled)}</Link>
           
           <button 
             onClick={handleLogout} 
@@ -167,7 +169,7 @@ export default function AdminLayout() {
               textAlign: "left"
             }}
           >
-            🚪 Logout
+            🚪 {translate("Logout", kannadaEnabled)}
           </button>
         </nav>
       </aside>
@@ -184,6 +186,29 @@ export default function AdminLayout() {
           }}>
             ← Back to Home
           </Link>
+          <button
+            onClick={() => {
+              const next = !kannadaEnabled;
+              if (next) {
+                localStorage.setItem("admin_language", "kannada");
+              } else {
+                localStorage.removeItem("admin_language");
+              }
+              setKannadaEnabled(next);
+            }}
+            style={{
+              marginLeft: "auto",
+              marginRight: 12,
+              padding: "6px 10px",
+              borderRadius: 6,
+              border: "1px solid #ddd",
+              background: "#fff",
+              cursor: "pointer",
+              fontSize: 12
+            }}
+          >
+            {kannadaEnabled ? "English" : "Kannada"}
+          </button>
           <AdminNotifications />
         </header>
 

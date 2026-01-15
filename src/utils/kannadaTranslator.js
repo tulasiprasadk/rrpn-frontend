@@ -9,7 +9,12 @@ const translations = {
   'Customers': 'ಗ್ರಾಹಕರು',
   'Suppliers': 'ಸರಬರಾಜುದಾರರು',
   'Analytics': 'ವಿಶ್ಲೇಷಣೆ',
-  'Settings': 'ಸettings',
+  'Settings': 'ಸೆಟ್ಟಿಂಗ್ಸ್',
+  'Translator': 'ಅನುವಾದಕ',
+  'Categories': 'ವರ್ಗಗಳು',
+  'Varieties': 'ವೈವಿಧ್ಯಗಳು',
+  'Advertisements': 'ಜಾಹೀರಾತುಗಳು',
+  'Change Password': 'ಪಾಸ್‌ವರ್ಡ್ ಬದಲಿಸಿ',
   'Logout': 'ಲಾಗ್ ಔಟ್',
   
   // Common Actions

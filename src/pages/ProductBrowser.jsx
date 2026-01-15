@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getProducts } from "../api";
 import ProductCard from "../components/ProductCard";
+import CartPanel from "../components/CartPanel";
 
 function ProductBrowser() {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -29,7 +30,7 @@ function ProductBrowser() {
 		try {
 			const data = await getProducts(searchQuery, categoryId);
 			setProducts(data || []);
-		} catch {
+		} catch (err) {
 			setProducts([]);
 			console.error("Error loading products:", err);
 		} finally {
@@ -49,7 +50,8 @@ function ProductBrowser() {
 	};
 
 	return (
-		<div style={{ padding: 24 }}>
+		<div style={{ display: "flex", minHeight: "100vh", background: "#FFFDE7" }}>
+			<div style={{ flex: 1, padding: 24 }}>
 			<div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
 				<input
 					type="text"
@@ -67,7 +69,7 @@ function ProductBrowser() {
 			) : products.length === 0 ? (
 				<div>No products found.</div>
 			) : (
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 20 }}>
+				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 20, alignItems: 'stretch' }}>
 					{products.map((product) => (
 						<ProductCard
 							key={product.id}
@@ -78,6 +80,16 @@ function ProductBrowser() {
 					))}
 				</div>
 			)}
+			</div>
+			<div style={{
+				position: 'sticky',
+				top: 32,
+				alignSelf: 'flex-start',
+				height: 'fit-content',
+				zIndex: 10
+			}}>
+				<CartPanel />
+			</div>
 		</div>
 	);
 }

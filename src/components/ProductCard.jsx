@@ -5,7 +5,7 @@ import CategoryIcon from "./CategoryIcon";
 
 // Emoji mapping consolidated in `CategoryIcon` — removed local unused map
 
-export default function ProductCard({ product, onClick, variant, iconSize }) {
+export default function ProductCard({ product, onClick, variant, iconSize, style }) {
   const { addItem } = useCrackerCart();
   if (!product) return null;
   const {
@@ -30,6 +30,7 @@ export default function ProductCard({ product, onClick, variant, iconSize }) {
   // Extract category name and icon (support both Category object and string)
   const categoryName = Category?.name || category || "";
   const categoryIcon = Category?.icon || null;
+  const productIcon = product?.icon || product?.emoji || _emoji || null;
   // Debug: Log product data for icon matching
   // console.log('ProductCard icon data:', { displayName, categoryName, categoryIcon, variety });
   // ensure title/desc wrappers have no unexpected border/background
@@ -73,6 +74,8 @@ export default function ProductCard({ product, onClick, variant, iconSize }) {
     padding: 0,
     overflow: 'hidden',
     minWidth: 0,
+    minHeight: 320,
+    height: "100%",
   };
 
   const freshOverrides = {
@@ -84,6 +87,7 @@ export default function ProductCard({ product, onClick, variant, iconSize }) {
   };
 
   const mergedStyle = variant === 'fresh' ? { ...baseStyle, ...freshOverrides } : baseStyle;
+  const finalStyle = { ...mergedStyle, ...style };
 
   return (
     <div
@@ -91,8 +95,8 @@ export default function ProductCard({ product, onClick, variant, iconSize }) {
       role="button"
       tabIndex={0}
       onClick={handleClick}
-      onKeyDown={(e) => e.key === "Enter" && handleClick()}
-      style={mergedStyle}
+      onKeyDown={(e) => e.key === "Enter" && handleClick(e)}
+      style={finalStyle}
     >
       {/* IMAGE + EMOJI */}
       <div
@@ -134,13 +138,13 @@ export default function ProductCard({ product, onClick, variant, iconSize }) {
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <CategoryIcon name={displayName} category={categoryName} variety={variety} icon={categoryIcon} size={iconSize || 16} />
+              <CategoryIcon name={displayName} category={categoryName} variety={variety} icon={productIcon || categoryIcon} size={iconSize || 16} />
             </span>
           </>
         ) : (
           // Show icon large if no image
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CategoryIcon name={displayName} category={categoryName} variety={variety} icon={categoryIcon} size={iconSize ? Math.max(20, iconSize*1.6) : 28} />
+            <CategoryIcon name={displayName} category={categoryName} variety={variety} icon={productIcon || categoryIcon} size={iconSize ? Math.max(20, iconSize*1.6) : 28} />
           </div>
         )}
       </div>
@@ -149,13 +153,7 @@ export default function ProductCard({ product, onClick, variant, iconSize }) {
       <h3 style={titleStyle}>{displayName}</h3>
 
       {/* KANNADA NAME - Always show if available, otherwise show placeholder */}
-      {displayKn ? (
-        <div style={knStyle}>{displayKn}</div>
-      ) : (
-        <div style={{ ...knStyle, color: '#999', fontStyle: 'italic', fontSize: 10 }}>
-          {displayName} {/* Fallback: show English name in smaller text if no Kannada */}
-        </div>
-      )}
+      <div style={knStyle}>{displayKn || displayName}</div>
 
       {/* DESCRIPTION */}
       {description && (

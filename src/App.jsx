@@ -42,7 +42,6 @@ import AddressPage from "./pages/AddressPage.jsx";
 import AddressManagerPage from "./pages/AddressManagerPage.jsx";
 import ProfileEditPage from "./pages/ProfileEditPage.jsx";
 import SavedSuppliersPage from "./pages/SavedSuppliersPage.jsx";
-import UserDashboard from "./pages/UserDashboard.jsx";
 import CustomerDashboard from "./pages/CustomerDashboard.jsx";
 import MyOrdersPage from "./pages/MyOrdersPage.jsx";
 import OrderDetailPage from "./pages/OrderDetailPage.jsx";
@@ -108,7 +107,7 @@ function AppWrapper() {
           <Route path="/browse" element={<ProductBrowser />} />
           <Route path="/groceries" element={<Groceries />} />
           <Route path="/products" element={<Products />} />
-          <Route path="/dashboard" element={<UserDashboard />} />
+          <Route path="/dashboard" element={<Navigate to="/customer/dashboard" replace />} />
           <Route path="/saved-suppliers" element={<SavedSuppliersPage />} />
           <Route path="/checkout/select-address" element={<SelectAddressPage />} />
 
@@ -126,16 +125,21 @@ function AppWrapper() {
           <Route path="/verify" element={<CustomerVerify />} />
 
           {/* PROFILE */}
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/profile/edit" element={<ProfileEditPage />} />
-
-          {/* ADDRESS */}
-          <Route path="/address" element={<AddressPage />} />
-          <Route path="/address/manage" element={<AddressManagerPage />} />
-
-          {/* ORDERS */}
-          <Route path="/my-orders" element={<MyOrdersPage />} />
-          <Route path="/my-orders/:id" element={<OrderDetailPage />} />
+          {/* CUSTOMER DASHBOARD + PAGES (Protected + Sidebar) */}
+          <Route element={
+            <ProtectedRoute>
+              <CustomerLayout />
+            </ProtectedRoute>
+          }>
+            <Route path="/customer/dashboard" element={<CustomerDashboard />} />
+            <Route path="/my-orders" element={<MyOrdersPage />} />
+            <Route path="/my-orders/:id" element={<OrderDetailPage />} />
+            <Route path="/address" element={<AddressPage />} />
+            <Route path="/address/manage" element={<AddressManagerPage />} />
+            <Route path="/saved-suppliers" element={<SavedSuppliersPage />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile/edit" element={<ProfileEditPage />} />
+          </Route>
 
           {/* CART */}
           <Route path="/product/:id" element={<ProductDetail />} />
@@ -144,13 +148,6 @@ function AppWrapper() {
           <Route path="/order-success/:orderId" element={<OrderSuccess />} />
           <Route path="/payment" element={<PaymentPage />} />
           <Route path="/payment-success" element={<PaymentSubmitted />} />
-
-          {/* CUSTOMER DASHBOARD (for Google OAuth and direct navigation) */}
-          <Route path="/customer/dashboard" element={
-            <ProtectedRoute>
-              <CustomerDashboard />
-            </ProtectedRoute>
-          } />
 
           {/* LEGAL */}
           <Route path="/privacy" element={<PrivacyPolicy />} />
@@ -173,6 +170,7 @@ function AppWrapper() {
           <Route element={<RequireAdmin />}>
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
+              <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="cms" element={<CmsManager />} />
               <Route path="suppliers" element={<AdminSuppliersList />} />
               <Route path="suppliers/:id" element={<AdminSupplierDetail />} />
@@ -214,7 +212,9 @@ export default function App() {
     <AdminAuthProvider>
       <CrackerCartProvider>
         <QuickCartProvider>
-          <AppWrapper />
+          <AuthProvider>
+            <AppWrapper />
+          </AuthProvider>
         </QuickCartProvider>
       </CrackerCartProvider>
     </AdminAuthProvider>

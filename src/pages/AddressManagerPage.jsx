@@ -105,7 +105,7 @@ export default function AddressManagerPage() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: 20, maxWidth: 560, margin: "0 auto" }}>
       <h2>{address.id ? "Edit Address" : "Add Address"}</h2>
 
       {error && (
@@ -121,53 +121,42 @@ export default function AddressManagerPage() {
         onSelect={handleGoogleSelect}
       />
 
-      <input
-        name="name"
-        placeholder="Name *"
-        value={form.name}
-        onChange={handleChange}
-        style={{ marginTop: 8 }}
-      /><br />
-
-      <input
-        name="phone"
-        placeholder="Phone *"
-        value={form.phone}
-        onChange={handleChange}
-        style={{ marginTop: 8 }}
-      /><br />
-
-      <input
-        name="pincode"
-        placeholder="Pincode"
-        value={form.pincode}
-        onChange={handleChange}
-        style={{ marginTop: 8 }}
-      /><br />
-
-      <div style={{ display: 'flex', gap: '8px', marginTop: 8 }}>
+      <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
         <input
-          name="city"
-          placeholder="City *"
-          value={form.city}
+          name="name"
+          placeholder="Name *"
+          value={form.name}
           onChange={handleChange}
-          style={{ flex: 1 }}
         />
+
         <input
-          name="pincode"
-          placeholder="Pincode *"
-          value={form.pincode}
+          name="phone"
+          placeholder="Phone *"
+          value={form.phone}
           onChange={handleChange}
-          style={{ width: '120px' }}
         />
+
+        <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1.5fr 1fr 1fr' }}>
+          <input
+            name="city"
+            placeholder="City *"
+            value={form.city}
+            onChange={handleChange}
+          />
+          <input
+            name="state"
+            placeholder="State"
+            value={form.state}
+            onChange={handleChange}
+          />
+          <input
+            name="pincode"
+            placeholder="Pincode *"
+            value={form.pincode}
+            onChange={handleChange}
+          />
+        </div>
       </div>
-      <input
-        name="state"
-        placeholder="State"
-        value={form.state}
-        onChange={handleChange}
-        style={{ marginTop: 8, width: '100%' }}
-      />
 
       <label style={{ marginTop: 8 }}>
         <input

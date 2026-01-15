@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import { API_BASE } from '../../config/api';
+import api from '../../api/client';
 
 export default function ProductTranslator() {
   const [products, setProducts] = useState([]);
@@ -18,9 +17,9 @@ export default function ProductTranslator() {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/products`, { withCredentials: true });
+      const res = await api.get("/products");
       setProducts(res.data);
-    } catch {
+    } catch (err) {
       console.error('Error fetching products:', err);
       setMessage('Error loading products');
     }
@@ -42,13 +41,13 @@ export default function ProductTranslator() {
     setMessage('Translating...');
 
     try {
-      const res = await axios.post('/api/admin/products/translate', {
+      const res = await api.post('/admin/products/translate', {
         productIds: selectedIds
-      }, { withCredentials: true });
+      });
 
       setTranslations(res.data.translations);
       setMessage(`Translated ${res.data.translations.length} products. Review and save.`);
-    } catch {
+    } catch (err) {
       console.error('Translation error:', err);
       setMessage('Translation failed: ' + (err.response?.data?.message || err.message));
     } finally {
@@ -72,9 +71,9 @@ export default function ProductTranslator() {
         descriptionKannada: t.descriptionKannada
       }));
 
-      const res = await axios.put('/api/admin/products/save-translation', {
+      const res = await api.put('/admin/products/save-translation', {
         updates
-      }, { withCredentials: true });
+      });
 
       const successCount = res.data.results.filter(r => r.success).length;
       setMessage(`Saved ${successCount} translations successfully!`);
@@ -83,7 +82,7 @@ export default function ProductTranslator() {
       await fetchProducts();
       setTranslations([]);
       setSelectedIds([]);
-    } catch {
+    } catch (err) {
       console.error('Save error:', err);
       setMessage('Save failed: ' + (err.response?.data?.message || err.message));
     } finally {
@@ -107,15 +106,15 @@ export default function ProductTranslator() {
         description: t.descriptionOriginal
       }));
 
-      const res = await axios.put('/api/admin/products/save-english', {
+      const res = await api.put('/admin/products/save-english', {
         updates
-      }, { withCredentials: true });
+      });
 
       const successCount = res.data.results.filter(r => r.success).length;
       setMessage(`Saved English for ${successCount} products!`);
 
       await fetchProducts();
-    } catch {
+    } catch (err) {
       console.error('Save English error:', err);
       setMessage('Save English failed: ' + (err.response?.data?.message || err.message));
     } finally {

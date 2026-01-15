@@ -3,12 +3,10 @@
 import { useState, useEffect } from "react";
 import { API_BASE } from "../config/api";
 import api from "../api/client";
-import { useNavigate } from "react-router-dom";
 import "./Login.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
-  const navigate = useNavigate();
   const [googleAvailable, setGoogleAvailable] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -40,13 +38,13 @@ export default function Login() {
     };
   }, []);
 
-  const handleLogin = async () => {
-    if (!email) {
-      alert("Please enter an email address");
-      return;
+  const redirectToGoogle = () => {
+    if (googleAvailable) {
+      setLoading(true);
+      window.location.href = `${API_BASE}/customers/auth/google`;
+    } else {
+      alert("Google login is not available. Please try again later.");
     }
-    setLoading(true);
-    navigate("/verify", { state: { email } });
   };
 
   return (
@@ -70,24 +68,17 @@ export default function Login() {
                 placeholder="you@company.com"
                 onChange={(e) => setEmail(e.target.value)}
                 className="form-input"
-                onKeyPress={(e) => e.key === 'Enter' && handleLogin()}
+                onKeyPress={(e) => e.key === 'Enter' && redirectToGoogle()}
                 disabled={loading}
               />
             </div>
 
             <button
-              onClick={() => {
-                // Redirect to Google OAuth until email/phone login is implemented
-                if (googleAvailable) {
-                  window.location.href = `${API_BASE}/customers/auth/google`;
-                } else {
-                  alert("Google login is not available. Please try again later.");
-                }
-              }}
+              onClick={redirectToGoogle}
               disabled={loading || !googleAvailable}
               className="login-button primary"
             >
-              {loading ? 'Processing...' : 'Continue with Google'}
+              {loading ? 'Processing...' : 'Login with Email'}
             </button>
 
             <div className="login-divider">
@@ -96,9 +87,7 @@ export default function Login() {
 
             {googleAvailable ? (
               <button
-                onClick={() => {
-                  window.location.href = `${API_BASE}/customers/auth/google`;
-                }}
+                onClick={redirectToGoogle}
                 className="login-button google"
                 disabled={loading}
               >

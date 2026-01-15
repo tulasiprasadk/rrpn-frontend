@@ -32,8 +32,9 @@ export default function CheckoutReview() {
         try {
           const res = await api.get("/customer/address");
           const list = Array.isArray(res.data) ? res.data : [];
-          const def = list.find((a) => a.isDefault) || list[0] || null;
-          setDefaultAddress(def);
+          let def = list.find((a) => a.isDefault) || null;
+
+          setDefaultAddress(def || null);
         } catch (addrErr) {
           console.error("Address loading error:", addrErr);
           if (addrErr.response?.status === 401) {
@@ -132,7 +133,7 @@ export default function CheckoutReview() {
       localStorage.setItem("cart", JSON.stringify([]));
       navigate("/payment", { state: { orderId: gres.data.orderId, orderDetails: gres.data } });
       
-    } catch {
+    } catch (err) {
       console.error("Order creation error:", err);
       alert("Failed to create order: " + (err.response?.data?.error || err.message));
     }

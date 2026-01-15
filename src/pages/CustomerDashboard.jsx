@@ -3,13 +3,11 @@ import { useAuth } from "../context/AuthContext";
 import axios from "axios";
 import { API_BASE } from "../config/api";
 import "../components/dashboard/StatCard.css";
-import "../components/dashboard/Sidebar.css";
 import "../components/dashboard/ProfileCard.css";
 import "../components/dashboard/OrdersPreview.css";
 import "../components/dashboard/SavedShopsPreview.css";
 
 import StatCard from "../components/dashboard/StatCard";
-import Sidebar from "../components/dashboard/Sidebar";
 import ProfileCard from "../components/dashboard/ProfileCard";
 import OrdersPreview from "../components/dashboard/OrdersPreview";
 import SavedShopsPreview from "../components/dashboard/SavedShopsPreview";
@@ -31,9 +29,7 @@ const CustomerDashboard = () => {
     }
   }, [user, login]);
     return (
-      <div className="dashboard-container" style={{ display: 'flex', minHeight: '80vh', background: '#f8f9fa' }}>
-        <Sidebar />
-        <main style={{ flex: 1, padding: '2rem', marginLeft: '250px' }}>
+      <div style={{ minHeight: '70vh' }}>
         <h2>Welcome to your Dashboard!</h2>
         {/* Search bar for shopping */}
         <div style={{ margin: '24px 0', display: 'flex', alignItems: 'center' }}>
@@ -71,8 +67,7 @@ const CustomerDashboard = () => {
         <div style={{ marginTop: '2rem' }}>
           <ProfileCard />
         </div>
-      </main>
-    </div>
+      </div>
   );
 };
 

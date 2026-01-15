@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { API_BASE } from "../config/api";
+import api from "../api/client";
 import { useNavigate } from "react-router-dom";
 import "./UserDashboard.css";
 
@@ -22,37 +21,35 @@ export default function UserDashboard() {
   }, []);
 
   async function loadData() {
-    const reqConfig = { withCredentials: true };
-
     try {
-      const profileRes = await axios.get(`${API_BASE}/customer/profile`, reqConfig);
+      const profileRes = await api.get("/customer/profile");
       setProfile(profileRes.data);
-    } catch {
+    } catch (err) {
       console.log("Dashboard profile load error:", err);
       return;
     }
 
     const [statsRes, ordersRes, addressRes, suppliersRes] = await Promise.all([
-      axios
-        .get("/api/customer/dashboard-stats", reqConfig)
+      api
+        .get("/customer/dashboard-stats")
         .catch((err) => {
           console.warn("Dashboard stats load error:", err);
           return { data: { orders: 0, saved: 0, addresses: 0 } };
         }),
-      axios
-        .get("/api/orders", reqConfig)
+      api
+        .get("/orders")
         .catch((err) => {
           console.warn("Dashboard orders load error:", err);
           return { data: [] };
         }),
-      axios
-        .get("/api/customer/address", reqConfig)
+      api
+        .get("/customer/address")
         .catch((err) => {
           console.warn("Dashboard address load error:", err);
           return { data: [] };
         }),
-      axios
-        .get("/api/customer/saved-suppliers", reqConfig)
+      api
+        .get("/customer/saved-suppliers")
         .catch((err) => {
           console.warn("Dashboard suppliers load error:", err);
           return { data: [] };
@@ -67,9 +64,8 @@ export default function UserDashboard() {
 
   const downloadInvoice = async (orderId) => {
     try {
-      const response = await axios.get(`/api/orders/${orderId}/invoice`, {
-        responseType: 'blob',
-        withCredentials: true
+      const response = await api.get(`/orders/${orderId}/invoice`, {
+        responseType: 'blob'
       });
       
       const url = window.URL.createObjectURL(new Blob([response.data]));
@@ -79,7 +75,7 @@ export default function UserDashboard() {
       document.body.appendChild(link);
       link.click();
       link.parentElement.removeChild(link);
-    } catch {
+    } catch (err) {
       console.error('Invoice download error:', err);
       alert('Failed to download invoice');
     }

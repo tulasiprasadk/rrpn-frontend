@@ -27,7 +27,7 @@ export default function SupplierDashboard() {
         const auth = await authRes.json();
 
         if (auth && auth.loggedIn === false) {
-          navigate("/login");
+          navigate("/supplier/login");
           return;
         }
 

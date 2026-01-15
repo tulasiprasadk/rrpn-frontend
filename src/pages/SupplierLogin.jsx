@@ -52,10 +52,17 @@ export default function SupplierLogin() {
       );
 
       if (res.data.ok) {
+        if (res.data.token) {
+          localStorage.setItem("supplierToken", res.data.token);
+        }
+        if (res.data.supplier) {
+          localStorage.setItem("supplierId", res.data.supplier.id);
+          localStorage.setItem("supplierData", JSON.stringify(res.data.supplier));
+        }
         setSuccess("Login successful!");
         navigate("/supplier/dashboard");
       }
-    } catch {
+    } catch (error) {
       const backendMsg =
         error?.response?.data?.error || "Failed to login";
 
