@@ -417,3 +417,36 @@
     padding: 32px 24px;
   }
 }
+
+@media (max-width: 768px) {
+  .login-page {
+    padding: 16px;
+  }
+
+  .login-form-container {
+    padding: 24px 18px;
+    border-radius: 18px;
+  }
+
+  .login-title {
+    font-size: 28px;
+  }
+
+  .login-logo {
+    width: 80px;
+    height: 80px;
+  }
+
+  .login-button {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .promo-card {
+    padding: 20px;
+  }
+
+  .promo-icon {
+    font-size: 48px;
+  }
+}

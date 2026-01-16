@@ -87,3 +87,24 @@
   border-radius: 10px;
   margin: 10px auto;
 }
+
+@media (max-width: 768px) {
+  .payment-page,
+  .payment-submitted-page {
+    padding: 12px;
+  }
+
+  .qr-img,
+  .submitted-img,
+  .preview-img {
+    width: 160px;
+  }
+
+  .unr-box input,
+  .submit-payment-btn,
+  .go-dashboard-btn,
+  .upload-again {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}

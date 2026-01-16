@@ -1,6 +1,7 @@
 @media (width <= 600px) {
   #root {
     padding: 0.5rem;
+    text-align: initial;
   }
 
   .card {
@@ -9,21 +10,23 @@
   }
 
   .btn, button, input[type="submit"], input[type="button"] {
-    font-size: 1.1em;
-    padding: 16px 0;
-    min-width: 90vw;
-    margin-bottom: 10px;
+    font-size: 1rem;
+    padding: 12px 14px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   input, select, textarea {
-    font-size: 1.1em;
-    padding: 14px 10px;
-    min-width: 90vw;
-    margin-bottom: 10px;
+    font-size: 1rem;
+    padding: 12px 10px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-size: 1.2em;
+    font-size: 1.1em;
     word-break: break-word;
   }
 }

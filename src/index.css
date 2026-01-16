@@ -42,6 +42,12 @@ body, html {
   background: #FFE44B !important;   /* Pure Karnataka Yellow */
 }
 
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 70px;
+  }
+}
+
 /* ============ BODY ============ */
 /* (duplicate `body` block removed — first occurrence retained) */
 

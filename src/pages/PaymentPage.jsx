@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../api/client";
 import imageCompression from "browser-image-compression";
 import { useLocation, useNavigate } from "react-router-dom";
+import "./PaymentPage.mobile.css";
 
 export default function PaymentPage() {
   const [method, setMethod] = useState("upi");
@@ -35,7 +36,7 @@ export default function PaymentPage() {
         "MB"
       );
       return compressed;
-    } catch {
+    } catch (err) {
       console.error("Compression failed:", err);
       return imageFile; // fallback if compression fails
     }
@@ -106,49 +107,57 @@ export default function PaymentPage() {
   }
 
   return (
-    <div style={{ 
-      padding: '40px 20px', 
-      maxWidth: '700px', 
-      margin: '0 auto',
-      background: '#FFFDE7',
-      minHeight: '80vh',
-      borderRadius: '18px',
-      boxShadow: '0 2px 16px rgba(0,0,0,0.07)'
-    }}>
+    <div
+      className="payment-page-root"
+      style={{
+        padding: '40px 20px',
+        maxWidth: '700px',
+        margin: '0 auto',
+        background: '#FFFDE7',
+        minHeight: '80vh',
+        borderRadius: '18px',
+        boxShadow: '0 2px 16px rgba(0,0,0,0.07)'
+      }}
+    >
 
-      <h2 style={{ 
-        color: '#333', 
-        marginBottom: '18px',
-        fontSize: '28px',
-        background: '#FFF9C4',
-        padding: '12px 0',
-        borderRadius: '10px',
-        textAlign: 'center',
-        boxShadow: '0 1px 6px rgba(0,0,0,0.04)'
-      }}>
+      <h2
+        className="payment-page-title"
+        style={{
+          color: '#333',
+          marginBottom: '18px',
+          fontSize: '28px',
+          background: '#FFF9C4',
+          padding: '12px 0',
+          borderRadius: '10px',
+          textAlign: 'center',
+          boxShadow: '0 1px 6px rgba(0,0,0,0.04)'
+        }}
+      >
         Complete Your Payment
       </h2>
 
-      <div style={{ marginBottom: 24, background: '#FFF9C4', padding: '12px', borderRadius: '10px' }}>
-        <label style={{ fontWeight: 600, fontSize: 17, marginRight: 18 }}>
-          <input type="radio" value="upi" checked={method === "upi"} onChange={() => setMethod("upi")}/> UPI
+      <div className="payment-methods" style={{ marginBottom: 24, background: '#FFF9C4', padding: '12px', borderRadius: '10px' }}>
+        <label className="payment-method-label" style={{ fontWeight: 600, fontSize: 17, marginRight: 18 }}>
+          <input type="radio" value="upi" checked={method === "upi"} onChange={() => setMethod("upi")} /> UPI
         </label>
-        <label style={{ fontWeight: 600, fontSize: 17 }}>
-          <input type="radio" value="pi" checked={method === "pi"} onChange={() => setMethod("pi")}/> Pi Network
+        <label className="payment-method-label" style={{ fontWeight: 600, fontSize: 17 }}>
+          <input type="radio" value="pi" checked={method === "pi"} onChange={() => setMethod("pi")} /> Pi Network
         </label>
       </div>
 
       {method === "upi" && (
-        <div style={{ background: '#FFF9C4', padding: 18, borderRadius: 10, marginBottom: 24, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <div className="payment-card" style={{ background: '#FFF9C4', padding: 18, borderRadius: 10, marginBottom: 24, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
           <h3 style={{ margin: 0, fontSize: 18 }}>Pay via UPI</h3>
           <div style={{ margin: '12px 0', display: 'flex', justifyContent: 'center' }}>
             <img src="/UPI QR Code.jpeg" alt="UPI QR Code" style={{ width: 200, height: 200, borderRadius: 8, border: '1.5px solid #007bff', objectFit: 'contain' }} />
           </div>
-          <div style={{ fontSize: 14, color: '#555', textAlign: 'center' }}>Scan the QR code above to make payment. Then upload your payment screenshot and enter the UPI transaction ID below.</div>
+          <div style={{ fontSize: 14, color: '#555', textAlign: 'center' }}>
+            Scan the QR code above to make payment. Then upload your payment screenshot and enter the UPI transaction ID below.
+          </div>
         </div>
       )}
       {method === "pi" && (
-        <div style={{ background: '#FFF9C4', padding: 18, borderRadius: 10, marginBottom: 24, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <div className="payment-card" style={{ background: '#FFF9C4', padding: 18, borderRadius: 10, marginBottom: 24, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
           <h3 style={{ margin: 0, fontSize: 18 }}>Pay via Pi Network</h3>
           <div style={{ margin: '12px 0', display: 'flex', justifyContent: 'center' }}>
             <img src="/Pi network QR code.jpg" alt="Pi Network QR Code" style={{ width: 200, height: 200, borderRadius: 8, border: '1.5px solid #007bff', objectFit: 'contain' }} />
@@ -157,19 +166,23 @@ export default function PaymentPage() {
         </div>
       )}
 
-      <div style={{ 
-        background: '#FFF9C4', 
-        padding: '25px', 
-        borderRadius: '12px',
-        marginBottom: '25px',
-        boxShadow: '0 1px 6px rgba(0,0,0,0.04)'
-      }}>
+      <div
+        className="payment-card"
+        style={{
+          background: '#FFF9C4',
+          padding: '25px',
+          borderRadius: '12px',
+          marginBottom: '25px',
+          boxShadow: '0 1px 6px rgba(0,0,0,0.04)'
+        }}
+      >
         <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Step 1: Upload Payment Screenshot</h3>
         
         <input
           type="file"
           accept="image/*"
           onChange={(e) => setFile(e.target.files[0])}
+          className="payment-file-input"
           style={{
             padding: '10px',
             border: '2px dashed #ddd',
@@ -183,18 +196,22 @@ export default function PaymentPage() {
 
       </div>
 
-      <div style={{ 
-        background: '#FFF9C4', 
-        padding: '25px', 
-        borderRadius: '12px',
-        boxShadow: '0 1px 6px rgba(0,0,0,0.04)'
-      }}>
+      <div
+        className="payment-card"
+        style={{
+          background: '#FFF9C4',
+          padding: '25px',
+          borderRadius: '12px',
+          boxShadow: '0 1px 6px rgba(0,0,0,0.04)'
+        }}
+      >
         <h3 style={{ marginBottom: '15px', fontSize: '18px' }}>Step 2: Enter Transaction ID</h3>
         <input
           type="text"
           placeholder={method === 'upi' ? 'Enter UPI Transaction ID' : 'Enter Pi Transaction ID'}
           value={txnId}
           onChange={(e) => setTxnId(e.target.value)}
+          className="payment-text-input"
           style={{ 
             padding: '12px', 
             width: '100%',
@@ -204,9 +221,10 @@ export default function PaymentPage() {
             marginBottom: '15px'
           }}
         />
-        <button 
-          onClick={submitPayment} 
-          style={{ 
+        <button
+          className="payment-submit-btn"
+          onClick={submitPayment}
+          style={{
             padding: '14px 28px',
             background: '#28a745',
             color: 'white',

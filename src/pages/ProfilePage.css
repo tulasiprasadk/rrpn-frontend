@@ -70,6 +70,33 @@
   border-color: #8b0000;
 }
 
+@media (max-width: 768px) {
+  .profile-container {
+    width: 100%;
+    padding: 0 12px;
+    margin: 20px auto;
+  }
+
+  .profile-card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .profile-name {
+    font-size: 22px;
+  }
+
+  .profile-mobile,
+  .profile-email {
+    font-size: 16px;
+  }
+
+  .profile-btn {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
+
 /* Fade Animation */
 @keyframes fadeIn {
   from {

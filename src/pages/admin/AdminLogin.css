@@ -65,3 +65,23 @@
   margin-bottom: 10px;
   font-size: 14px;
 }
+
+@media (max-width: 768px) {
+  .admin-login-container {
+    padding: 16px;
+    height: auto;
+    min-height: 100vh;
+  }
+
+  .admin-login-box {
+    width: 100%;
+    max-width: 420px;
+    padding: 20px;
+  }
+
+  .admin-login-box input,
+  .admin-login-btn {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}

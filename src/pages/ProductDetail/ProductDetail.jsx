@@ -140,7 +140,7 @@ export default function ProductDetail() {
   return (
     <div className="pd-container">
       {/* IMAGE */}
-      <div className="pd-images">
+      <div className="pd-images" onClick={handleAddToBag} role="button" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && handleAddToBag()}>
         <img
           src={image}
           alt={title}
@@ -201,10 +201,6 @@ export default function ProductDetail() {
           <span>{quantity}</span>
           <button onClick={() => setQuantity(q => q + 1)}>+</button>
         </div>
-        {/* ADD TO BAG */}
-        <button className="pd-add-btn" onClick={handleAddToBag}>
-          Add to bag
-        </button>
       </div>
     </div>
   );

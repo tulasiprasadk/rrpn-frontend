@@ -126,6 +126,7 @@ function AdminNotifications() {
 
 export default function AdminLayout() {
   const [kannadaEnabled, setKannadaEnabled] = useState(isKannadaEnabled());
+  const [navOpen, setNavOpen] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -140,24 +141,24 @@ export default function AdminLayout() {
     <div className="admin-layout">
       
       {/* LEFT SIDEBAR */}
-      <aside className="admin-sidebar">
+      <aside className={`admin-sidebar ${navOpen ? "open" : ""}`}>
         <Link to="/" className="admin-logo" style={{ textDecoration: "none", color: "white" }}>
           🎯 RR Nagar Admin
           <div style={{ fontSize: 11, marginTop: 5, opacity: 0.8 }}>← Click to go to main site</div>
         </Link>
         <nav className="admin-nav">
 
-          <Link to="/admin" className="admin-nav-link">📊 {translate("Dashboard", kannadaEnabled)}</Link>
-          <Link to="/admin/orders" className="admin-nav-link">📦 {translate("Orders", kannadaEnabled)}</Link>
-          <Link to="/admin/suppliers" className="admin-nav-link">🏪 {translate("Suppliers", kannadaEnabled)}</Link>
-          <Link to="/admin/products" className="admin-nav-link">📦 {translate("Products", kannadaEnabled)}</Link>
-          <Link to="/admin/translator" className="admin-nav-link">🌐 {translate("Translator", kannadaEnabled)}</Link>
-          <Link to="/admin/config" className="admin-nav-link">⚙️ {translate("Platform Config", kannadaEnabled)}</Link>
-          <Link to="/admin/checkout-marketing" className="admin-nav-link">💸 {translate("Offers & Ads", kannadaEnabled)}</Link>
-          <Link to="/admin/categories" className="admin-nav-link">📂 {translate("Categories", kannadaEnabled)}</Link>
-          <Link to="/admin/varieties" className="admin-nav-link">🌾 {translate("Varieties", kannadaEnabled)}</Link>
-          <Link to="/admin/ads" className="admin-nav-link">📢 {translate("Advertisements", kannadaEnabled)}</Link>
-          <Link to="/admin/change-password" className="admin-nav-link">🔐 {translate("Change Password", kannadaEnabled)}</Link>
+          <Link to="/admin" className="admin-nav-link" onClick={() => setNavOpen(false)}>📊 {translate("Dashboard", kannadaEnabled)}</Link>
+          <Link to="/admin/orders" className="admin-nav-link" onClick={() => setNavOpen(false)}>📦 {translate("Orders", kannadaEnabled)}</Link>
+          <Link to="/admin/suppliers" className="admin-nav-link" onClick={() => setNavOpen(false)}>🏪 {translate("Suppliers", kannadaEnabled)}</Link>
+          <Link to="/admin/products" className="admin-nav-link" onClick={() => setNavOpen(false)}>📦 {translate("Products", kannadaEnabled)}</Link>
+          <Link to="/admin/translator" className="admin-nav-link" onClick={() => setNavOpen(false)}>🌐 {translate("Translator", kannadaEnabled)}</Link>
+          <Link to="/admin/config" className="admin-nav-link" onClick={() => setNavOpen(false)}>⚙️ {translate("Platform Config", kannadaEnabled)}</Link>
+          <Link to="/admin/checkout-marketing" className="admin-nav-link" onClick={() => setNavOpen(false)}>💸 {translate("Offers & Ads", kannadaEnabled)}</Link>
+          <Link to="/admin/categories" className="admin-nav-link" onClick={() => setNavOpen(false)}>📂 {translate("Categories", kannadaEnabled)}</Link>
+          <Link to="/admin/varieties" className="admin-nav-link" onClick={() => setNavOpen(false)}>🌾 {translate("Varieties", kannadaEnabled)}</Link>
+          <Link to="/admin/ads" className="admin-nav-link" onClick={() => setNavOpen(false)}>📢 {translate("Advertisements", kannadaEnabled)}</Link>
+          <Link to="/admin/change-password" className="admin-nav-link" onClick={() => setNavOpen(false)}>🔐 {translate("Change Password", kannadaEnabled)}</Link>
           
           <button 
             onClick={handleLogout} 
@@ -175,19 +176,29 @@ export default function AdminLayout() {
           </button>
         </nav>
       </aside>
+      {navOpen && <div className="admin-sidebar-backdrop" onClick={() => setNavOpen(false)} />}
 
       {/* MAIN AREA */}
       <div className="admin-main">
         
         {/* HEADER */}
         <header className="admin-topbar">
-          <Link to="/" className="admin-nav-link" style={{ 
-            textDecoration: "none", 
-            color: "#e31e24", 
-            fontWeight: "bold"
-          }}>
-            ← Back to Home
-          </Link>
+          <div className="admin-topbar-left">
+            <button
+              className="admin-menu-btn"
+              onClick={() => setNavOpen(!navOpen)}
+              aria-label="Toggle navigation"
+            >
+              ☰
+            </button>
+            <Link to="/" className="admin-nav-link" style={{ 
+              textDecoration: "none", 
+              color: "#e31e24", 
+              fontWeight: "bold"
+            }}>
+              ← Back to Home
+            </Link>
+          </div>
           <button
             onClick={() => {
               const next = !kannadaEnabled;

@@ -43,3 +43,21 @@
   font-size: 16px;
   cursor: pointer;
 }
+
+@media (max-width: 768px) {
+  .sd-container {
+    padding: 12px;
+  }
+
+  .sd-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .sd-card h2 {
+    font-size: 26px;
+  }
+
+  .sd-actions button {
+    min-height: 44px;
+  }
+}

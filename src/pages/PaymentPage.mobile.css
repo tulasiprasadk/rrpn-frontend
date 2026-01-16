@@ -1,0 +1,39 @@
+@media (max-width: 768px) {
+  .payment-page-root {
+    padding: 16px 12px !important;
+    border-radius: 0 !important;
+    min-height: 100vh !important;
+  }
+
+  .payment-page-title {
+    font-size: 22px !important;
+    padding: 10px 0 !important;
+  }
+
+  .payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .payment-method-label {
+    font-size: 16px !important;
+  }
+
+  .payment-card {
+    padding: 16px !important;
+  }
+
+  .payment-file-input,
+  .payment-text-input,
+  .payment-submit-btn,
+  .payment-copy-btn {
+    min-height: 44px;
+    font-size: 16px !important;
+  }
+
+  .payment-copy-btn {
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+}

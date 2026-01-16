@@ -55,3 +55,24 @@
   cursor: pointer;
   font-size: 15px;
 }
+
+@media (max-width: 768px) {
+  .profile-title {
+    font-size: 20px;
+  }
+
+  .profile-form-box {
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .profile-form-box input {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .save-profile-btn {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}

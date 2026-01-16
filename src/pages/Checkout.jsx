@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PaymentOptions from "../components/PaymentOptions";
 import { fetchOrder } from "../api/orders";
+import "./Checkout.mobile.css";
 
 /**
  * Example Checkout page.
@@ -40,7 +41,10 @@ export default function Checkout() {
 
   if (order) {
     return (
-      <main style={{ padding: 20, background: '#FFFDE7', minHeight: '100vh', borderRadius: '18px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}>
+      <main
+        className="checkout-page-root"
+        style={{ padding: 20, background: '#FFFDE7', minHeight: '100vh', borderRadius: '18px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}
+      >
         <h2 style={{ background: '#FFF9C4', padding: '12px 0', borderRadius: '10px', textAlign: 'center', marginBottom: 18 }}>Order placed</h2>
         <div style={{ background: '#FFF9C4', padding: 18, borderRadius: 10, marginBottom: 24, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
           <p>Order id: {order.id}</p>
@@ -52,10 +56,13 @@ export default function Checkout() {
   }
 
   return (
-    <main style={{ padding: 20, background: '#FFFDE7', minHeight: '100vh', borderRadius: '18px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}>
+    <main
+      className="checkout-page-root"
+      style={{ padding: 20, background: '#FFFDE7', minHeight: '100vh', borderRadius: '18px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}
+    >
       <h2 style={{ background: '#FFF9C4', padding: '12px 0', borderRadius: '10px', textAlign: 'center', marginBottom: 18 }}>Checkout</h2>
-      <div style={{ display: "flex", gap: 24 }}>
-        <section style={{ flex: 2, background: '#FFF9C4', borderRadius: 10, padding: 18, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+      <div className="checkout-layout" style={{ display: "flex", gap: 24 }}>
+        <section className="checkout-items" style={{ flex: 2, background: '#FFF9C4', borderRadius: 10, padding: 18, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
           <h3 style={{ marginBottom: 12 }}>Items</h3>
           {cart.length === 0 ? <div>No items in bag</div> : cart.map((it) => (
             <div key={it.id} style={{ borderBottom: "1px solid #eee", padding: 8 }}>
@@ -64,7 +71,7 @@ export default function Checkout() {
           ))}
           <div style={{ marginTop: 12 }}><strong>Total: ₹{total}</strong></div>
         </section>
-        <aside style={{ width: 360, background: '#FFF9C4', borderRadius: 10, padding: 18, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <aside className="checkout-sidebar" style={{ width: 360, background: '#FFF9C4', borderRadius: 10, padding: 18, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
           <PaymentOptions items={cart} total={total} onSuccess={handleSuccess} />
         </aside>
       </div>

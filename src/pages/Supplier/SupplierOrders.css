@@ -39,3 +39,17 @@
 .status-out_for_delivery { background: #17a2b8; }
 .status-delivered { background: #20c997; }
 .status-cancelled { background: #dc3545; }
+
+@media (max-width: 768px) {
+  .supplier-orders-page {
+    padding: 12px;
+  }
+
+  .supplier-order-card {
+    padding: 12px;
+  }
+
+  .status-tag {
+    min-height: 32px;
+  }
+}

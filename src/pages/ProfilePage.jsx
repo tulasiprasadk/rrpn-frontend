@@ -13,7 +13,7 @@ export default function ProfilePage() {
     try {
       const res = await api.get("/customers/profile");
       setProfile(res.data);
-    } catch {
+    } catch (err) {
       console.error("Profile Load Error:", err);
     }
   }

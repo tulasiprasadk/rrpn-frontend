@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/client";
+import "./CheckoutReview.mobile.css";
 
 export default function CheckoutReview() {
   const location = useLocation();
@@ -82,6 +83,9 @@ export default function CheckoutReview() {
     loadData();
   }, [navigate]);
 
+  const cartTotal = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
+  const totalAfterDiscount = Math.max(cartTotal - discount, 0);
+
   const placeOrder = async () => {
     if (!selectedAddress && !isGuest) {
       alert("Please select a delivery address or checkout as guest");
@@ -154,7 +158,10 @@ export default function CheckoutReview() {
   };
 
   return (
-    <div style={{ padding: 20, background: '#FFFDE7', minHeight: '100vh', borderRadius: '18px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}>
+    <div
+      className="checkout-review-root"
+      style={{ padding: 20, background: '#FFFDE7', minHeight: '100vh', borderRadius: '18px', boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}
+    >
       <h2 style={{ background: '#FFF9C4', padding: '12px 0', borderRadius: '10px', textAlign: 'center', marginBottom: 18 }}>Checkout</h2>
 
       {loading && <div style={{ color: "#666" }}>Loading...</div>}
@@ -176,6 +183,7 @@ export default function CheckoutReview() {
 
           {selectedAddress ? (
             <div
+              className="checkout-review-address-card"
               style={{
                 border: "1px solid #ddd",
                 padding: 15,
@@ -208,7 +216,7 @@ export default function CheckoutReview() {
               )}
 
               {isGuest && showGuestForm && (
-                <div style={{ marginTop: 8, padding: 12, border: '1px solid #eee', borderRadius: 6, background: '#fff' }}>
+                <div className="checkout-review-guest-form" style={{ marginTop: 8, padding: 12, border: '1px solid #eee', borderRadius: 6, background: '#fff' }}>
                   <div style={{ marginBottom: 8 }}>
                     <label style={{ display: 'block', fontWeight: 'bold' }}>Name</label>
                     <input value={guestName} onChange={(e) => setGuestName(e.target.value)} />
@@ -221,7 +229,7 @@ export default function CheckoutReview() {
                     <label style={{ display: 'block', fontWeight: 'bold' }}>Address</label>
                     <input value={guestAddressLine} onChange={(e) => setGuestAddressLine(e.target.value)} placeholder="Street / house / locality" />
                   </div>
-                  <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                  <div className="checkout-review-guest-grid" style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                     <input style={{ flex: 1 }} value={guestCity} onChange={(e) => setGuestCity(e.target.value)} placeholder="City" />
                     <input style={{ flex: 1 }} value={guestState} onChange={(e) => setGuestState(e.target.value)} placeholder="State" />
                     <input style={{ width: 120 }} value={guestPincode} onChange={(e) => setGuestPincode(e.target.value)} placeholder="Pincode" />
@@ -234,7 +242,7 @@ export default function CheckoutReview() {
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+          <div className="checkout-review-address-actions" style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
             <button
               onClick={() => isGuest ? setShowGuestForm(true) : navigate("/address")}
               style={{
@@ -253,15 +261,16 @@ export default function CheckoutReview() {
           <h3 style={{ background: '#FFF9C4', padding: '8px 0', borderRadius: '8px', textAlign: 'center', marginBottom: 12 }}>Order Summary</h3>
 
           {/* Two-column layout: left = products (30%), right = sidebar (offers/ads) */}
-          <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
-            <div style={{ flex: '0 0 30%', minWidth: 260 }}>
+          <div className="checkout-review-layout" style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+            <div className="checkout-review-items" style={{ flex: '0 0 30%', minWidth: 260 }}>
               {cart.length === 0 ? (
                 <p style={{ color: "#999" }}>Your bag is empty</p>
               ) : (
-                <div style={{ marginBottom: 20, background: '#FFF9C4', borderRadius: 10, padding: 12, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+                <div className="checkout-review-cart" style={{ marginBottom: 20, background: '#FFF9C4', borderRadius: 10, padding: 12, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
                   {cart.map((item, idx) => (
                     <div
                       key={idx}
+                      className="checkout-review-item"
                       style={{
                         border: "1px solid #eee",
                         padding: 10,
@@ -291,7 +300,7 @@ export default function CheckoutReview() {
                     </div>
                   )}
                   <div style={{ textAlign: 'right', paddingTop: 10, borderTop: '1px dashed #e0e0e0', fontWeight: 700 }}>
-                    Total: ₹{(cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0) - discount).toFixed(2)}
+                    Total: ₹{totalAfterDiscount.toFixed(2)}
                   </div>
                 </div>
               )}
@@ -335,7 +344,7 @@ export default function CheckoutReview() {
                 )}
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+              <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
                 <button
                   onClick={placeOrder}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0)}
@@ -357,7 +366,7 @@ export default function CheckoutReview() {
               </div>
             </div>
 
-            <aside style={{ flex: '1 1 65%', minWidth: 260 }}>
+            <aside className="checkout-review-sidebar" style={{ flex: '1 1 65%', minWidth: 260 }}>
               <div style={{ background: 'white', padding: 14, borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', marginBottom: 12 }}>
                 <h4 style={{ margin: '0 0 8px' }}>Special Offers</h4>
                 {checkoutOffers.length === 0 ? (
@@ -419,6 +428,16 @@ export default function CheckoutReview() {
                 </blockquote>
               </div>
             </aside>
+          </div>
+
+          <div className="checkout-review-mobile-cta">
+            <div className="checkout-review-mobile-total">Total: ₹{totalAfterDiscount.toFixed(2)}</div>
+            <button
+              onClick={placeOrder}
+              disabled={!((selectedAddress || isGuest) && cart.length > 0)}
+            >
+              Proceed to Payment
+            </button>
           </div>
         </>
       )}

@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import api from "../api/client";
 import GoogleAddressInput from "../components/GoogleAddressInput"; // <-- IMPORTANT
+import "./AddressManagerPage.css";
 
 export default function AddressManagerPage() {
   const location = useLocation();
@@ -105,7 +106,7 @@ export default function AddressManagerPage() {
   };
 
   return (
-    <div style={{ padding: 20, maxWidth: 560, margin: "0 auto" }}>
+    <div className="address-manager-page" style={{ padding: 20, maxWidth: 560, margin: "0 auto" }}>
       <h2>{address.id ? "Edit Address" : "Add Address"}</h2>
 
       {error && (
