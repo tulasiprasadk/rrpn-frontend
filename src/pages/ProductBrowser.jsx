@@ -69,7 +69,7 @@ function ProductBrowser() {
 			) : products.length === 0 ? (
 				<div>No products found.</div>
 			) : (
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 12, alignItems: 'stretch' }}>
+				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 16, alignItems: 'stretch' }}>
 					{products.map((product) => (
 						<ProductCard
 							key={product.id}

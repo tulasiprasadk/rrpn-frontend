@@ -76,7 +76,7 @@ export default function Flowers() {
                   style={{
                     display: "grid",
                     gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
-                    gap: 12,
+                    gap: 16,
                     marginTop: 16,
                     alignItems: "stretch"
                   }}
@@ -86,20 +86,7 @@ export default function Flowers() {
                     .sort((a, b) => (a.title || a.name || "").localeCompare(b.title || b.name || ""))
                         .map(product => (
                       <div style={{ minWidth: 0, display: 'flex' }} key={product.id}>
-                        <ProductCard
-                          product={product}
-                          iconSize={16}
-                          style={{
-                            width: '100%',
-                            minWidth: 0,
-                            maxWidth: '100%',
-                            height: 320,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            boxSizing: 'border-box'
-                          }}
-                        />
+                        <ProductCard product={product} iconSize={16} />
                       </div>
                     ))}
                 </div>

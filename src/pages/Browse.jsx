@@ -101,8 +101,8 @@ export default function Groceries() {
                 <div
                   style={{
                     display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))",
-                  gap: 12,
+                  gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+                  gap: 16,
                     padding: "0 24px",
                   }}
                 >
