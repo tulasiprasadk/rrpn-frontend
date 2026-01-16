@@ -78,6 +78,7 @@ import AdminProductsList from "./pages/admin/products/AdminProductsList.jsx";
 import AdminProductForm from "./pages/admin/products/AdminProductForm.jsx";
 import AdminBulkUpload from "./pages/admin/products/AdminBulkUpload.jsx";
 import ProductTranslator from "./pages/admin/ProductTranslator.jsx";
+import PlatformConfig from "./pages/admin/PlatformConfig.jsx";
 import AdminOrdersList from "./pages/admin/orders/AdminOrdersList.jsx";
 import AdminOrderDetail from "./pages/admin/orders/AdminOrderDetail.jsx";
 import AdminCategoriesList from "./pages/admin/categories/AdminCategoriesList.jsx";
@@ -183,6 +184,7 @@ function AppWrapper() {
               <Route path="products/bulk" element={<AdminBulkUpload />} />
               <Route path="products/:id/edit" element={<AdminProductForm mode="edit" />} />
               <Route path="translator" element={<ProductTranslator />} />
+              <Route path="config" element={<PlatformConfig />} />
               <Route path="orders" element={<AdminOrdersList />} />
               <Route path="orders/:id" element={<AdminOrderDetail />} />
               <Route path="categories" element={<AdminCategoriesList />} />

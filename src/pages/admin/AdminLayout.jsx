@@ -152,6 +152,7 @@ export default function AdminLayout() {
           <Link to="/admin/suppliers" className="admin-nav-link">🏪 {translate("Suppliers", kannadaEnabled)}</Link>
           <Link to="/admin/products" className="admin-nav-link">📦 {translate("Products", kannadaEnabled)}</Link>
           <Link to="/admin/translator" className="admin-nav-link">🌐 {translate("Translator", kannadaEnabled)}</Link>
+          <Link to="/admin/config" className="admin-nav-link">⚙️ {translate("Platform Config", kannadaEnabled)}</Link>
           <Link to="/admin/categories" className="admin-nav-link">📂 {translate("Categories", kannadaEnabled)}</Link>
           <Link to="/admin/varieties" className="admin-nav-link">🌾 {translate("Varieties", kannadaEnabled)}</Link>
           <Link to="/admin/ads" className="admin-nav-link">📢 {translate("Advertisements", kannadaEnabled)}</Link>

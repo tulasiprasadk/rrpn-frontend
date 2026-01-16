@@ -14,6 +14,7 @@ const translations = {
   'Categories': 'ವರ್ಗಗಳು',
   'Varieties': 'ವೈವಿಧ್ಯಗಳು',
   'Advertisements': 'ಜಾಹೀರಾತುಗಳು',
+  'Platform Config': 'ಪ್ಲಾಟ್‌ಫಾರ್ಮ್ ಸೆಟ್ಟಿಂಗ್ಸ್',
   'Change Password': 'ಪಾಸ್‌ವರ್ಡ್ ಬದಲಿಸಿ',
   'Logout': 'ಲಾಗ್ ಔಟ್',
   

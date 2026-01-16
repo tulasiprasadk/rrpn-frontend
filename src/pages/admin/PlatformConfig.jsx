@@ -14,9 +14,10 @@ export default function PlatformConfig() {
     fees: {
       title: 'Platform Fees & Margins',
       fields: [
-        { key: 'platform_commission', label: 'Platform Commission (%)', type: 'number', default: 15, min: 0, max: 100, description: 'Percentage commission charged on each order' },
+        { key: 'platform_commission', label: 'Supplier Margin (%)', type: 'number', default: 15, min: 0, max: 100, description: 'Percentage margin charged on each order (default 15%)' },
         { key: 'platform_fee', label: 'Platform Fee (₹)', type: 'number', default: 0, min: 0, description: 'Fixed platform fee per order' },
         { key: 'delivery_fee', label: 'Delivery Fee (₹)', type: 'number', default: 0, min: 0, description: 'Fixed delivery fee per order' },
+        { key: 'transport_fee', label: 'Transportation Fee (₹)', type: 'number', default: 0, min: 0, description: 'Fixed transportation fee per order' },
         { key: 'min_order_amount', label: 'Minimum Order Amount (₹)', type: 'number', default: 0, min: 0, description: 'Minimum order value required' }
       ]
     },
