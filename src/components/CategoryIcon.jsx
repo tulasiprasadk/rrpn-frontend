@@ -9,8 +9,16 @@ export default function CategoryIcon({ category, variety, size = 16, className, 
   }
 
   // Build search key from product fields only to avoid category bias
-  const nameStr = (name || "").toString().toLowerCase();
-  const varietyStr = (variety || "").toString().toLowerCase();
+  const normalize = (value) => (value || "")
+    .toString()
+    .toLowerCase()
+    .replace(/[–—]/g, "-")
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const nameStr = normalize(name);
+  const varietyStr = normalize(variety);
   const key = `${nameStr} ${varietyStr}`.trim();
 
   const contains = (s) => key.indexOf(s) !== -1;
