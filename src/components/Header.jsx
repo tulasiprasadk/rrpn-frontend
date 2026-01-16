@@ -11,6 +11,7 @@ export default function Header() {
   const [bagCount, setBagCount] = useState(0);
   const { user, logout } = useAuth();
   const [isSupplier, setIsSupplier] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const updateSupplierFlag = () => {
     const supplierToken = localStorage.getItem("supplierToken");
@@ -47,6 +48,14 @@ export default function Header() {
     };
   }, []);
 
+  useEffect(() => {
+    const onResize = () => {
+      if (window.innerWidth > 600) setMenuOpen(false);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
   const handleLogout = () => {
     logout();
     // Clear supplier data if exists
@@ -65,6 +74,13 @@ export default function Header() {
     <header>
       <div className="rn-topbar">
         <div className="rn-logo-wrap">
+          <button
+            className="rn-menu-btn"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label="Toggle menu"
+          >
+            ☰
+          </button>
           <Link to="/" className="rn-logo-link" style={{display: 'flex', flexDirection: 'column', alignItems: 'flex-start', textDecoration: 'none'}}>
             <img src={logo} alt="RR Nagar" className="rn-logo" />
             
@@ -72,12 +88,12 @@ export default function Header() {
             <div style={{marginTop: 0, color: '#888', fontSize: 14, fontWeight: 500}}>Fresh. Fast. Fulfillment.</div>
           </Link>
         </div>
-        <nav className="rn-nav">
-          <Link className="rn-nav-item" to="/">Home</Link>
-          <Link className="rn-nav-item" to="/blog">Blog</Link>
+        <nav className={`rn-nav ${menuOpen ? "open" : "closed"}`}>
+          <Link className="rn-nav-item" to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+          <Link className="rn-nav-item" to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
           {isLoggedIn ? (
             <>
-              <Link className="rn-nav-item" to={dashboardPath}>Dashboard</Link>
+              <Link className="rn-nav-item" to={dashboardPath} onClick={() => setMenuOpen(false)}>Dashboard</Link>
               <button
                 className="rn-nav-item"
                 onClick={handleLogout}
@@ -87,9 +103,9 @@ export default function Header() {
               </button>
             </>
           ) : (
-            <Link className="rn-nav-item" to="/login">Login</Link>
+            <Link className="rn-nav-item" to="/login" onClick={() => setMenuOpen(false)}>Login</Link>
           )}
-          <Link className="rn-nav-item cart-link" to="/bag">
+          <Link className="rn-nav-item cart-link" to="/bag" onClick={() => setMenuOpen(false)}>
             🛍️ Bag
             {bagCount > 0 && (
               <span className="cart-badge">{bagCount}</span>

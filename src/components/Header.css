@@ -44,6 +44,16 @@
   gap: 18px;
 }
 
+.rn-menu-btn {
+  display: none;
+  background: #ffd600;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
 .rn-nav-item {
   text-decoration: none;
   color: #111;
@@ -111,6 +121,7 @@
 @media (width <= 600px) {
   .rn-topbar {
     padding: 6px 8px;
+    align-items: flex-start;
   }
 
   .rn-logo {
@@ -119,7 +130,11 @@
   }
 
   .rn-nav {
-    gap: 6px;
+    gap: 10px;
+    width: 100%;
+    background: #ffe44b;
+    padding: 8px 0 4px;
+    border-top: 1px solid rgba(0,0,0,0.08);
   }
 
   .rn-nav-item {
@@ -129,5 +144,20 @@
 
   .rn-logo-wrap {
     gap: 6px;
+  }
+
+  .rn-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .rn-nav.closed {
+    display: none;
+  }
+
+  .rn-nav.open {
+    display: flex;
+    flex-wrap: wrap;
   }
 }
