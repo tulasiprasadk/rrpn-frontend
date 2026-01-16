@@ -11,6 +11,12 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const existingToken = localStorage.getItem("token");
+    if (existingToken) {
+      window.location.href = "/customer/dashboard";
+      return;
+    }
+
     let mounted = true;
     const timeoutId = setTimeout(() => {
       if (mounted) {
