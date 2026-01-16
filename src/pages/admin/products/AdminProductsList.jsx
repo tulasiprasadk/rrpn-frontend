@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../../api/client";
 import ProductSuppliers from "./ProductSuppliers";
 import "./AdminProductsList.css";
 
@@ -12,9 +12,9 @@ const AdminProductsList = () => {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/products");
-      setProducts(res.data);
-    } catch {
+      const res = await api.get("/products");
+      setProducts(res.data || []);
+    } catch (err) {
       console.error("Failed to load products", err);
       alert("Failed to load products");
     } finally {
@@ -30,11 +30,9 @@ const AdminProductsList = () => {
     if (!window.confirm("Delete this product?")) return;
 
     try {
-      await axios.delete(`/api/products/${id}`, {
-        withCredentials: true
-      });
+      await api.delete(`/admin/products/${id}`);
       loadProducts();
-    } catch {
+    } catch (err) {
       console.error("Failed to delete product", err);
       alert("Failed to delete product");
     }
