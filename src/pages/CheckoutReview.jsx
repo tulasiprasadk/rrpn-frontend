@@ -20,6 +20,8 @@ export default function CheckoutReview() {
   const [error, setError] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [checkoutOffers, setCheckoutOffers] = useState([]);
+  const [checkoutAds, setCheckoutAds] = useState([]);
   const selectedAddress = location.state?.selectedAddress || defaultAddress;
 
   useEffect(() => {
@@ -59,6 +61,18 @@ export default function CheckoutReview() {
         } else {
           const cartData = JSON.parse(localStorage.getItem("cart") || "[]");
           setCart(Array.isArray(cartData) ? cartData.map(i => ({ ...i, quantity: i.quantity || i.qty || 1 })) : []);
+        }
+
+        // Load checkout offers + ads (public CMS)
+        try {
+          const [offersRes, adsRes] = await Promise.all([
+            api.get("/cms/checkout-offers"),
+            api.get("/cms/checkout-ads")
+          ]);
+          setCheckoutOffers(Array.isArray(offersRes.data) ? offersRes.data : []);
+          setCheckoutAds(Array.isArray(adsRes.data) ? adsRes.data : []);
+        } catch (cmsErr) {
+          console.error("Checkout CMS load error:", cmsErr);
         }
       } finally {
         setLoading(false);
@@ -295,13 +309,15 @@ export default function CheckoutReview() {
                   />
                   <button
                     onClick={() => {
-                      // Simple promo code validation (can be enhanced with backend API)
-                      const codes = { 'WELCOME10': 0.1, 'FIRST20': 0.2, 'SAVE15': 0.15 };
                       const code = promoCode.trim().toUpperCase();
-                      if (codes[code]) {
-                        const total = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
-                        setDiscount(total * codes[code]);
-                        alert(`Promo code ${code} applied! ${codes[code] * 100}% discount.`);
+                      const total = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
+                      const matchedOffer = checkoutOffers.find((offer) => (offer.code || "").toUpperCase() === code);
+                      if (matchedOffer) {
+                        const type = (matchedOffer.type || "percent").toLowerCase();
+                        const value = Number(matchedOffer.value || 0);
+                        const computed = type === "flat" ? value : (total * value) / 100;
+                        setDiscount(Math.max(0, computed));
+                        alert(`Promo code ${code} applied!`);
                       } else if (code) {
                         setDiscount(0);
                         alert('Invalid promo code. Please try again.');
@@ -314,7 +330,7 @@ export default function CheckoutReview() {
                 </div>
                 {promoCode && discount === 0 && (
                   <div style={{ marginTop: 8, fontSize: 12, color: '#666' }}>
-                    💡 Try codes: WELCOME10, FIRST20, SAVE15
+                    💡 Try codes: {checkoutOffers.map((o) => o.code).filter(Boolean).join(", ") || "None"}
                   </div>
                 )}
               </div>
@@ -344,14 +360,56 @@ export default function CheckoutReview() {
             <aside style={{ flex: '1 1 65%', minWidth: 260 }}>
               <div style={{ background: 'white', padding: 14, borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', marginBottom: 12 }}>
                 <h4 style={{ margin: '0 0 8px' }}>Special Offers</h4>
-                <p style={{ margin: 0, color: '#555' }}>Buy 2 get 1 free on selected grocery items. Use code <strong>RRGIFT</strong> at checkout.</p>
+                {checkoutOffers.length === 0 ? (
+                  <p style={{ margin: 0, color: '#555' }}>No active offers right now.</p>
+                ) : (
+                  <ul style={{ margin: 0, paddingLeft: 18, color: '#555' }}>
+                    {checkoutOffers.map((offer, idx) => (
+                      <li key={`${offer.code || offer.title || idx}`} style={{ marginBottom: 6 }}>
+                        <strong>{offer.title || offer.code}</strong>
+                        {offer.description ? ` — ${offer.description}` : ""}
+                        {offer.code ? (
+                          <>
+                            {" "}Use code <strong>{offer.code}</strong>.
+                          </>
+                        ) : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               <div style={{ background: '#fff8e1', padding: 14, borderRadius: 10, border: '1px solid #ffe082', marginBottom: 12 }}>
-                <h4 style={{ margin: '0 0 8px' }}>Featured Ad</h4>
-                <div style={{ height: 120, background: 'linear-gradient(90deg,#ffd54f,#ffb300)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3a2b00', fontWeight: 700 }}>
-                  Advertise here — reach local customers
-                </div>
+                <h4 style={{ margin: '0 0 8px' }}>Advertisements</h4>
+                {checkoutAds.length === 0 ? (
+                  <div style={{ height: 120, background: 'linear-gradient(90deg,#ffd54f,#ffb300)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#3a2b00', fontWeight: 700 }}>
+                    Advertise here — reach local customers
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gap: 10 }}>
+                    {checkoutAds.map((ad, idx) => (
+                      <a
+                        key={`${ad.title || ad.image || idx}`}
+                        href={ad.link || "#"}
+                        target={ad.link ? "_blank" : undefined}
+                        rel={ad.link ? "noreferrer" : undefined}
+                        style={{ textDecoration: "none", color: "inherit" }}
+                      >
+                        <div style={{ background: '#fff3cd', borderRadius: 8, padding: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
+                          {ad.image ? (
+                            <img src={ad.image} alt={ad.title || "Ad"} style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 6 }} />
+                          ) : (
+                            <div style={{ width: 72, height: 72, background: '#ffe082', borderRadius: 6 }} />
+                          )}
+                          <div>
+                            <div style={{ fontWeight: 700 }}>{ad.title || "Advertisement"}</div>
+                            <div style={{ color: "#5d4b00", fontSize: 12 }}>{ad.text || ""}</div>
+                          </div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div style={{ background: 'white', padding: 14, borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>

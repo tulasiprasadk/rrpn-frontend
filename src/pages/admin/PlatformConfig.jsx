@@ -41,7 +41,9 @@ export default function PlatformConfig() {
         { key: 'discover_section', label: 'Discover RR Nagar Section', type: 'json', default: [], description: 'JSON array of discover items' },
         { key: 'mega_ads_left', label: 'Left Sidebar Mega Ads', type: 'json', default: [], description: 'JSON array of left sidebar ads' },
         { key: 'mega_ads_right', label: 'Right Sidebar Mega Ads', type: 'json', default: [], description: 'JSON array of right sidebar ads' },
-        { key: 'scrolling_ads', label: 'Scrolling Ads', type: 'json', default: [], description: 'JSON array of scrolling banner ads' }
+        { key: 'scrolling_ads', label: 'Scrolling Ads', type: 'json', default: [], description: 'JSON array of scrolling banner ads' },
+        { key: 'checkout_offers', label: 'Checkout Offers', type: 'json', default: [], description: 'JSON array of checkout offers (title, description, code, type, value)' },
+        { key: 'checkout_ads', label: 'Checkout Ads', type: 'json', default: [], description: 'JSON array of checkout ads (title, image, link, text)' }
       ]
     }
   };
