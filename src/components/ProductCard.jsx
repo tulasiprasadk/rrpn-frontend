@@ -139,13 +139,13 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <CategoryIcon name={displayName} category={categoryName} variety={variety} icon={categoryIcon} size={iconSizeBase} />
+              <CategoryIcon name={displayName} category={categoryName} variety={variety} size={iconSizeBase} />
             </span>
           </>
         ) : (
           // Show icon large if no image
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <CategoryIcon name={displayName} category={categoryName} variety={variety} icon={categoryIcon} size={iconSizeBase} />
+            <CategoryIcon name={displayName} category={categoryName} variety={variety} size={iconSizeBase} />
           </div>
         )}
       </div>
