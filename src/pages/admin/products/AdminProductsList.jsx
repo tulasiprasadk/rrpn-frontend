@@ -88,6 +88,24 @@ const AdminProductsList = () => {
                   <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>{p.Category?.name || '-'}</td>
                   <td style={{ padding: '12px', borderBottom: '1px solid #eee' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
+                      <Link
+                        to={`/admin/products/${p.id}/edit`}
+                        className="admin-button"
+                        style={{
+                          background: '#007bff',
+                          color: 'white',
+                          border: 'none',
+                          padding: '6px 12px',
+                          borderRadius: '4px',
+                          cursor: 'pointer',
+                          textDecoration: 'none',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}
+                      >
+                        ✏️ Edit
+                      </Link>
                       <button
                         onClick={() => setManagingProductId(p.id)}
                         style={{
