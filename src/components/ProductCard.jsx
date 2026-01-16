@@ -35,7 +35,7 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
   // ensure title/desc wrappers have no unexpected border/background
   const titleStyle = { margin: 0, fontSize: 11, fontWeight: 600, color: "#b00018", textAlign: 'center', background: 'transparent', border: 'none' };
   const knStyle = { color: "#b00018", fontSize: 10, fontFamily: 'Noto Sans Kannada, Tunga, Arial, sans-serif', fontWeight: 600, textAlign: 'center', background: 'transparent', border: 'none' };
-  const iconSizeBase = iconSize || 20;
+  const iconSizeBase = iconSize || 28;
   const displayPrice = typeof price === "number" ? price : null;
   const displayKn = knDisplay || kn || titleKannada;
   const showKannada = Boolean(displayKn) && displayKn !== displayName;
@@ -133,8 +133,8 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
               position: "absolute",
               top: 6,
               left: 6,
-              width: (iconSize || 14) + 2,
-              height: (iconSize || 14) + 2,
+              width: (iconSizeBase) + 4,
+              height: (iconSizeBase) + 4,
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center'
