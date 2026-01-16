@@ -12,9 +12,9 @@ export function CrackerCartProvider({ children }) {
   useEffect(() => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
+      const cartActive = sessionStorage.getItem("rrnagar_cart_active") === "1";
+      if (!token && !cartActive) {
         // Guest cart should start empty until the user adds a product
-        sessionStorage.removeItem("rrnagar_cart_active");
         localStorage.removeItem("bag");
         setCart([]);
         return;
