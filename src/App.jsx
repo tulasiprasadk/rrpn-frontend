@@ -90,6 +90,7 @@ import VendorKycApproval from "./pages/admin/VendorKycApproval.jsx";
 import AdminKycApproval from "./pages/admin/AdminKycApproval.jsx";
 import CmsManager from "./pages/admin/CmsManager.jsx";
 import AdminChangePassword from "./pages/admin/AdminChangePassword.jsx";
+import CheckoutMarketing from "./pages/admin/CheckoutMarketing.jsx";
 
 /* WRAPPER */
 function AppWrapper() {
@@ -188,6 +189,7 @@ function AppWrapper() {
               <Route path="products/:id/edit" element={<AdminProductForm mode="edit" />} />
               <Route path="translator" element={<ProductTranslator />} />
               <Route path="config" element={<PlatformConfig />} />
+              <Route path="checkout-marketing" element={<CheckoutMarketing />} />
               <Route path="orders" element={<AdminOrdersList />} />
               <Route path="orders/:id" element={<AdminOrderDetail />} />
               <Route path="categories" element={<AdminCategoriesList />} />
