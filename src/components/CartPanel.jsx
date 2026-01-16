@@ -12,6 +12,10 @@ export default function CartPanel() {
   const { user } = useAuth();
   const [bag, setBag] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.innerWidth <= 900;
+  });
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return window.innerWidth <= 900;
@@ -66,11 +70,9 @@ export default function CartPanel() {
       setLoading(false);
     }, 1000);
     const handleResize = () => {
-      if (window.innerWidth <= 900) {
-        setCollapsed(true);
-      } else {
-        setCollapsed(false);
-      }
+      const mobile = window.innerWidth <= 900;
+      setIsMobile(mobile);
+      setCollapsed(mobile);
     };
     window.addEventListener("resize", handleResize);
     return () => {
@@ -94,10 +96,22 @@ export default function CartPanel() {
 
   if (loading) return <div className="cart-panel">Loading bag...</div>;
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth <= 900;
+  const panelStyle = {
+    minWidth: isMobile ? "100%" : 320,
+    background: "#fff",
+    borderLeft: isMobile ? "none" : "1px solid #eee",
+    borderTop: isMobile ? "1px solid #eee" : "none",
+    padding: 16,
+    position: isMobile ? "static" : "sticky",
+    top: isMobile ? "auto" : 0,
+    right: isMobile ? "auto" : 0,
+    minHeight: isMobile ? "auto" : "100vh",
+    zIndex: 10,
+    width: isMobile ? "100%" : "auto",
+  };
 
   return (
-    <div className="cart-panel" style={{ minWidth: 320, background: '#fff', borderLeft: '1px solid #eee', padding: 16, position: 'sticky', top: 0, right: 0, minHeight: '100vh', zIndex: 10 }}>
+    <div className="cart-panel" style={panelStyle}>
       <h3 style={{ marginTop: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
         <span style={{display:'inline-flex', alignItems: 'center', gap: 8}}>
           <span style={{display:'inline-flex'}}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 7L6.5 6C7 4 8 3 12 3C16 3 17 4 17.5 6L18 7H6Z" fill="#FFE082"/><path d="M5 7H19L18 20H6L5 7Z" fill="#FFB74D"/></svg></span>
