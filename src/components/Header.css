@@ -44,6 +44,17 @@
   gap: 18px;
 }
 
+.rn-login-btn {
+  display: none;
+  text-decoration: none;
+  color: #111;
+  background: #ffd600;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+
 .rn-menu-btn {
   display: none;
   background: #ffd600;
@@ -130,6 +141,7 @@
   }
 
   .rn-nav {
+    display: none;
     gap: 10px;
     width: 100%;
     background: #ffe44b;
@@ -159,5 +171,11 @@
   .rn-nav.open {
     display: flex;
     flex-wrap: wrap;
+  }
+
+  .rn-login-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
   }
 }

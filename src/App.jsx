@@ -7,7 +7,7 @@ import Consultancy from "./pages/Consultancy.jsx";
 import PetServices from "./pages/PetServices.jsx";
 // frontend/src/App.jsx
 
-import React from "react";
+import React, { useEffect } from "react";
 import axios from "axios";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 
@@ -96,6 +96,15 @@ import CheckoutMarketing from "./pages/admin/CheckoutMarketing.jsx";
 function AppWrapper() {
   const location = useLocation();
   const hideLayout = location.pathname.startsWith("/admin");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const host = window.location.hostname;
+    if (host.includes("vercel.app")) {
+      const target = `https://rrnagar.com${window.location.pathname}${window.location.search}${window.location.hash}`;
+      window.location.replace(target);
+    }
+  }, []);
 
   return (
     <>

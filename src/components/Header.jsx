@@ -112,6 +112,11 @@ export default function Header() {
             )}
           </Link>
         </nav>
+        {!isLoggedIn && (
+          <Link className="rn-login-btn" to="/login">
+            Login
+          </Link>
+        )}
       </div>
     </header>
   );
