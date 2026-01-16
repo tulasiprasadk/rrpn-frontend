@@ -437,6 +437,51 @@
   font-size: 16px;
 }
 
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .dash-container {
+    width: 100%;
+    margin: 16px auto;
+    padding: 0 12px;
+  }
+
+  .dash-welcome {
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .dash-cards {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+
+  .dash-tabs {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .order-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .order-details {
+    flex-wrap: wrap;
+  }
+
+  .suppliers-grid,
+  .addresses-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .address-content {
   margin: 15px 0;
 }
