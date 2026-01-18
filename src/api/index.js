@@ -3,11 +3,12 @@
 import { API_BASE } from "../config/api";
 
 // Get all products or search by keyword
-export async function getProducts(query = "", categoryId = "") {
+export async function getProducts(query = "", categoryId = "", limit = 50000) {
   try {
     const params = new URLSearchParams();
     if (query) params.append("q", query);
     if (categoryId) params.append("categoryId", categoryId);
+    if (limit) params.append("limit", String(limit));
 
     const url =
       params.toString().length > 0

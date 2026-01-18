@@ -60,9 +60,12 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
     
     if (onClick) {
       onClick(product);
-    } else {
-      addToBag();
     }
+  };
+  const handleImageClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToBag();
   };
   const baseStyle = {
     border: "1px solid #e0e0e0",
@@ -73,7 +76,7 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
     gap: 4,
     margin: 4,
     boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
-    cursor: "pointer",
+    cursor: "default",
     transition: "all 0.2s ease",
     aspectRatio: '1 / 1',
     padding: 0,
@@ -106,6 +109,10 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
       {/* IMAGE + EMOJI */}
       <div
         className="pc-image"
+        onClick={handleImageClick}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === "Enter" && handleImageClick(e)}
         style={{
           width: "100%",
           aspectRatio: '1 / 1',
@@ -117,6 +124,7 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
+          cursor: "pointer"
         }}
       >
         {displayImage ? (
@@ -183,16 +191,6 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
       >
         {displayPrice !== null ? `₹${displayPrice}` : "—"}
       </div>
-      <button
-        className="pc-add"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          addToBag();
-        }}
-      >
-        Add to Bag
-      </button>
     </div>
   );
 }
