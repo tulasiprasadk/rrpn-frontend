@@ -11,11 +11,11 @@ export default function PaymentSubmitted() {
         <div style={{ fontSize: '64px', marginBottom: '20px' }}>✅</div>
         
         <h2 style={{ color: '#28a745', marginBottom: '20px', fontSize: '28px' }}>
-          Thank You for Your Order!
+          Payment Received
         </h2>
 
         <p style={{ fontSize: '18px', color: '#666', marginBottom: '30px' }}>
-          Your payment has been submitted successfully and is under review.
+          Your payment has been submitted successfully and your order is in process.
         </p>
 
         <div style={{ 
@@ -61,12 +61,12 @@ export default function PaymentSubmitted() {
           marginBottom: '30px',
           textAlign: 'left'
         }}>
-          <h3 style={{ color: '#856404', marginBottom: '15px', fontSize: '18px' }}>📦 What Happens Next?</h3>
+          <h3 style={{ color: '#856404', marginBottom: '15px', fontSize: '18px' }}>📦 What Happens Next</h3>
           <ul style={{ color: '#856404', paddingLeft: '20px', lineHeight: '1.8' }}>
-            <li>Once your payment is confirmed, we will process your order immediately</li>
-            <li>You will receive a notification when payment is verified</li>
-            <li>Our team will ensure your products/services are delivered as per schedule</li>
-            <li>You can track your order status in the "My Orders" section</li>
+            <li>We verify your payment and approve the order</li>
+            <li>You’ll get a notification once verification is complete</li>
+            <li>We prepare and deliver your items as scheduled</li>
+            <li>Track status anytime in “My Orders”</li>
           </ul>
         </div>
 

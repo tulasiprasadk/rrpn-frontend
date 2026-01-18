@@ -23,7 +23,7 @@
   box-shadow: 0 8px 20px rgb(0 0 0 / 12%);
   font-family: 'Noto Sans Kannada', system-ui, sans-serif;
   box-sizing: border-box;
-  margin: 0 6px; /* add horizontal gap so cards don't visually overlap */
+  margin: 0; /* remove extra gaps between discover cards */
   flex: 0 0 auto; /* prevent shrinking in flex containers */
 }
 
