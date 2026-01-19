@@ -10,6 +10,7 @@ import PetServices from "./pages/PetServices.jsx";
 import React, { useEffect } from "react";
 import axios from "axios";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { initAnalytics, trackPageView } from "./utils/analytics";
 
 import { AdminAuthProvider } from "./context/AdminAuthContext";
 import { CrackerCartProvider } from "./context/CrackerCartContext";
@@ -49,6 +50,7 @@ import SelectAddressPage from "./pages/SelectAddressPage.jsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.jsx";
 import TermsOfService from "./pages/TermsOfService.jsx";
 import Blog from "./pages/Blog.jsx";
+import Subscriptions from "./pages/Subscriptions.jsx";
 
 /* SUPPLIER PAGES */
 import SupplierLogin from "./pages/SupplierLogin.jsx";
@@ -106,6 +108,15 @@ function AppWrapper() {
     }
   }, []);
 
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
+  useEffect(() => {
+    const path = `${location.pathname}${location.search}${location.hash}`;
+    trackPageView(path);
+  }, [location.pathname, location.search, location.hash]);
+
   return (
     <>
       {!hideLayout && <Header />}
@@ -124,6 +135,7 @@ function AppWrapper() {
           <Route path="/checkout/select-address" element={<SelectAddressPage />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Blog />} />
+          <Route path="/subscriptions" element={<Subscriptions />} />
 
           {/* SPECIAL */}
           <Route path="/crackers" element={<Crackers />} />

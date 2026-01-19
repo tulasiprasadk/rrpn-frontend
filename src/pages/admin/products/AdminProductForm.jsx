@@ -20,6 +20,8 @@ const AdminProductForm = ({ mode }) => {
     subVariety: "",
     monthlyPrice: "",
     hasMonthlyPackage: false,
+    yearlyPrice: "",
+    hasYearlyPackage: false,
   });
 
   const [image, setImage] = useState(null);
@@ -57,6 +59,8 @@ const AdminProductForm = ({ mode }) => {
             subVariety: data.subVariety ?? "",
             monthlyPrice: data.monthlyPrice ?? "",
             hasMonthlyPackage: data.hasMonthlyPackage ?? false,
+            yearlyPrice: data.yearlyPrice ?? "",
+            hasYearlyPackage: data.hasYearlyPackage ?? false,
           });
           if (data.image || data.imageUrl) {
             setPreview(data.image || data.imageUrl);
@@ -96,6 +100,8 @@ const AdminProductForm = ({ mode }) => {
       categoryId: product.categoryId ? parseInt(product.categoryId) : null,
       monthlyPrice: product.monthlyPrice ? parseFloat(product.monthlyPrice) : null,
       hasMonthlyPackage: product.hasMonthlyPackage === true || product.hasMonthlyPackage === 'true',
+      yearlyPrice: product.yearlyPrice ? parseFloat(product.yearlyPrice) : null,
+      hasYearlyPackage: product.hasYearlyPackage === true || product.hasYearlyPackage === 'true',
     };
 
     console.log('Submitting product:', submitData);
@@ -194,6 +200,29 @@ const AdminProductForm = ({ mode }) => {
               style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
               value={product.monthlyPrice}
               onChange={handleChange("monthlyPrice")}
+            />
+          </div>
+        )}
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <input
+            type="checkbox"
+            checked={product.hasYearlyPackage}
+            onChange={handleChange("hasYearlyPackage")}
+          />
+          <label>Has Yearly Package</label>
+        </div>
+
+        {product.hasYearlyPackage && (
+          <div>
+            <label style={{ display: 'block', marginBottom: '4px', fontWeight: '600' }}>Yearly Price (₹)</label>
+            <input
+              type="number"
+              step="0.01"
+              placeholder="Yearly Price"
+              style={{ width: '100%', padding: '10px', border: '1px solid #ddd', borderRadius: '6px' }}
+              value={product.yearlyPrice}
+              onChange={handleChange("yearlyPrice")}
             />
           </div>
         )}

@@ -91,6 +91,7 @@ export default function Header() {
         <nav className={`rn-nav ${menuOpen ? "open" : "closed"}`}>
           <Link className="rn-nav-item" to="/" onClick={() => setMenuOpen(false)}>Home</Link>
           <Link className="rn-nav-item" to="/blog" onClick={() => setMenuOpen(false)}>Blog</Link>
+          <Link className="rn-nav-item" to="/subscriptions" onClick={() => setMenuOpen(false)}>Subscriptions</Link>
           {isLoggedIn ? (
             <>
               <Link className="rn-nav-item" to={dashboardPath} onClick={() => setMenuOpen(false)}>Dashboard</Link>

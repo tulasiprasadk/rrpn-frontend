@@ -162,50 +162,30 @@ export default function Home() {
         return;
       }
 
-      // Map backend categories to include icons/nameKannada from defaults
-      const mapped = data.map((cat) => {
-        const norm = (cat.name || "").replace(/\s+/g, "").toLowerCase();
-        const def = defaultCategories.find(
-          (d) => (d.name || "").replace(/\s+/g, "").toLowerCase() === norm
-        );
-        return {
-          ...cat,
-          icon: def?.icon || emojiMap[norm] || cat.icon || "🛍️",
-          nameKannada: def?.nameKannada || cat.nameKannada || "",
-        };
+      const normalize = (value) => (value || "").replace(/\s+/g, "").toLowerCase();
+      const allowed = new Map(defaultCategories.map((c) => [normalize(c.name), c]));
+
+      // Only keep the approved default categories; ignore any extras
+      const mapped = data
+        .map((cat) => {
+          const norm = normalize(cat.name);
+          const def = allowed.get(norm);
+          if (!def) return null;
+          return {
+            ...cat,
+            icon: def.icon || emojiMap[norm] || cat.icon || "🛍️",
+            nameKannada: def.nameKannada || cat.nameKannada || "",
+          };
+        })
+        .filter(Boolean);
+
+      // Preserve the default order, while keeping backend IDs when present
+      const ordered = defaultCategories.map((def) => {
+        const norm = normalize(def.name);
+        return mapped.find((m) => normalize(m.name) === norm) || def;
       });
 
-      // Remove unwanted categories from popular list (robust substring checks)
-      const filtered = mapped.filter((c) => {
-        const n = (c.name || "").toLowerCase();
-        if (!n) return true;
-        // exclude any categories that are fruits, vegetables, or milk products
-        if (n.includes("fruit") || n.includes("veget") || n.includes("milk")) return false;
-        return true;
-      });
-
-      // Enforce desired category order at the top, keep any other categories after
-      const desiredOrder = [
-        "Crackers",
-        "Flowers",
-        "Groceries",
-        "Local Services",
-        "Pet Services",
-        "Consultancy",
-      ];
-      const desiredNorm = desiredOrder.map((s) => s.replace(/\s+/g, "").toLowerCase());
-      filtered.sort((a, b) => {
-        const na = (a.name || "").replace(/\s+/g, "").toLowerCase();
-        const nb = (b.name || "").replace(/\s+/g, "").toLowerCase();
-        const ia = desiredNorm.indexOf(na);
-        const ib = desiredNorm.indexOf(nb);
-        if (ia === -1 && ib === -1) return (a.name || "").localeCompare(b.name || "");
-        if (ia === -1) return 1;
-        if (ib === -1) return -1;
-        return ia - ib;
-      });
-
-      setCategories(filtered);
+      setCategories(ordered);
     } catch (err) {
       setCategoriesError(err.message || "Failed to load categories");
       console.error("Error loading categories:", err);
@@ -238,6 +218,13 @@ export default function Home() {
     { image: ad4, title: "Pet Services", link: "https://thevetbuddy.com" },
   ];
   const adsLoop = [...ads, ...ads];
+  const megaGridAds = [
+    { image: ad3, link: ads[2].link, alt: ads[2].title },
+    { image: ad1, link: ads[0].link, alt: ads[0].title },
+    { image: "/motard.svg", link: "https://motardgears.com", alt: "Motard" },
+    { image: ad4, link: ads[3].link, alt: ads[3].title },
+    { image: ad2, link: ads[1].link, alt: ads[1].title },
+  ];
 
   /* ================= DISCOVER ================= */
   const discover = [
@@ -292,7 +279,7 @@ export default function Home() {
 
   return (
     <main className="home" style={{ display: "flex", width: "100vw", margin: 0, padding: 0, alignItems: "flex-start" }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch', alignSelf: 'flex-start' }}>
+      <div className="mega-column mega-column-left" style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch', alignSelf: 'flex-start' }}>
         <MegaAd image={ad3} link={ads[2].link} position="left" />
         <MegaAd image={ad1} link={ads[0].link} position="left" />
         {/* Extra MegaAd slot under top-left — Motard partner logo */}
@@ -328,6 +315,22 @@ export default function Home() {
                 <button onClick={handleSearchClick}>Search</button>
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* MEGA GRID (mobile/tablet view) */}
+        <section className="section mega-grid-section">
+          <h2 className="section-title">Mega Grid</h2>
+          <div className="mega-grid">
+            {megaGridAds.map((item, index) => (
+              <MegaAd
+                key={`${item.alt}-${index}`}
+                image={item.image}
+                link={item.link}
+                alt={item.alt}
+                position="grid"
+              />
+            ))}
           </div>
         </section>
 
@@ -495,7 +498,7 @@ export default function Home() {
         </section>
 
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', alignSelf: 'flex-start' }}>
+      <div className="mega-column mega-column-right" style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', alignSelf: 'flex-start' }}>
         <CartPanel />
         <MegaAd image={ad4} link={ads[3].link} position="right" />
         <MegaAd image={ad2} link={ads[1].link} position="right" />
