@@ -193,7 +193,7 @@
 .ads-track,
 .discover-track {
   display: flex;
-  gap: 16px; /* slightly smaller gap to fit more items */
+  gap: 8px; /* tighter gap so discover cards don't look split */
   align-items: center;
   flex-wrap: nowrap; /* keep the horizontal rail single-line */
 }
@@ -261,9 +261,53 @@
   justify-content: center;
   margin: 0;
   flex: 0 0 auto; /* prevent shrinking/wrapping that can cause overlap */
-  padding: 6px; /* breathing room inside the track */
+  padding: 0; /* remove extra space between cards */
   box-sizing: border-box;
   z-index: 0; /* keep items on same stacking baseline */
+}
+
+/* =================================================
+   MEGA GRID (MOBILE/TABLET)
+================================================= */
+.mega-grid-section {
+  display: none;
+}
+
+.mega-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  justify-items: center;
+}
+
+.mega-grid .mega-ad {
+  width: 100%;
+  max-width: 260px;
+  min-width: 0;
+  height: 220px;
+}
+
+.mega-grid .mega-ad img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (max-width: 1200px) {
+  .mega-column {
+    display: none;
+  }
+
+  .mega-grid-section {
+    display: block;
+  }
+}
+
+@media (max-width: 768px) {
+  .mega-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+  }
 }
 
 /* =================================================
