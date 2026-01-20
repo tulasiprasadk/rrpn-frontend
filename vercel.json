@@ -9,7 +9,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://rrpn-backend.vercel.app/api/$1"
+      "destination": "https://rrnagar-backend-github-223551238790.asia-south1.run.app/api/$1"
     },
     { "source": "/(.*)", "destination": "/" }
   ]
