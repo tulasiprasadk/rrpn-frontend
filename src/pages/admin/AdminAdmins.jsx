@@ -4,7 +4,7 @@ import axios from "axios";
 export default function AdminAdmins() {
   const [admins, setAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState({ name: "", email: "", password: "", role: "admin", autoApprove: false });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", role: "admin", autoApprove: false });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -32,12 +32,13 @@ export default function AdminAdmins() {
     try {
       await axios.post(`/api/admins`, {
         name: form.name,
-        email: form.email,
+        email: form.email || null,
+        phone: form.phone || null,
         password: form.password,
         role: form.role,
         autoApprove: form.autoApprove
       });
-      setForm({ name: "", email: "", password: "", role: "admin", autoApprove: false });
+      setForm({ name: "", email: "", phone: "", password: "", role: "admin", autoApprove: false });
       loadAdmins();
       alert('Admin created (may require super admin approval)');
     } catch (err) {
@@ -57,8 +58,9 @@ export default function AdminAdmins() {
           <h3>Create Admin</h3>
           <form onSubmit={handleCreate} style={{ display: 'grid', gap: 8, maxWidth: 480 }}>
             <input placeholder="Name" value={form.name} onChange={(e)=>setForm({...form,name:e.target.value})} required />
-            <input placeholder="Email" type="email" value={form.email} onChange={(e)=>setForm({...form,email:e.target.value})} required />
-            <input placeholder="Password" type="password" value={form.password} onChange={(e)=>setForm({...form,password:e.target.value})} required />
+            <input placeholder="Email (optional)" type="email" value={form.email} onChange={(e)=>setForm({...form,email:e.target.value})} />
+            <input placeholder="Mobile number (optional)" type="text" value={form.phone} onChange={(e)=>setForm({...form,phone:e.target.value})} />
+            <input placeholder="Password (paste generated password)" type="password" value={form.password} onChange={(e)=>setForm({...form,password:e.target.value})} required />
             <select value={form.role} onChange={(e)=>setForm({...form,role:e.target.value})}>
               <option value="admin">Admin</option>
               <option value="moderator">Moderator</option>
