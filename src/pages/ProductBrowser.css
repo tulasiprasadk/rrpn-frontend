@@ -310,7 +310,7 @@
 }
 
 
-@media (width <= 968px) {
+@media (max-width: 968px) {
   .browser-content {
     display: flex;
     flex-direction: column;
@@ -356,7 +356,7 @@
   }
 }
 
-@media (width <= 600px) {
+@media (max-width: 600px) {
   .browser-header {
     padding: 24px 8px;
   }

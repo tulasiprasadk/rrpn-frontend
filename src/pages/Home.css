@@ -87,8 +87,10 @@
 .hero-search input {
   border: none;
   padding: 12px 14px;
-  min-width: 240px;
   font-size: 15px;
+  /* allow input to shrink on small screens */
+  flex: 1 1 auto;
+  width: 100%;
   outline: none;
 }
 
@@ -143,7 +145,8 @@
 
 .cat-card {
   background: #ffe84b;
-  width: 130px;
+  width: 100%;
+  max-width: 130px;
   height: 130px;
   border-radius: 14px;
   display: flex;
@@ -209,23 +212,42 @@
 }
 
 .ad-item {
+  flex: 0 0 220px;
   width: 220px;
-  height: 200px;
+  height: 140px;
   background: #ffd700;
   border-radius: 14px;
-  padding: 15px;
+  padding: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   text-decoration: none;
   box-shadow: 0 6px 14px rgb(0 0 0 / 12%);
+  overflow: hidden;
+  position: relative;
 }
 
 .ad-item img {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Title overlay for ads to keep text visible and consistent */
+.ad-item .ad-title {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  background: rgba(255,255,255,0.9);
+  color: #b00018;
+  font-weight: 700;
+  padding: 6px 8px;
+  border-radius: 8px;
+  text-align: center;
+  z-index: 2;
+  font-size: 13px;
 }
 
 .ad-title {
@@ -254,8 +276,9 @@
 }
 
 .discover-item {
-  width: 220px; /* match ad-item width */
-  height: 200px; /* match ad-item height */
+  width: auto; /* match ad-item width */
+  max-width: 220px;
+  height: auto; /* match ad-item height */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -265,6 +288,8 @@
   box-sizing: border-box;
   z-index: 0; /* keep items on same stacking baseline */
 }
+
+.discover-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* =================================================
    MEGA GRID (MOBILE/TABLET)
@@ -277,7 +302,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
-  justify-items: center;
+  justify-items: start; /* left-align items to avoid centered layout */
 }
 
 .mega-grid .mega-ad {
@@ -285,6 +310,12 @@
   max-width: 260px;
   min-width: 0;
   height: 220px;
+}
+
+/* Modifier for extra-left alignment and full-bleed look */
+.mega-grid--left {
+  justify-items: start;
+  padding-left: 12px;
 }
 
 .mega-grid .mega-ad img {
@@ -307,6 +338,33 @@
   .mega-grid {
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 12px;
+  }
+}
+
+/* Mobile: convert mega-grid into a horizontal scroller with small tiles */
+@media (max-width: 480px) {
+  .mega-grid {
+    display: flex !important;
+    overflow-x: auto !important;
+    gap: 12px !important;
+    padding-left: 12px !important;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mega-grid .mega-ad {
+    flex: 0 0 160px !important;
+    width: 160px !important;
+    height: 120px !important;
+    margin: 8px 6px !important;
+    scroll-snap-align: start;
+  }
+
+  .mega-grid .mega-ad img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
   }
 }
 
@@ -392,21 +450,21 @@
 }
 
 /* Responsive grid - maintain consistent sizing */
-@media (width <= 1200px) {
+@media (max-width: 1200px) {
   .fresh-picks .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: 20px;
   }
 }
 
-@media (width <= 900px) {
+@media (max-width: 900px) {
   .fresh-picks .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: 20px;
   }
 }
 
-@media (width <= 480px) {
+@media (max-width: 480px) {
   .fresh-picks .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: 18px;
@@ -446,19 +504,19 @@
 /* =================================================
    RESPONSIVE
 ================================================= */
-@media (width <= 1100px) {
+@media (max-width: 1100px) {
   .cat-row {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (width <= 700px) {
+@media (max-width: 700px) {
   .cat-row {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (width <= 480px) {
+@media (max-width: 480px) {
   .hero {
     height: 220px;
   }
@@ -467,18 +525,22 @@
     width: 95vw;
   }
 
+  /* make categories a horizontal rail on very small screens */
   .cat-row {
-    grid-template-columns: 1fr;
-    gap: 18px;
+    display: flex;
+    gap: 12px;
     overflow-x: auto;
     padding-bottom: 8px;
     scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
   }
 
   .cat-card {
-    width: 110px;
+    flex: 0 0 auto;
+    width: 46vw;
+    max-width: 120px;
     height: 110px;
-    margin: 0 auto;
+    margin: 0 6px;
     scroll-snap-align: start;
   }
 

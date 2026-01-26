@@ -17,14 +17,15 @@ const AdminAdForm = ({ mode }) => {
   useEffect(() => {
     if (mode === "edit") {
       fetch(`/api/admin/ads/${id}`, {
-        headers: { Authorization: `Bearer ${adminToken}` }
+        credentials: 'include'
       })
         .then(res => res.json())
         .then(ad => {
-          setTitle(ad.title);
-          setLink(ad.link);
-          if (ad.image_url) {
-            setPreview(`${ad.image_url}`);
+          setTitle(ad.title || ad.name || "");
+          setLink(ad.link || ad.targetUrl || "");
+          const imageUrl = ad.imageUrl || ad.image_url || ad.image || ad.url || ad.src;
+          if (imageUrl) {
+            setPreview(imageUrl);
           }
         })
         .catch(err => console.error("Failed loading ad:", err));
@@ -48,9 +49,7 @@ const AdminAdForm = ({ mode }) => {
 
     const res = await fetch(url, {
       method,
-      headers: {
-        Authorization: `Bearer ${adminToken}`,
-      },
+      credentials: 'include',
       body: form,
     });
 

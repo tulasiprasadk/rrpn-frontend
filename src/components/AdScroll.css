@@ -32,7 +32,7 @@
 }
 
 /* slower & smaller on mobile */
-@media (width <= 640px) {
+@media (max-width: 640px) {
   .ad-banner {
     width: 220px;
     height: 88px;

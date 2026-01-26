@@ -369,7 +369,7 @@
 }
 
 /* Responsive */
-@media (width <= 768px) {
+@media (max-width: 768px) {
   .admin-menu-btn {
     display: inline-flex;
     align-items: center;

@@ -33,10 +33,15 @@
 =================================== */
 
 .mega-ad img {
-  width: 70%;
-  height: 70%;
-  object-fit: contain;        /* 🔑 keeps full image visible */
+  /* Prefer contain for logos so they fit inside the box without overflowing */
   display: block;
+  max-width: 90%;
+  max-height: 80%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  object-position: center;
+  margin: 0 auto;
   border-radius: 12px;
 }
 
@@ -53,3 +58,82 @@
 }
 
 /* Responsive behavior handled in Home.css to allow mobile mega grid */
+
+@media (max-width: 480px) {
+  .mega-ad {
+    /* reduce tall desktop height on very small screens */
+    height: 120px !important;
+    max-width: 160px !important;
+    width: 160px !important;
+  }
+
+  .mega-ad img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+  }
+
+  .mega-ad-left,
+  .mega-ad-right {
+    margin: 0;
+  }
+
+  /* Mobile scroller specific sizing */
+  .home .mega-grid .mega-ad {
+    width: 160px !important;
+    max-width: 160px !important;
+    height: 120px !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+    margin: 8px 6px !important;
+  }
+
+  .home .mega-grid .mega-ad img {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 8px !important;
+  }
+}
+
+/* Extra safety: mobile-specific constraints so logos never overflow their cards */
+@media (max-width: 480px) {
+  .home .mega-grid .mega-ad {
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  .home .mega-grid .mega-ad img {
+    display: block !important;
+    max-width: calc(100% - 16px) !important;
+    max-height: calc(100% - 16px) !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 8px !important;
+    box-sizing: border-box !important;
+    margin: 0 auto !important;
+    object-fit: contain !important;
+  }
+}
+
+/* Additional fail-safe: hide desktop columns and enforce grid on larger small viewports (tablet) */
+@media (max-width: 1024px) {
+  .home .mega-column { display: none !important; }
+  .home .mega-grid { display: block !important; }
+
+  .home .mega-grid .mega-ad {
+    width: 92vw !important;
+    max-width: 92vw !important;
+    height: 200px !important;
+    margin: 10px auto !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+  }
+
+  .home .mega-grid .mega-ad img {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+}

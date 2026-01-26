@@ -48,7 +48,7 @@
   background: #a10f24;
 }
 
-@media (width <= 600px) {
+@media (max-width: 600px) {
   .search-wrapper {
     margin-top: 18px;
   }

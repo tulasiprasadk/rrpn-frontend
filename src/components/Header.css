@@ -107,7 +107,7 @@
 }
 
 /* Responsive Design */
-@media (width <= 900px) {
+@media (max-width: 900px) {
   .rn-topbar {
     padding: 8px 12px;
     flex-wrap: wrap;
@@ -129,7 +129,7 @@
   }
 }
 
-@media (width <= 600px) {
+@media (max-width: 600px) {
   .rn-topbar {
     padding: 6px 8px;
     align-items: flex-start;

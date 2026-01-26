@@ -7,9 +7,9 @@ const AdminAdsList = () => {
 
   const loadAds = async () => {
     try {
-      const res = await axios.get("/api/ads");
+      const res = await axios.get("/api/admin/ads", { withCredentials: true });
       setAds(res.data);
-    } catch {
+    } catch (err) {
       console.error("Failed loading ads:", err);
     }
   };
@@ -23,9 +23,10 @@ const AdminAdsList = () => {
     if (!window.confirm("Are you sure you want to delete this ad?")) return;
 
     try {
-      await axios.delete(`/api/admin/ads/${id}`);
+      await axios.delete(`/api/admin/ads/${id}`, { withCredentials: true });
       loadAds();
-    } catch {
+    } catch (err) {
+      console.error('Delete ad failed', err);
       alert("Failed to delete ad");
     }
   };

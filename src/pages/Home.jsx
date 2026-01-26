@@ -226,6 +226,30 @@ export default function Home() {
     { image: ad2, link: ads[1].link, alt: ads[1].title },
   ];
 
+  // Consolidate mega ads into a single source and dedupe to keep desktop and mobile consistent
+  const initialMegaAds = [
+    { image: ad3, link: ads[2].link, alt: ads[2].title },
+    { image: ad1, link: ads[0].link, alt: ads[0].title },
+    { image: '/motard.svg', link: 'https://motardgears.com', alt: 'Motard' },
+    { image: ad4, link: ads[3].link, alt: ads[3].title },
+    { image: ad2, link: ads[1].link, alt: ads[1].title },
+  ];
+
+  const megaAds = Array.from(new Map(initialMegaAds.map(a => [a.alt || a.image, a])).values());
+
+  // Track whether we are rendering desktop layout (columns) or mobile layout (grid)
+  const [isDesktopLayout, setIsDesktopLayout] = useState(() => {
+    try { return typeof window !== 'undefined' ? window.innerWidth > 1200 : true; } catch (e) { return true; }
+  });
+
+  useEffect(() => {
+    function onResize() {
+      setIsDesktopLayout(window.innerWidth > 1200);
+    }
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
+
   /* ================= DISCOVER ================= */
   const discover = [
     { title: "Temples", titleKannada: "ದೇವಾಲಯಗಳು", desc: "Spiritual places", icon: "🛕", longInfo: "Temples are a vital part of RR Nagar's culture, offering spiritual solace and community events.", longInfoKannada: "ದೇವಾಲಯಗಳು ಆರ್ ಆರ್ ನಗರದಲ್ಲಿ ಆಧ್ಯಾತ್ಮಿಕತೆ ಮತ್ತು ಸಮುದಾಯದ ಕೇಂದ್ರಗಳಾಗಿವೆ." },
@@ -279,12 +303,13 @@ export default function Home() {
 
   return (
     <main className="home" style={{ display: "flex", width: "100vw", margin: 0, padding: 0, alignItems: "flex-start" }}>
-      <div className="mega-column mega-column-left" style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch', alignSelf: 'flex-start' }}>
-        <MegaAd image={ad3} link={ads[2].link} position="left" />
-        <MegaAd image={ad1} link={ads[0].link} position="left" />
-        {/* Extra MegaAd slot under top-left — Motard partner logo */}
-        <MegaAd image={'/motard.svg'} link={'https://motardgears.com'} position="left" />
-      </div>
+      {isDesktopLayout && (
+        <div className="mega-column mega-column-left" style={{ display: 'flex', flexDirection: 'column', gap: 40, alignItems: 'stretch', alignSelf: 'flex-start' }}>
+          {megaAds.slice(0,3).map((item, i) => (
+            <MegaAd key={`left-${i}`} image={item.image} link={item.link} position="left" />
+          ))}
+        </div>
+      )}
       <div style={{ flex: 1, minWidth: 0, maxWidth: 1200, margin: '0 auto' }}>
         {/* HERO */}
         <section className="hero">
@@ -318,21 +343,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* MEGA GRID (mobile/tablet view) */}
-        <section className="section mega-grid-section">
-          <h2 className="section-title">Mega Grid</h2>
-          <div className="mega-grid">
-            {megaGridAds.map((item, index) => (
-              <MegaAd
-                key={`${item.alt}-${index}`}
-                image={item.image}
-                link={item.link}
-                alt={item.alt}
-                position="grid"
-              />
-            ))}
-          </div>
-        </section>
+        {/* MEGA GRID moved below categories to preserve content order on mobile */}
 
         {/* CATEGORIES */}
         <section className="section">
@@ -361,6 +372,23 @@ export default function Home() {
             ))}
           </div>
         </section>
+
+        {/* MEGA GRID (mobile/tablet) — moved below categories, no title, left-aligned */}
+        {!isDesktopLayout && (
+          <section className="section mega-grid-section">
+            <div className="mega-grid mega-grid--left">
+              {megaAds.map((item, index) => (
+                <MegaAd
+                  key={`${item.alt || item.image}-${index}`}
+                  image={item.image}
+                  link={item.link}
+                  alt={item.alt}
+                  position="grid"
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* ADS */}
         <section className="section">
@@ -498,13 +526,14 @@ export default function Home() {
         </section>
 
       </div>
-      <div className="mega-column mega-column-right" style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', alignSelf: 'flex-start' }}>
-        <CartPanel />
-        <MegaAd image={ad4} link={ads[3].link} position="right" />
-        <MegaAd image={ad2} link={ads[1].link} position="right" />
-        {/* Extra MegaAd slot */}
-        <MegaAd image={ad3} link={ads[2].link} position="right" />
-      </div>
+      {isDesktopLayout && (
+        <div className="mega-column mega-column-right" style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'stretch', alignSelf: 'flex-start' }}>
+          <CartPanel />
+          {megaAds.slice(3).map((item, i) => (
+            <MegaAd key={`right-${i}`} image={item.image} link={item.link} position="right" />
+          ))}
+        </div>
+      )}
     </main>
     
   );

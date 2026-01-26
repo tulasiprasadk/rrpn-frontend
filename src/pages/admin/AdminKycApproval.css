@@ -382,7 +382,7 @@
   box-shadow: 0 6px 16px rgb(244 67 54 / 40%);
 }
 
-@media (width <= 768px) {
+@media (max-width: 768px) {
   .suppliers-grid {
     grid-template-columns: 1fr;
   }

@@ -1,4 +1,10 @@
-@media (width <= 600px) {
+/* Ensure predictable sizing across the app on all viewports */
+html, body, #root {
+  box-sizing: border-box;
+}
+*, *::before, *::after { box-sizing: inherit; }
+
+@media (max-width: 600px) {
   #root {
     padding: 0.5rem;
     text-align: initial;
@@ -150,14 +156,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* Responsive Breakpoints */
-@media (width <= 1024px) {
+@media (max-width: 1024px) {
   .cat-grid,
   .explore-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (width <= 768px) {
+@media (max-width: 768px) {
   .cat-grid,
   .explore-grid {
     grid-template-columns: 1fr;
