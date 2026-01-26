@@ -11,8 +11,14 @@ const AdminCategoriesList = () => {
       headers: { Authorization: `Bearer ${adminToken}` },
     })
       .then((res) => res.json())
-      .then(setCategories)
-      .catch((err) => console.error("Failed to load categories", err));
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data?.categories || [];
+        setCategories(list);
+      })
+      .catch((err) => {
+        console.error("Failed to load categories", err);
+        setCategories([]);
+      });
   };
 
   useEffect(() => {

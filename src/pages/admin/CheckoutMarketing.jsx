@@ -98,7 +98,7 @@ export default function CheckoutMarketing() {
       <div style={{ display: "grid", gap: 20 }}>
         <section style={{ background: "#fff", padding: 16, borderRadius: 8, border: "1px solid #eee" }}>
           <h2 style={{ marginTop: 0 }}>Mega Ads — Left Sidebar</h2>
-          <p style={{ fontSize: 12, color: "#666" }}>JSON array of ads. Example: [{"title":"...","image":"...","link":"..."}]</p>
+            <p style={{ fontSize: 12, color: "#666" }}>{'JSON array of ads. Example: [{"title":"...","image":"...","link":"..."}]'}</p>
           <textarea
             rows={6}
             style={{ width: "100%", fontFamily: "monospace", fontSize: 12 }}
@@ -116,7 +116,7 @@ export default function CheckoutMarketing() {
 
         <section style={{ background: "#fff", padding: 16, borderRadius: 8, border: "1px solid #eee" }}>
           <h2 style={{ marginTop: 0 }}>Mega Ads — Right Sidebar</h2>
-          <p style={{ fontSize: 12, color: "#666" }}>JSON array of ads. Example: [{"title":"...","image":"...","link":"..."}]</p>
+            <p style={{ fontSize: 12, color: "#666" }}>{'JSON array of ads. Example: [{"title":"...","image":"...","link":"..."}]'}</p>
           <textarea
             rows={6}
             style={{ width: "100%", fontFamily: "monospace", fontSize: 12 }}

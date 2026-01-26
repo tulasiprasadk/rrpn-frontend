@@ -12,7 +12,14 @@ const AdminProductsList = () => {
       headers: { Authorization: `Bearer ${adminToken}` }
     })
       .then((res) => res.json())
-      .then(setProducts);
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data?.products || [];
+        setProducts(list);
+      })
+      .catch((err) => {
+        console.error("Failed to load products", err);
+        setProducts([]);
+      });
   };
 
   useEffect(() => {
@@ -38,7 +45,7 @@ const AdminProductsList = () => {
         to="/admin/products/new"
         className="bg-blue-600 text-white px-4 py-2 rounded mb-5 inline-block"
       >
-        ? Add Product
+        ➕ Add Product
       </Link>
 
       <table className="w-full border mt-4">
