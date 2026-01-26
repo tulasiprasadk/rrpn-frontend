@@ -13,8 +13,10 @@ export default function AdminSuppliersList() {
 
   async function fetchSuppliers() {
     try {
-      const res = await axios.get("/api/suppliers"); 
-      setSuppliers(res.data?.data || res.data || []);
+      const res = await axios.get("/api/admin/suppliers", { withCredentials: true });
+      const data = res.data;
+      const list = Array.isArray(data) ? data : data?.data || data || [];
+      setSuppliers(list);
       console.log("Suppliers loaded:", res.data);
     } catch (err) {
       console.error("Error loading suppliers", err);
@@ -23,7 +25,7 @@ export default function AdminSuppliersList() {
 
   async function approveSupplier(id) {
     try {
-      await axios.post(`/api/suppliers/${id}/approve`);
+      await axios.post(`/api/admin/suppliers/${id}/approve`);
       alert("Supplier approved!");
       fetchSuppliers();
     } catch (err) {
@@ -35,7 +37,7 @@ export default function AdminSuppliersList() {
   async function rejectSupplier(id) {
     const reason = prompt("Rejection reason (optional):");
     try {
-      await axios.post(`/api/suppliers/${id}/reject`, { reason });
+      await axios.post(`/api/admin/suppliers/${id}/reject`, { reason });
       alert("Supplier rejected");
       fetchSuppliers();
     } catch (err) {
@@ -88,17 +90,16 @@ export default function AdminSuppliersList() {
               <td className="p-2 border">{sup.email}</td>
               <td className="p-2 border">{sup.phone}</td>
               <td className="p-2 border">
-                <span style={{
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  background: sup.status === 'approved' ? '#d4edda' : sup.status === 'pending' ? '#fff3cd' : '#f8d7da',
-                  color: sup.status === 'approved' ? '#155724' : sup.status === 'pending' ? '#856404' : '#721c24'
-                }}>
-                  {sup.status}
-                </span>
+                {(() => {
+                  const s = sup.status || '';
+                  const key = s === 'kyc_submitted' ? 'kyc_submitted' : (s === 'pending' ? 'pending' : s);
+                  const bg = key === 'approved' ? '#d4edda' : key === 'pending' || key === 'kyc_submitted' ? '#fff3cd' : '#f8d7da';
+                  const color = key === 'approved' ? '#155724' : key === 'pending' || key === 'kyc_submitted' ? '#856404' : '#721c24';
+                  return <span style={{ padding: '4px 8px', borderRadius: '4px', background: bg, color }}>{key}</span>;
+                })()}
               </td>
               <td className="p-2 border space-x-2">
-                {sup.status === 'pending' && (
+                {(sup.status === 'pending' || sup.status === 'kyc_submitted') && (
                   <>
                     <button
                       className="px-2 py-1 bg-green-500 text-white rounded"

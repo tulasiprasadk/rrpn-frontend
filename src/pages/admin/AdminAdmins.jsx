@@ -15,7 +15,7 @@ export default function AdminAdmins() {
   async function loadAdmins() {
     try {
       setLoading(true);
-      const res = await axios.get(`/api/admins`);
+      const res = await axios.get(`/api/admin/admins`);
       setAdmins(res.data || []);
     } catch (err) {
       console.error("Failed to load admins", err);
@@ -30,7 +30,7 @@ export default function AdminAdmins() {
     setSaving(true);
     setError("");
     try {
-      await axios.post(`/api/admins`, {
+      await axios.post(`/api/admin/admins`, {
         name: form.name,
         email: form.email || null,
         phone: form.phone || null,

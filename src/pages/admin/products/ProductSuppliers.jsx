@@ -16,7 +16,7 @@ function ProductSuppliers({ productId, onClose }) {
 
   const fetchProductSuppliers = async () => {
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/products/${productId}/suppliers`);
+      const res = await fetch(`/api/admin/products/${productId}/suppliers`, { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         setSuppliers(data);
@@ -30,11 +30,11 @@ function ProductSuppliers({ productId, onClose }) {
 
   const fetchAllSuppliers = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/suppliers');
+      const res = await fetch('/api/admin/suppliers', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
         // Only show approved suppliers
-        setAllSuppliers(data.filter(s => s.status === 'approved'));
+        setAllSuppliers((data || []).filter((s) => s.status === 'approved'));
       }
     } catch (err) {
       console.error('Error fetching suppliers:', err);
@@ -48,8 +48,9 @@ function ProductSuppliers({ productId, onClose }) {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/admin/products/${productId}/suppliers`, {
+      const res = await fetch(`/api/admin/products/${productId}/suppliers`, {
         method: 'POST',
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           supplierId: selectedSupplier,
@@ -79,8 +80,8 @@ function ProductSuppliers({ productId, onClose }) {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/admin/products/${productId}/suppliers/${supplierId}`,
-        { method: 'DELETE' }
+        `/api/admin/products/${productId}/suppliers/${supplierId}`,
+        { method: 'DELETE', credentials: 'include' }
       );
 
       if (res.ok) {
