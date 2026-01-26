@@ -55,6 +55,7 @@ import Subscriptions from "./pages/Subscriptions.jsx";
 /* SUPPLIER PAGES */
 import SupplierLogin from "./pages/SupplierLogin.jsx";
 import SupplierRegister from "./pages/SupplierRegister.jsx";
+import SupplierKYC from "./pages/SupplierKYC.jsx";
 import SupplierDashboard from "./pages/SupplierDashboard/SupplierDashboard.jsx";
 import SupplierOrders from "./pages/SupplierOrders/SupplierOrders.jsx";
 import SupplierOrderDetail from "./pages/SupplierOrderDetail/SupplierOrderDetail.jsx";
@@ -182,6 +183,7 @@ function AppWrapper() {
 
           {/* SUPPLIER */}
           <Route path="/supplier/login" element={<SupplierLogin />} />
+          <Route path="/supplier/kyc" element={<SupplierKYC />} />
           <Route path="/supplier/register" element={<SupplierRegister />} />
           <Route path="/supplier" element={<SupplierLayout />}>
             <Route path="dashboard" element={<SupplierDashboard />} />

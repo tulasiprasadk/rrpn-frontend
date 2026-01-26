@@ -99,7 +99,7 @@ export default function AdminSuppliersList() {
                 })()}
               </td>
               <td className="p-2 border space-x-2">
-                {(sup.status === 'pending' || sup.status === 'kyc_submitted') && (
+                {sup.status === 'kyc_submitted' && (
                   <>
                     <button
                       className="px-2 py-1 bg-green-500 text-white rounded"
@@ -114,6 +114,10 @@ export default function AdminSuppliersList() {
                       ✗ Reject
                     </button>
                   </>
+                )}
+
+                {sup.status === 'kyc_pending' && (
+                  <span className="px-2 py-1 bg-yellow-200 text-yellow-800 rounded">Awaiting KYC</span>
                 )}
                 
                 <button
