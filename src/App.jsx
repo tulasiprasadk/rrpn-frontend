@@ -74,6 +74,7 @@ import RequireAdmin from "./components/auth/RequireAdmin.jsx";
 
 import AdminSuppliersList from "./pages/admin/suppliers/AdminSuppliersList.jsx";
 import AdminSupplierDetail from "./pages/admin/suppliers/AdminSupplierDetail.jsx";
+import AdminAdmins from "./pages/admin/AdminAdmins.jsx";
 import AdminAdsList from "./pages/admin/ads/AdminAdsList.jsx";
 import AdminAdForm from "./pages/admin/ads/AdminAdForm.jsx";
 import AnalyticsPage from "./pages/admin/AnalyticsPage.jsx";
@@ -221,6 +222,7 @@ function AppWrapper() {
               <Route path="change-password" element={<AdminChangePassword />} />
               <Route path="vendors/kyc" element={<VendorKycApproval />} />
               <Route path="kyc-approval" element={<AdminKycApproval />} />
+              <Route path="admins" element={<AdminAdmins />} />
             </Route>
           </Route>
         </Routes>
