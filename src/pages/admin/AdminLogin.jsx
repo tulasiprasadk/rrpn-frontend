@@ -9,7 +9,7 @@ const AdminLogin = () => {
   const { loginAdmin } = useAdminAuth();
 
   const [form, setForm] = useState({
-    email: "",
+    identifier: "",
     password: "",
   });
 
@@ -63,12 +63,13 @@ const AdminLogin = () => {
 
         {error && <div className="admin-error">{error}</div>}
 
-        <label>Email</label>
+        <label>Email or Mobile</label>
         <input
           required
-          name="email"
-          type="email"
-          value={form.email}
+          name="identifier"
+          type="text"
+          placeholder="you@example.com or 9876543210"
+          value={form.identifier}
           onChange={handleChange}
         />
 
