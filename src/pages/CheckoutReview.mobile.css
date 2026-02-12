@@ -89,3 +89,33 @@
     font-size: 16px;
   }
 }
+
+  /* Inline address card (desktop + mobile) */
+  .inline-address-card {
+    border-radius: 8px;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #eee;
+  }
+  .inline-address-card .inline-input {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #e6e6e6;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .inline-address-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .inline-address-row .inline-input { height: 40px; }
+  .inline-address-actions { display: flex; gap: 8px; }
+  .inline-save-btn { background: #28a745; color: #fff; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+  .inline-manage-btn { background: #fff; border: 1px solid #ddd; padding: 8px 12px; border-radius: 6px; cursor: pointer; }
+
+  /* Guest form compact card */
+  .guest-form-card { border-radius: 8px; padding: 12px; background: #fff; border: 1px solid #eee; }
+  .guest-form-card .guest-input { padding: 8px 10px; border-radius: 6px; border: 1px solid #e6e6e6; }
+
+  @media (max-width: 768px) {
+    .inline-address-row { flex-direction: column; }
+    .inline-address-actions { flex-direction: column; }
+    .inline-save-btn, .inline-manage-btn { width: 100%; }
+  }

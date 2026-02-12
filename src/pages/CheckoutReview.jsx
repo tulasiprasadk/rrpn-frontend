@@ -15,6 +15,12 @@ export default function CheckoutReview() {
   const [guestCity, setGuestCity] = useState("");
   const [guestState, setGuestState] = useState("");
   const [guestPincode, setGuestPincode] = useState("");
+  const [guestSave, setGuestSave] = useState(false);
+  const [inlineName, setInlineName] = useState("");
+  const [inlinePhone, setInlinePhone] = useState("");
+  const [inlineAddressLine, setInlineAddressLine] = useState("");
+  const [inlineCity, setInlineCity] = useState("");
+  const [inlinePincode, setInlinePincode] = useState("");
   const [showGuestForm, setShowGuestForm] = useState(false);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,6 +80,23 @@ export default function CheckoutReview() {
           setCheckoutAds(Array.isArray(adsRes.data) ? adsRes.data : []);
         } catch (cmsErr) {
           console.error("Checkout CMS load error:", cmsErr);
+        }
+
+        // Load session guest addresses (if any) to prefill guest form
+        try {
+          const g = await api.get('/customer/address/guest');
+          if (Array.isArray(g.data) && g.data.length) {
+            const latest = g.data[g.data.length - 1];
+            setGuestName(latest.name || '');
+            setGuestPhone(latest.phone || '');
+            setGuestAddressLine(latest.addressLine || '');
+            setGuestCity(latest.city || '');
+            setGuestState(latest.state || '');
+            setGuestPincode(latest.pincode || '');
+            setGuestSave(true);
+          }
+        } catch (ge) {
+          // ignore if not available
         }
       } finally {
         setLoading(false);
@@ -146,6 +169,22 @@ export default function CheckoutReview() {
         discount: discount || 0,
       };
       console.debug('Creating guest order payload:', guestOrder);
+      // If user opted to save guest address for this device, call session-backed endpoint
+      if (guestSave) {
+        try {
+          await api.post('/customer/address/guest', {
+            name: guestName,
+            phone: guestPhone,
+            addressLine: guestAddressLine,
+            city: guestCity,
+            state: guestState,
+            pincode: guestPincode
+          });
+        } catch (e) {
+          console.warn('Failed to save guest address to session:', e);
+        }
+      }
+
       const gres = await api.post("/orders/create-guest", guestOrder);
       localStorage.setItem("bag", JSON.stringify([]));
       localStorage.setItem("cart", JSON.stringify([]));
@@ -202,7 +241,55 @@ export default function CheckoutReview() {
               <p style={{ color: "crimson" }}>No delivery address selected.</p>
               {!isGuest && (
                 <div>
-                  <button onClick={() => navigate("/address")}>Add address (login required)</button>
+                  <div className="inline-address-card" style={{ marginBottom: 8, padding: 12, border: '1px solid #eee', borderRadius: 6, background: '#fff' }}>
+                    <div style={{ marginBottom: 8 }}>
+                      <label style={{ display: 'block', fontWeight: 'bold' }}>Name</label>
+                      <input className="inline-input" value={inlineName} onChange={(e) => setInlineName(e.target.value)} placeholder="Full name" />
+                    </div>
+                    <div style={{ marginBottom: 8 }}>
+                      <label style={{ display: 'block', fontWeight: 'bold' }}>Phone</label>
+                      <input className="inline-input" value={inlinePhone} onChange={(e) => setInlinePhone(e.target.value)} placeholder="Phone number" />
+                    </div>
+                    <div style={{ marginBottom: 8 }}>
+                      <label style={{ display: 'block', fontWeight: 'bold' }}>Address</label>
+                      <input className="inline-input" value={inlineAddressLine} onChange={(e) => setInlineAddressLine(e.target.value)} placeholder="Street / house / locality" />
+                    </div>
+                    <div className="inline-address-row" style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                      <input className="inline-input" style={{ flex: 1 }} value={inlineCity} onChange={(e) => setInlineCity(e.target.value)} placeholder="City" />
+                      <input className="inline-input" style={{ width: 120 }} value={inlinePincode} onChange={(e) => setInlinePincode(e.target.value)} placeholder="Pincode" />
+                    </div>
+                    <div className="inline-address-actions" style={{ display: 'flex', gap: 8 }}>
+                      <button className="inline-save-btn" onClick={async () => {
+                        try {
+                          if (!inlineName.trim() || !inlinePhone.trim() || !inlineAddressLine.trim()) {
+                            alert('Please fill name, phone and address');
+                            return;
+                          }
+                          const payload = {
+                            name: inlineName,
+                            phone: inlinePhone,
+                            addressLine: inlineAddressLine,
+                            city: inlineCity,
+                            state: '',
+                            pincode: inlinePincode || ''
+                          };
+                          const resp = await api.post('/customer/address', payload);
+                          if (resp.data && resp.data.address) {
+                            setDefaultAddress(resp.data.address);
+                            alert('Address saved');
+                          } else if (resp.data && resp.data.ok) {
+                            // Some backends return ok:true and address in different shape
+                            setDefaultAddress(resp.data);
+                            alert('Address saved');
+                          }
+                        } catch (e) {
+                          console.error('Save address error:', e);
+                          alert('Failed to save address');
+                        }
+                      }} style={{ padding: '8px 12px' }}>Save & Use</button>
+                      <button className="inline-manage-btn" onClick={() => navigate('/address')} style={{ padding: '8px 12px' }}>Manage Addresses</button>
+                    </div>
+                  </div>
                   <div style={{ marginTop: 8 }}>
                     <button onClick={() => { setIsGuest(true); setShowGuestForm(true); }}>Checkout as guest</button>
                   </div>
@@ -216,7 +303,7 @@ export default function CheckoutReview() {
               )}
 
               {isGuest && showGuestForm && (
-                <div className="checkout-review-guest-form" style={{ marginTop: 8, padding: 12, border: '1px solid #eee', borderRadius: 6, background: '#fff' }}>
+                <div className="checkout-review-guest-form guest-form-card" style={{ marginTop: 8, padding: 12, border: '1px solid #eee', borderRadius: 6, background: '#fff' }}>
                   <div style={{ marginBottom: 8 }}>
                     <label style={{ display: 'block', fontWeight: 'bold' }}>Name</label>
                     <input value={guestName} onChange={(e) => setGuestName(e.target.value)} />
@@ -230,9 +317,15 @@ export default function CheckoutReview() {
                     <input value={guestAddressLine} onChange={(e) => setGuestAddressLine(e.target.value)} placeholder="Street / house / locality" />
                   </div>
                   <div className="checkout-review-guest-grid" style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                    <input style={{ flex: 1 }} value={guestCity} onChange={(e) => setGuestCity(e.target.value)} placeholder="City" />
-                    <input style={{ flex: 1 }} value={guestState} onChange={(e) => setGuestState(e.target.value)} placeholder="State" />
-                    <input style={{ width: 120 }} value={guestPincode} onChange={(e) => setGuestPincode(e.target.value)} placeholder="Pincode" />
+                    <input className="guest-input" style={{ flex: 1 }} value={guestCity} onChange={(e) => setGuestCity(e.target.value)} placeholder="City" />
+                    <input className="guest-input" style={{ flex: 1 }} value={guestState} onChange={(e) => setGuestState(e.target.value)} placeholder="State" />
+                    <input className="guest-input" style={{ width: 120 }} value={guestPincode} onChange={(e) => setGuestPincode(e.target.value)} placeholder="Pincode" />
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                      <input type="checkbox" checked={guestSave} onChange={(e) => setGuestSave(e.target.checked)} />
+                      <span style={{ fontSize: 13 }}>Save this address for this device</span>
+                    </label>
                   </div>
                   <div>
                     <button onClick={() => setShowGuestForm(false)}>Cancel</button>
