@@ -19,9 +19,12 @@ export default function SupplierDashboard() {
   useEffect(() => {
     const init = async () => {
       try {
+        const supplierToken = localStorage.getItem("supplierToken") || localStorage.getItem("token");
+        const headers = supplierToken ? { Authorization: `Bearer ${supplierToken}` } : undefined;
+
         const authRes = await fetch(
           `${API_BASE}/supplier/auth/me`,
-          { credentials: "include" }
+          { credentials: "include", headers }
         );
 
         const auth = await authRes.json();
@@ -33,7 +36,8 @@ export default function SupplierDashboard() {
 
         // If logged in (or auth check passed), load dashboard stats
         const res = await fetch(`${API_BASE}/supplier/dashboard`, {
-          credentials: "include"
+          credentials: "include",
+          headers
         });
         const data = await res.json();
 

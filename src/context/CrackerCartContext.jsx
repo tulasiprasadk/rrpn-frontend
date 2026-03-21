@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect } from "react";
-import axios from "axios";
-import { API_BASE } from "../config/api";
+import api from "../api/client";
 
 const CartContext = createContext();
 
@@ -66,7 +65,10 @@ export function CrackerCartProvider({ children }) {
       if (token) {
         (async () => {
           try {
-            await axios.post(`${API_BASE}/cart/add`, { productId: normalizedProduct.id, quantity: normalizedProduct.qty }, { withCredentials: true });
+            await api.post("/customer/cart/add", {
+              productId: normalizedProduct.id,
+              quantity: normalizedProduct.qty
+            });
             window.dispatchEvent(new Event('cart-updated'));
           } catch (err) {
             // ignore server sync errors (guest/local cart preserved)
@@ -117,7 +119,7 @@ export function CrackerCartProvider({ children }) {
         if (token) {
           (async () => {
             try {
-              await axios.post(`${API_BASE}/cart/remove`, { productId }, { withCredentials: true });
+              await api.post("/customer/cart/remove", { productId });
               window.dispatchEvent(new Event('cart-updated'));
             } catch (err) {
               console.error('Failed to remove from server cart', err?.message || err);
@@ -134,7 +136,7 @@ export function CrackerCartProvider({ children }) {
         if (token) {
           (async () => {
             try {
-              await axios.post(`${API_BASE}/cart/clear`, {}, { withCredentials: true });
+              await api.post("/customer/cart/clear", {});
               window.dispatchEvent(new Event('cart-updated'));
             } catch (err) {
               console.error('Failed to clear server cart', err?.message || err);
@@ -161,9 +163,9 @@ export function CrackerCartProvider({ children }) {
           (async () => {
             try {
               if (delta > 0) {
-                await axios.post(`${API_BASE}/cart/add`, { productId: id, quantity: delta }, { withCredentials: true });
+                await api.post("/customer/cart/add", { productId: id, quantity: delta });
               } else if (qty <= 0) {
-                await axios.post(`${API_BASE}/cart/remove`, { productId: id }, { withCredentials: true });
+                await api.post("/customer/cart/remove", { productId: id });
               }
               window.dispatchEvent(new Event('cart-updated'));
             } catch (err) {

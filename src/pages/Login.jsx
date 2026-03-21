@@ -73,14 +73,17 @@ export default function Login() {
               onKeyPress={(e) => e.key === 'Enter' && redirectToGoogle()}
               disabled
               />
+              <small style={{ display: "block", marginTop: 8, color: "#666" }}>
+                Email sign-in will continue through Google until direct email or phone login is enabled.
+              </small>
             </div>
 
             <button
               onClick={redirectToGoogle}
-            disabled={loading}
+              disabled={loading}
               className="login-button primary"
             >
-            {loading ? 'Processing...' : 'Continue with Google'}
+              {loading ? "Processing..." : "Continue with Google"}
             </button>
 
             <div className="login-divider">

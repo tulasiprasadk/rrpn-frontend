@@ -1,8 +1,35 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { API_BASE } from "../config/api";
 import imageCompression from "browser-image-compression";
+import { API_BASE } from "../config/api";
+
+const fieldStyle = {
+  width: "100%",
+  padding: "12px 14px",
+  border: "1px solid #d8d8d8",
+  borderRadius: "10px",
+  fontSize: "15px",
+  background: "#fff",
+  color: "#1f2937",
+  boxSizing: "border-box",
+};
+
+const labelStyle = {
+  display: "block",
+  marginBottom: "8px",
+  fontWeight: 600,
+  color: "#7f1d1d",
+};
+
+const sectionStyle = {
+  background: "#fff",
+  border: "1px solid #f1d58a",
+  borderRadius: "16px",
+  padding: "20px",
+  marginBottom: "20px",
+  boxShadow: "0 6px 18px rgba(0,0,0,0.05)",
+};
 
 export default function SupplierKYC() {
   const [searchParams] = useSearchParams();
@@ -10,7 +37,7 @@ export default function SupplierKYC() {
   const email = searchParams.get("email") || "";
 
   const [formData, setFormData] = useState({
-    email: email,
+    email,
     businessName: "",
     phone: "",
     address: "",
@@ -40,49 +67,44 @@ export default function SupplierKYC() {
 
   useEffect(() => {
     if (!email) {
-      navigate("/supplier/login");
+      navigate("/supplier/login", { replace: true });
     }
   }, [email, navigate]);
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+  const handleInputChange = (event) => {
+    const { name, value, type, checked } = event.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
   };
 
-  const handleFileChange = async (field, e) => {
-    const file = e.target.files[0];
+  const handleFileChange = async (field, event) => {
+    const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith("image/") && !file.type.includes("pdf")) {
-      setError("Please upload an image (JPG, PNG) or PDF file");
+      setError("Please upload a JPG, PNG, or PDF file.");
       return;
     }
 
-    // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
-      setError("File size must be less than 5MB");
+      setError("File size must be less than 5MB.");
       return;
     }
 
     try {
-      // Compress image if it's an image file
       let processedFile = file;
       if (file.type.startsWith("image/")) {
-        const options = {
+        processedFile = await imageCompression(file, {
           maxSizeMB: 1,
           maxWidthOrHeight: 1920,
           useWebWorker: true,
-        };
-        processedFile = await imageCompression(file, options);
+        });
       }
 
       setFiles((prev) => ({ ...prev, [field]: processedFile }));
 
-      // Create preview for images
       if (file.type.startsWith("image/")) {
         const reader = new FileReader();
         reader.onloadend = () => {
@@ -93,8 +115,7 @@ export default function SupplierKYC() {
         setPreviews((prev) => ({ ...prev, [field]: "pdf" }));
       }
     } catch (err) {
-      console.error("File processing error:", err);
-      setError("Failed to process file. Please try again.");
+      setError("Could not process the file. Please try again.");
     }
   };
 
@@ -104,51 +125,26 @@ export default function SupplierKYC() {
   };
 
   const validateForm = () => {
-    if (!formData.businessName.trim()) {
-      setError("Business name is required");
-      return false;
-    }
-    if (!formData.phone.trim()) {
-      setError("Phone number is required");
-      return false;
-    }
-    if (!formData.address.trim()) {
-      setError("Address is required");
-      return false;
-    }
-    if (!formData.gstNumber.trim()) {
-      setError("GST number is required");
-      return false;
-    }
-    if (!formData.panNumber.trim()) {
-      setError("PAN number is required");
-      return false;
-    }
-    if (!formData.bankAccountNumber.trim()) {
-      setError("Bank account number is required");
-      return false;
-    }
-    if (!formData.bankIFSC.trim()) {
-      setError("Bank IFSC code is required");
-      return false;
-    }
-    if (!formData.bankName.trim()) {
-      setError("Bank name is required");
-      return false;
-    }
-    if (!formData.acceptedTnC) {
-      setError("You must accept the Terms & Conditions");
-      return false;
-    }
-    return true;
+    if (!formData.businessName.trim()) return "Business name is required.";
+    if (!formData.phone.trim()) return "Phone number is required.";
+    if (!formData.address.trim()) return "Address is required.";
+    if (!formData.gstNumber.trim()) return "GST number is required.";
+    if (!formData.panNumber.trim()) return "PAN number is required.";
+    if (!formData.bankAccountNumber.trim()) return "Bank account number is required.";
+    if (!formData.bankIFSC.trim()) return "Bank IFSC code is required.";
+    if (!formData.bankName.trim()) return "Bank name is required.";
+    if (!formData.acceptedTnC) return "You must accept the Terms & Conditions.";
+    return "";
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     setError("");
     setSuccess("");
 
-    if (!validateForm()) {
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
@@ -156,8 +152,6 @@ export default function SupplierKYC() {
 
     try {
       const form = new FormData();
-
-      // Add form fields
       form.append("email", formData.email);
       form.append("businessName", formData.businessName);
       form.append("phone", formData.phone);
@@ -165,25 +159,18 @@ export default function SupplierKYC() {
       form.append("gstNumber", formData.gstNumber);
       form.append("panNumber", formData.panNumber);
       form.append("acceptedTnC", formData.acceptedTnC ? "true" : "false");
+      form.append(
+        "bankDetails",
+        JSON.stringify({
+          accountNumber: formData.bankAccountNumber,
+          ifsc: formData.bankIFSC,
+          bankName: formData.bankName,
+        })
+      );
 
-      // Add bank details as JSON
-      const bankDetails = {
-        accountNumber: formData.bankAccountNumber,
-        ifsc: formData.bankIFSC,
-        bankName: formData.bankName,
-      };
-      form.append("bankDetails", JSON.stringify(bankDetails));
-
-      // Add files
-      if (files.businessLicense) {
-        form.append("businessLicense", files.businessLicense);
-      }
-      if (files.gstCertificate) {
-        form.append("gstCertificate", files.gstCertificate);
-      }
-      if (files.idProof) {
-        form.append("idProof", files.idProof);
-      }
+      if (files.businessLicense) form.append("businessLicense", files.businessLicense);
+      if (files.gstCertificate) form.append("gstCertificate", files.gstCertificate);
+      if (files.idProof) form.append("idProof", files.idProof);
 
       const response = await axios.post(`${API_BASE}/suppliers/kyc`, form, {
         headers: {
@@ -192,446 +179,314 @@ export default function SupplierKYC() {
       });
 
       if (response.data.success) {
-        setSuccess("KYC submitted successfully! Waiting for admin approval.");
+        setSuccess("KYC submitted successfully. Waiting for admin approval.");
         setTimeout(() => {
-          navigate("/supplier/login?kyc_submitted=1");
-        }, 2000);
+          navigate("/supplier/login?kyc_submitted=1", {
+            replace: true,
+            state: {
+              email: formData.email,
+              businessName: formData.businessName,
+            },
+          });
+        }, 1800);
       }
     } catch (err) {
-      console.error("KYC submission error:", err);
-      const errorMessage =
+      setError(
         err.response?.data?.error ||
-        err.message ||
-        "Failed to submit KYC. Please try again.";
-      setError(errorMessage);
+          err.message ||
+          "Failed to submit KYC. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div style={{ maxWidth: 800, margin: "0 auto", padding: "24px" }}>
-      <h1 style={{ marginBottom: "8px" }}>Complete Your KYC</h1>
-      <p style={{ color: "#666", marginBottom: "24px" }}>
-        Please provide your business details and documents to complete the
-        verification process.
-      </p>
+  const renderUploadPreview = (field, title) => {
+    if (!previews[field]) return null;
 
-      {error && (
-        <div
-          style={{
-            padding: "12px",
-            background: "#ffebee",
-            color: "#c62828",
-            borderRadius: "4px",
-            marginBottom: "20px",
-          }}
-        >
-          {error}
-        </div>
-      )}
-
-      {success && (
-        <div
-          style={{
-            padding: "12px",
-            background: "#e8f5e9",
-            color: "#2e7d32",
-            borderRadius: "4px",
-            marginBottom: "20px",
-          }}
-        >
-          {success}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit}>
-        {/* Business Information */}
-        <div style={{ marginBottom: "24px" }}>
-          <h2 style={{ fontSize: "18px", marginBottom: "16px" }}>
-            Business Information
-          </h2>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              Business Name <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              name="businessName"
-              value={formData.businessName}
-              onChange={handleInputChange}
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
-              placeholder="Enter your business name"
-            />
+    return (
+      <div style={{ marginTop: 10, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        {previews[field] !== "pdf" ? (
+          <img
+            src={previews[field]}
+            alt={`${title} preview`}
+            style={{
+              maxWidth: "180px",
+              maxHeight: "180px",
+              border: "1px solid #ddd",
+              borderRadius: "10px",
+              objectFit: "cover",
+            }}
+          />
+        ) : (
+          <div style={{ padding: "10px 12px", borderRadius: "10px", background: "#f5f5f5", color: "#444" }}>
+            PDF uploaded
           </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              Phone Number <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
-              placeholder="Enter your phone number"
-            />
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              Business Address <span style={{ color: "red" }}>*</span>
-            </label>
-            <textarea
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-              required
-              rows={3}
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
-                resize: "vertical",
-              }}
-              placeholder="Enter your complete business address"
-            />
-          </div>
-        </div>
-
-        {/* Tax Information */}
-        <div style={{ marginBottom: "24px" }}>
-          <h2 style={{ fontSize: "18px", marginBottom: "16px" }}>
-            Tax Information
-          </h2>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              GST Number <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              name="gstNumber"
-              value={formData.gstNumber}
-              onChange={handleInputChange}
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
-              placeholder="Enter GST number"
-            />
-          </div>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              PAN Number <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              name="panNumber"
-              value={formData.panNumber}
-              onChange={handleInputChange}
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
-              placeholder="Enter PAN number"
-            />
-          </div>
-        </div>
-
-        {/* Bank Details */}
-        <div style={{ marginBottom: "24px" }}>
-          <h2 style={{ fontSize: "18px", marginBottom: "16px" }}>
-            Bank Details
-          </h2>
-
-          <div style={{ marginBottom: "16px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              Account Number <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              name="bankAccountNumber"
-              value={formData.bankAccountNumber}
-              onChange={handleInputChange}
-              required
-              style={{
-                width: "100%",
-                padding: "10px",
-                border: "1px solid #ddd",
-                borderRadius: "4px",
-                fontSize: "14px",
-              }}
-              placeholder="Enter bank account number"
-            />
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
-            <div>
-              <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-                IFSC Code <span style={{ color: "red" }}>*</span>
-              </label>
-              <input
-                type="text"
-                name="bankIFSC"
-                value={formData.bankIFSC}
-                onChange={handleInputChange}
-                required
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  border: "1px solid #ddd",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                }}
-                placeholder="Enter IFSC code"
-              />
-            </div>
-
-            <div>
-              <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-                Bank Name <span style={{ color: "red" }}>*</span>
-              </label>
-              <input
-                type="text"
-                name="bankName"
-                value={formData.bankName}
-                onChange={handleInputChange}
-                required
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  border: "1px solid #ddd",
-                  borderRadius: "4px",
-                  fontSize: "14px",
-                }}
-                placeholder="Enter bank name"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Document Uploads */}
-        <div style={{ marginBottom: "24px" }}>
-          <h2 style={{ fontSize: "18px", marginBottom: "16px" }}>
-            Required Documents
-          </h2>
-          <p style={{ color: "#666", fontSize: "14px", marginBottom: "16px" }}>
-            Upload clear images or PDFs (Max 5MB each)
-          </p>
-
-          {/* Business License */}
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              Business License
-            </label>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFileChange("businessLicense", e)}
-              style={{ marginBottom: "8px" }}
-            />
-            {previews.businessLicense && (
-              <div style={{ marginTop: "8px" }}>
-                {previews.businessLicense !== "pdf" ? (
-                  <img
-                    src={previews.businessLicense}
-                    alt="Business License Preview"
-                    style={{
-                      maxWidth: "200px",
-                      maxHeight: "200px",
-                      border: "1px solid #ddd",
-                      borderRadius: "4px",
-                    }}
-                  />
-                ) : (
-                  <div style={{ padding: "8px", background: "#f5f5f5", borderRadius: "4px" }}>
-                    PDF uploaded
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removeFile("businessLicense")}
-                  style={{
-                    marginLeft: "8px",
-                    padding: "4px 8px",
-                    background: "#f44336",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* GST Certificate */}
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              GST Certificate
-            </label>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFileChange("gstCertificate", e)}
-              style={{ marginBottom: "8px" }}
-            />
-            {previews.gstCertificate && (
-              <div style={{ marginTop: "8px" }}>
-                {previews.gstCertificate !== "pdf" ? (
-                  <img
-                    src={previews.gstCertificate}
-                    alt="GST Certificate Preview"
-                    style={{
-                      maxWidth: "200px",
-                      maxHeight: "200px",
-                      border: "1px solid #ddd",
-                      borderRadius: "4px",
-                    }}
-                  />
-                ) : (
-                  <div style={{ padding: "8px", background: "#f5f5f5", borderRadius: "4px" }}>
-                    PDF uploaded
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removeFile("gstCertificate")}
-                  style={{
-                    marginLeft: "8px",
-                    padding: "4px 8px",
-                    background: "#f44336",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* ID Proof */}
-          <div style={{ marginBottom: "20px" }}>
-            <label style={{ display: "block", marginBottom: "6px", fontWeight: "500" }}>
-              ID Proof (Aadhaar/PAN/Driving License)
-            </label>
-            <input
-              type="file"
-              accept="image/*,.pdf"
-              onChange={(e) => handleFileChange("idProof", e)}
-              style={{ marginBottom: "8px" }}
-            />
-            {previews.idProof && (
-              <div style={{ marginTop: "8px" }}>
-                {previews.idProof !== "pdf" ? (
-                  <img
-                    src={previews.idProof}
-                    alt="ID Proof Preview"
-                    style={{
-                      maxWidth: "200px",
-                      maxHeight: "200px",
-                      border: "1px solid #ddd",
-                      borderRadius: "4px",
-                    }}
-                  />
-                ) : (
-                  <div style={{ padding: "8px", background: "#f5f5f5", borderRadius: "4px" }}>
-                    PDF uploaded
-                  </div>
-                )}
-                <button
-                  type="button"
-                  onClick={() => removeFile("idProof")}
-                  style={{
-                    marginLeft: "8px",
-                    padding: "4px 8px",
-                    background: "#f44336",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Terms & Conditions */}
-        <div style={{ marginBottom: "24px" }}>
-          <label style={{ display: "flex", alignItems: "flex-start", cursor: "pointer" }}>
-            <input
-              type="checkbox"
-              name="acceptedTnC"
-              checked={formData.acceptedTnC}
-              onChange={handleInputChange}
-              required
-              style={{ marginRight: "8px", marginTop: "4px" }}
-            />
-            <span>
-              I accept the{" "}
-              <a href="/terms" target="_blank" style={{ color: "#1976d2" }}>
-                Terms & Conditions
-              </a>{" "}
-              <span style={{ color: "red" }}>*</span>
-            </span>
-          </label>
-        </div>
-
-        {/* Submit Button */}
+        )}
         <button
-          type="submit"
-          disabled={loading}
+          type="button"
+          onClick={() => removeFile(field)}
           style={{
-            width: "100%",
-            padding: "12px",
-            background: loading ? "#ccc" : "#1976d2",
-            color: "white",
+            padding: "8px 12px",
+            background: "#dc2626",
+            color: "#fff",
             border: "none",
-            borderRadius: "4px",
-            fontSize: "16px",
-            fontWeight: "600",
-            cursor: loading ? "not-allowed" : "pointer",
+            borderRadius: "8px",
+            cursor: "pointer",
           }}
         >
-          {loading ? "Submitting..." : "Submit KYC"}
+          Remove
         </button>
-      </form>
+      </div>
+    );
+  };
+
+  if (!email) {
+    return <div style={{ padding: 24 }}>Redirecting to supplier login...</div>;
+  }
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(180deg, #fff7cc 0%, #fffdf5 50%, #ffffff 100%)",
+        padding: "32px 16px 64px",
+      }}
+    >
+      <div style={{ maxWidth: 920, margin: "0 auto" }}>
+        <div
+          style={{
+            background: "linear-gradient(135deg, #ffe082, #fff3bf)",
+            border: "1px solid #f0cf72",
+            borderRadius: "20px",
+            padding: "24px",
+            marginBottom: "20px",
+            boxShadow: "0 12px 28px rgba(0,0,0,0.07)",
+          }}
+        >
+          <h1 style={{ margin: 0, color: "#7f1d1d", fontSize: "32px" }}>Supplier KYC</h1>
+          <p style={{ margin: "10px 0 0", color: "#5b5b5b", fontSize: "16px" }}>
+            Login is successful. Complete your supplier verification to unlock the dashboard.
+          </p>
+          <div
+            style={{
+              marginTop: "14px",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "8px",
+              padding: "10px 14px",
+              background: "#fff",
+              borderRadius: "999px",
+              border: "1px solid #f1d58a",
+              color: "#374151",
+              fontWeight: 600,
+            }}
+          >
+            Google account: {email}
+          </div>
+        </div>
+
+        {error && (
+          <div
+            style={{
+              padding: "12px 14px",
+              background: "#fff1f2",
+              color: "#b42318",
+              border: "1px solid #fda4af",
+              borderRadius: "12px",
+              marginBottom: "20px",
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        {success && (
+          <div
+            style={{
+              padding: "12px 14px",
+              background: "#ecfdf3",
+              color: "#027a48",
+              border: "1px solid #86efac",
+              borderRadius: "12px",
+              marginBottom: "20px",
+            }}
+          >
+            {success}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div style={sectionStyle}>
+            <h2 style={{ marginTop: 0, color: "#7f1d1d" }}>Business Information</h2>
+            <div style={{ display: "grid", gap: 16 }}>
+              <div>
+                <label style={labelStyle}>Business Name *</label>
+                <input
+                  type="text"
+                  name="businessName"
+                  value={formData.businessName}
+                  onChange={handleInputChange}
+                  placeholder="Enter your business name"
+                  style={fieldStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Phone Number *</label>
+                <input
+                  type="tel"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  placeholder="Enter your phone number"
+                  style={fieldStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Business Address *</label>
+                <textarea
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  rows={4}
+                  placeholder="Enter your complete business address"
+                  style={{ ...fieldStyle, resize: "vertical" }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={sectionStyle}>
+            <h2 style={{ marginTop: 0, color: "#7f1d1d" }}>Tax Information</h2>
+            <div style={{ display: "grid", gap: 16 }}>
+              <div>
+                <label style={labelStyle}>GST Number *</label>
+                <input
+                  type="text"
+                  name="gstNumber"
+                  value={formData.gstNumber}
+                  onChange={handleInputChange}
+                  placeholder="Enter GST number"
+                  style={fieldStyle}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>PAN Number *</label>
+                <input
+                  type="text"
+                  name="panNumber"
+                  value={formData.panNumber}
+                  onChange={handleInputChange}
+                  placeholder="Enter PAN number"
+                  style={fieldStyle}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div style={sectionStyle}>
+            <h2 style={{ marginTop: 0, color: "#7f1d1d" }}>Bank Details</h2>
+            <div style={{ display: "grid", gap: 16 }}>
+              <div>
+                <label style={labelStyle}>Account Number *</label>
+                <input
+                  type="text"
+                  name="bankAccountNumber"
+                  value={formData.bankAccountNumber}
+                  onChange={handleInputChange}
+                  placeholder="Enter bank account number"
+                  style={fieldStyle}
+                />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 16 }}>
+                <div>
+                  <label style={labelStyle}>IFSC Code *</label>
+                  <input
+                    type="text"
+                    name="bankIFSC"
+                    value={formData.bankIFSC}
+                    onChange={handleInputChange}
+                    placeholder="Enter IFSC code"
+                    style={fieldStyle}
+                  />
+                </div>
+                <div>
+                  <label style={labelStyle}>Bank Name *</label>
+                  <input
+                    type="text"
+                    name="bankName"
+                    value={formData.bankName}
+                    onChange={handleInputChange}
+                    placeholder="Enter bank name"
+                    style={fieldStyle}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style={sectionStyle}>
+            <h2 style={{ marginTop: 0, color: "#7f1d1d" }}>Required Documents</h2>
+            <p style={{ color: "#666", marginTop: 0 }}>
+              Upload clear JPG, PNG, or PDF documents. Maximum 5MB each.
+            </p>
+
+            <div style={{ display: "grid", gap: 18 }}>
+              <div>
+                <label style={labelStyle}>Business License</label>
+                <input type="file" accept="image/*,.pdf" onChange={(event) => handleFileChange("businessLicense", event)} />
+                {renderUploadPreview("businessLicense", "Business License")}
+              </div>
+
+              <div>
+                <label style={labelStyle}>GST Certificate</label>
+                <input type="file" accept="image/*,.pdf" onChange={(event) => handleFileChange("gstCertificate", event)} />
+                {renderUploadPreview("gstCertificate", "GST Certificate")}
+              </div>
+
+              <div>
+                <label style={labelStyle}>ID Proof</label>
+                <input type="file" accept="image/*,.pdf" onChange={(event) => handleFileChange("idProof", event)} />
+                {renderUploadPreview("idProof", "ID Proof")}
+              </div>
+            </div>
+          </div>
+
+          <div style={sectionStyle}>
+            <label style={{ display: "flex", alignItems: "flex-start", gap: 10, color: "#374151", lineHeight: 1.5 }}>
+              <input
+                type="checkbox"
+                name="acceptedTnC"
+                checked={formData.acceptedTnC}
+                onChange={handleInputChange}
+                style={{ marginTop: 4 }}
+              />
+              <span>
+                I accept the <a href="/terms" target="_blank" rel="noreferrer" style={{ color: "#1976d2" }}>Terms & Conditions</a> *
+              </span>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              padding: "14px",
+              background: loading ? "#9ca3af" : "linear-gradient(135deg, #c8102e, #e11d48)",
+              color: "#fff",
+              border: "none",
+              borderRadius: "14px",
+              fontSize: "16px",
+              fontWeight: 700,
+              cursor: loading ? "not-allowed" : "pointer",
+              boxShadow: loading ? "none" : "0 10px 24px rgba(200,16,46,0.22)",
+            }}
+          >
+            {loading ? "Submitting..." : "Submit KYC"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

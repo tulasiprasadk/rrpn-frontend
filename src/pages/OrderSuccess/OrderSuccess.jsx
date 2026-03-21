@@ -18,7 +18,11 @@ export default function OrderSuccess() {
     let mounted = true;
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/orders/${orderId}`, { credentials: "include" });
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${API_BASE}/orders/${orderId}`, {
+          credentials: "include",
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
         if (!res.ok) return;
         const data = await res.json();
         const product = data?.Product || data?.product || null;
@@ -49,7 +53,12 @@ export default function OrderSuccess() {
       const res = await fetch(`${API_BASE}/subscriptions`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(localStorage.getItem("token")
+            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
+            : {}),
+        },
         body: JSON.stringify({ productId: subscriptionProductId, period })
       });
       if (!res.ok) {
@@ -103,7 +112,7 @@ export default function OrderSuccess() {
           </div>
         )}
 
-        <button className="os-btn" onClick={() => navigate("/orders")}>
+        <button className="os-btn" onClick={() => navigate("/my-orders")}>
           View My Orders
         </button>
 

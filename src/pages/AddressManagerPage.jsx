@@ -1,13 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import api from "../api/client";
-import GoogleAddressInput from "../components/GoogleAddressInput"; // <-- IMPORTANT
+import GoogleAddressInput from "../components/GoogleAddressInput";
 import "./AddressManagerPage.css";
 
 export default function AddressManagerPage() {
   const location = useLocation();
   const navigate = useNavigate();
-
   const address = location.state || {};
 
   const [form, setForm] = useState({
@@ -19,166 +18,143 @@ export default function AddressManagerPage() {
     state: address.state || "",
     isDefault: address.isDefault || false,
   });
-
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // -----------------------------
-  // Normal input fields
-  // -----------------------------
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+  const handleChange = (event) => {
+    const { name, value, type, checked } = event.target;
+    setForm((prev) => ({ ...prev, [name]: type === "checkbox" ? checked : value }));
   };
 
-  // -----------------------------
-  // Google Autocomplete Result Handler
-  // -----------------------------
   const handleGoogleSelect = (place) => {
     if (!place.address_components) return;
 
-    const find = (t) =>
-      place.address_components.find((c) => c.types.includes(t))?.long_name || "";
+    const find = (type) =>
+      place.address_components.find((component) => component.types.includes(type))?.long_name || "";
 
     const street = `${find("street_number")} ${find("route")}`.trim();
 
-    setForm({
-      ...form,
-      addressLine: street,
-      city: find("locality") || find("sublocality_level_1"),
-      state: find("administrative_area_level_1"),
-      pincode: find("postal_code"),
-    });
+    setForm((prev) => ({
+      ...prev,
+      addressLine: street || prev.addressLine,
+      city: find("locality") || find("sublocality_level_1") || prev.city,
+      state: find("administrative_area_level_1") || prev.state,
+      pincode: find("postal_code") || prev.pincode,
+    }));
   };
 
-  // -----------------------------
-  // SAVE ADDRESS
-  // -----------------------------
   const save = async () => {
     try {
       setSaving(true);
       setError("");
-      
+
       if (!form.name || !form.phone || !form.addressLine || !form.city) {
-        setError("Please fill in all required fields (name, phone, address, city)");
+        setError("Please fill in all required fields: name, phone, address, and city.");
         setSaving(false);
         return;
       }
 
-      let result;
-      let newAddressId = null;
+      let response;
+      let savedAddressId = address.id || null;
 
       if (address.id) {
-        // Updating existing
-        console.log("Updating address with ID:", address.id, "Data:", form);
-        result = await api.put(`/customer/address/${address.id}`, form);
-        newAddressId = address.id;
+        response = await api.put(`/customer/address/${address.id}`, form);
       } else {
-        // Creating new
-        console.log("Creating new address with data:", form);
-        result = await api.post(`/customer/address`, form);
-        console.log("API response:", result.data);
-        newAddressId = result.data?.address?.id || result.data?.id;
-        console.log("New address ID from API:", newAddressId);
+        response = await api.post("/customer/address", form);
+        savedAddressId = response.data?.address?.id || response.data?.id || null;
       }
 
-      // Set default if checked
-      if (form.isDefault && newAddressId) {
-        try {
-          await api.put(`/customer/address/${newAddressId}/default`);
-        } catch (e) {
-          console.warn("Could not set default:", e);
-        }
+      if (form.isDefault && savedAddressId) {
+        await api.put(`/customer/address/${savedAddressId}/default`);
       }
 
-      // Success - navigate without alert
-      console.log("Address saved successfully, navigating to /address");
-      setSaving(false);
+      if (!address.id && response.data?.address) {
+        setForm((prev) => ({ ...prev, ...response.data.address }));
+      }
+
       navigate("/address");
     } catch (err) {
-      setSaving(false);
       if (err.response?.status === 401) {
-        setError("Please log in first");
+        setError("Please log in first.");
       } else {
-        setError(err.response?.data?.error || err.message || "Failed to save address");
+        setError(err.response?.data?.error || err.message || "Failed to save address.");
       }
+    } finally {
+      setSaving(false);
     }
   };
 
   return (
-    <div className="address-manager-page" style={{ padding: 20, maxWidth: 560, margin: "0 auto" }}>
-      <h2>{address.id ? "Edit Address" : "Add Address"}</h2>
-
-      {error && (
-        <div style={{ color: "crimson", marginBottom: 12, padding: 8, border: "1px solid crimson", borderRadius: 4 }}>
-          {error}
+    <div className="address-manager-page">
+      <div className="address-manager-card">
+        <div className="address-manager-header">
+          <h2>{address.id ? "Edit Address" : "Add Address"}</h2>
+          <p>Keep your delivery details saved so checkout stays fast.</p>
         </div>
-      )}
 
-      {/* GOOGLE AUTOCOMPLETE */}
-      <GoogleAddressInput
-        value={form.addressLine}
-        onChange={(value) => setForm({ ...form, addressLine: value })}
-        onSelect={handleGoogleSelect}
-      />
+        {error && <div className="address-manager-error">{error}</div>}
 
-      <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
-        <input
-          name="name"
-          placeholder="Name *"
-          value={form.name}
-          onChange={handleChange}
-        />
+        <div className="address-form-grid">
+          <div className="address-form-field address-form-field-full">
+            <label htmlFor="addressLine">Search Address</label>
+            <GoogleAddressInput
+              value={form.addressLine}
+              onChange={(value) => setForm((prev) => ({ ...prev, addressLine: value }))}
+              onSelect={handleGoogleSelect}
+            />
+          </div>
 
-        <input
-          name="phone"
-          placeholder="Phone *"
-          value={form.phone}
-          onChange={handleChange}
-        />
+          <div className="address-form-field">
+            <label htmlFor="name">Full Name</label>
+            <input id="name" name="name" placeholder="Full name" value={form.name} onChange={handleChange} />
+          </div>
 
-        <div style={{ display: 'grid', gap: 8, gridTemplateColumns: '1.5fr 1fr 1fr' }}>
-          <input
-            name="city"
-            placeholder="City *"
-            value={form.city}
-            onChange={handleChange}
-          />
-          <input
-            name="state"
-            placeholder="State"
-            value={form.state}
-            onChange={handleChange}
-          />
-          <input
-            name="pincode"
-            placeholder="Pincode *"
-            value={form.pincode}
-            onChange={handleChange}
-          />
+          <div className="address-form-field">
+            <label htmlFor="phone">Phone</label>
+            <input id="phone" name="phone" placeholder="Phone number" value={form.phone} onChange={handleChange} />
+          </div>
+
+          <div className="address-form-field address-form-field-full">
+            <label htmlFor="addressLineManual">Address Line</label>
+            <input
+              id="addressLineManual"
+              name="addressLine"
+              placeholder="House, street, area"
+              value={form.addressLine}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="address-form-field">
+            <label htmlFor="city">City</label>
+            <input id="city" name="city" placeholder="City" value={form.city} onChange={handleChange} />
+          </div>
+
+          <div className="address-form-field">
+            <label htmlFor="state">State</label>
+            <input id="state" name="state" placeholder="State" value={form.state} onChange={handleChange} />
+          </div>
+
+          <div className="address-form-field">
+            <label htmlFor="pincode">Pincode</label>
+            <input id="pincode" name="pincode" placeholder="Pincode" value={form.pincode} onChange={handleChange} />
+          </div>
+        </div>
+
+        <label className="address-manager-default">
+          <input type="checkbox" name="isDefault" checked={form.isDefault} onChange={handleChange} />
+          <span>Set as default address</span>
+        </label>
+
+        <div className="address-manager-actions">
+          <button onClick={save} disabled={saving} className="address-primary-btn">
+            {saving ? "Saving..." : "Save Address"}
+          </button>
+          <button onClick={() => navigate("/address")} className="address-secondary-btn">
+            Cancel
+          </button>
         </div>
       </div>
-
-      <label style={{ marginTop: 8 }}>
-        <input
-          type="checkbox"
-          name="isDefault"
-          checked={form.isDefault}
-          onChange={handleChange}
-        />
-        Set as Default
-      </label>
-
-      <br /><br />
-      <button onClick={save} disabled={saving} style={{ padding: "8px 12px" }}>
-        {saving ? "Saving..." : "Save"}
-      </button>
-      <button onClick={() => navigate("/address")} style={{ marginLeft: 8, padding: "8px 12px" }}>
-        Cancel
-      </button>
     </div>
   );
 }
-
-
-

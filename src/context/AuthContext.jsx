@@ -1,54 +1,83 @@
-
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/client";
 
 const AuthContext = createContext();
 
+function readStoredUser() {
+  try {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  } catch (err) {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => readStoredUser());
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
-    const loadAuth = async () => {
+
+    const syncAuth = async () => {
       setIsLoading(true);
       try {
-        const storedToken = localStorage.getItem("token");
-        const storedUser = localStorage.getItem("user");
+        const customerToken = localStorage.getItem("token");
+        const supplierToken = localStorage.getItem("supplierToken");
+        const storedUser = readStoredUser();
+        const path = typeof window !== "undefined" ? window.location.pathname : "";
 
-        if (storedToken) {
+        if (customerToken) {
           if (mounted) {
-            setUser(storedUser ? JSON.parse(storedUser) : { role: "user" });
+            setUser(storedUser || { role: "user" });
+            setIsLoading(false);
           }
           return;
         }
 
-        // Fall back to session-based auth (Google OAuth)
-        const res = await api.get("/auth/me");
-        if (mounted) {
-          if (res.data?.loggedIn && res.data?.user) {
-            setUser(res.data.user);
-            localStorage.setItem("user", JSON.stringify(res.data.user));
-          } else {
-            setUser(null);
+        if (supplierToken) {
+          if (mounted) {
+            setUser(storedUser || { role: "supplier" });
+            setIsLoading(false);
           }
+          return;
+        }
+
+        // Public supplier routes should not probe customer auth endpoints.
+        if (path.startsWith("/supplier")) {
+          if (mounted) {
+            setUser(storedUser?.role === "supplier" ? storedUser : null);
+            setIsLoading(false);
+          }
+          return;
+        }
+
+        const res = await api.get("/auth/me");
+        if (!mounted) return;
+
+        if (res.data?.loggedIn && res.data?.user) {
+          setUser(res.data.user);
+        } else {
+          setUser(null);
         }
       } catch (err) {
-        if (mounted) setUser(null);
+        if (mounted) {
+          setUser(null);
+        }
       } finally {
-        if (mounted) setIsLoading(false);
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
 
-    loadAuth();
+    syncAuth();
     return () => {
       mounted = false;
     };
   }, []);
 
-
-  // Keep user in localStorage in sync
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -57,31 +86,38 @@ export function AuthProvider({ children }) {
     }
   }, [user]);
 
-const login = (user, token) => {
-  if (token) {
-    localStorage.setItem("token", token);
-  }
-  setUser(user || { role: "user" });
-  localStorage.setItem("user", JSON.stringify(user || { role: "user" }));
-};
-
+  const login = (nextUser, token) => {
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.removeItem("supplierToken");
+    }
+    setUser(nextUser || { role: "user" });
+  };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    localStorage.removeItem("supplierToken");
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  const customerToken = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  const supplierToken = typeof window !== "undefined" ? localStorage.getItem("supplierToken") : null;
+  const isSupplierAuthenticated = Boolean(supplierToken || user?.role === "supplier");
+  const isCustomerAuthenticated = Boolean(customerToken || (user && user.role !== "supplier"));
+  const value = {
+    user,
+    isLoading,
+    login,
+    logout,
+    isAuthenticated: isCustomerAuthenticated || isSupplierAuthenticated,
+    isCustomerAuthenticated,
+    isSupplierAuthenticated,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   return useContext(AuthContext);
 }
-
-
-

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../../api/client";
 import { useNavigate } from "react-router-dom";
 
 export default function AdminSuppliersList() {
   const [suppliers, setSuppliers] = useState([]);
+  const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
 
@@ -13,45 +14,52 @@ export default function AdminSuppliersList() {
 
   async function fetchSuppliers() {
     try {
-      const res = await axios.get("/api/admin/suppliers", { withCredentials: true });
+      const res = await api.get("/admin/suppliers");
       const data = res.data;
       const list = Array.isArray(data) ? data : data?.data || data || [];
       setSuppliers(list);
+      setError(null);
       console.log("Suppliers loaded:", res.data);
     } catch (err) {
       console.error("Error loading suppliers", err);
+      const status = err?.response?.status;
+      if (status === 401 || status === 403) {
+        setError('You do not have permission to view suppliers. Ask a super-admin to grant access.');
+      } else {
+        setError('Failed to load suppliers');
+      }
     }
   }
 
   async function approveSupplier(id) {
     try {
-      await axios.post(`/api/admin/suppliers/${id}/approve`, null, { withCredentials: true });
+      await api.post(`/admin/suppliers/${id}/approve`);
       alert("Supplier approved!");
       // Refresh suppliers and admin UI (notifications) by reloading
       window.location.reload();
     } catch (err) {
       console.error("Approve failed:", err);
-      alert("Failed to approve supplier");
+      alert(err?.response?.data?.error || err?.message || "Failed to approve supplier");
     }
   }
 
   async function rejectSupplier(id) {
     const reason = prompt("Rejection reason (optional):");
     try {
-      await axios.post(`/api/admin/suppliers/${id}/reject`, { reason }, { withCredentials: true });
+      await api.post(`/admin/suppliers/${id}/reject`, { reason });
       alert("Supplier rejected");
       // Refresh suppliers and admin UI (notifications) by reloading
       window.location.reload();
     } catch (err) {
       console.error("Reject failed:", err);
-      alert("Failed to reject supplier");
+      alert(err?.response?.data?.error || err?.message || "Failed to reject supplier");
     }
   }
 
   async function deleteSupplier(id) {
     if (!confirm("Delete this supplier?")) return;
     try {
-      await axios.delete(`/api/admin/suppliers/${id}`, { withCredentials: true });
+      await api.delete(`/admin/suppliers/${id}`);
       fetchSuppliers();
     } catch (err) {
       console.error("Delete failed:", err);
@@ -142,7 +150,7 @@ export default function AdminSuppliersList() {
           {filtered.length === 0 && (
             <tr>
               <td colSpan="6" className="p-3 text-center text-gray-500">
-                No suppliers found
+                {error || 'No suppliers found'}
               </td>
             </tr>
           )}

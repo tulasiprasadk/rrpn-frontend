@@ -41,7 +41,7 @@ export default function CheckoutReview() {
         try {
           const res = await api.get("/customer/address");
           const list = Array.isArray(res.data) ? res.data : [];
-          let def = list.find((a) => a.isDefault) || null;
+          let def = list.find((a) => a.isDefault) || list[0] || null;
 
           setDefaultAddress(def || null);
         } catch (addrErr) {
@@ -108,6 +108,16 @@ export default function CheckoutReview() {
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
   const totalAfterDiscount = Math.max(cartTotal - discount, 0);
+  const selectedAddressText = selectedAddress
+    ? [
+        selectedAddress.addressLine,
+        selectedAddress.city,
+        selectedAddress.state,
+        selectedAddress.pincode ? `- ${selectedAddress.pincode}` : "",
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : "";
 
   const placeOrder = async () => {
     if (!selectedAddress && !isGuest) {
@@ -140,6 +150,9 @@ export default function CheckoutReview() {
           productId: productId,
           qty: firstItem.quantity || firstItem.qty || 1,
           addressId: selectedAddress.id,
+          customerName: selectedAddress.name || "",
+          customerPhone: selectedAddress.phone || "",
+          customerAddress: selectedAddressText,
           promoCode: promoCode || null,
           discount: discount || 0,
         };
@@ -241,7 +254,7 @@ export default function CheckoutReview() {
               <p style={{ color: "crimson" }}>No delivery address selected.</p>
               {!isGuest && (
                 <div>
-                  <div className="inline-address-card" style={{ marginBottom: 8, padding: 12, border: '1px solid #eee', borderRadius: 6, background: '#fff' }}>
+                  <div className="inline-address-card" style={{ marginBottom: 8, padding: 16, border: '1px solid #eee', borderRadius: 10, background: '#fff', maxWidth: 560 }}>
                     <div style={{ marginBottom: 8 }}>
                       <label style={{ display: 'block', fontWeight: 'bold' }}>Name</label>
                       <input className="inline-input" value={inlineName} onChange={(e) => setInlineName(e.target.value)} placeholder="Full name" />
@@ -254,9 +267,9 @@ export default function CheckoutReview() {
                       <label style={{ display: 'block', fontWeight: 'bold' }}>Address</label>
                       <input className="inline-input" value={inlineAddressLine} onChange={(e) => setInlineAddressLine(e.target.value)} placeholder="Street / house / locality" />
                     </div>
-                    <div className="inline-address-row" style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-                      <input className="inline-input" style={{ flex: 1 }} value={inlineCity} onChange={(e) => setInlineCity(e.target.value)} placeholder="City" />
-                      <input className="inline-input" style={{ width: 120 }} value={inlinePincode} onChange={(e) => setInlinePincode(e.target.value)} placeholder="Pincode" />
+                    <div className="inline-address-row" style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                      <input className="inline-input" value={inlineCity} onChange={(e) => setInlineCity(e.target.value)} placeholder="City" />
+                      <input className="inline-input" value={inlinePincode} onChange={(e) => setInlinePincode(e.target.value)} placeholder="Pincode" />
                     </div>
                     <div className="inline-address-actions" style={{ display: 'flex', gap: 8 }}>
                       <button className="inline-save-btn" onClick={async () => {
@@ -303,7 +316,7 @@ export default function CheckoutReview() {
               )}
 
               {isGuest && showGuestForm && (
-                <div className="checkout-review-guest-form guest-form-card" style={{ marginTop: 8, padding: 12, border: '1px solid #eee', borderRadius: 6, background: '#fff' }}>
+                <div className="checkout-review-guest-form guest-form-card" style={{ marginTop: 8, padding: 16, border: '1px solid #eee', borderRadius: 10, background: '#fff', maxWidth: 560 }}>
                   <div style={{ marginBottom: 8 }}>
                     <label style={{ display: 'block', fontWeight: 'bold' }}>Name</label>
                     <input value={guestName} onChange={(e) => setGuestName(e.target.value)} />
@@ -316,11 +329,11 @@ export default function CheckoutReview() {
                     <label style={{ display: 'block', fontWeight: 'bold' }}>Address</label>
                     <input value={guestAddressLine} onChange={(e) => setGuestAddressLine(e.target.value)} placeholder="Street / house / locality" />
                   </div>
-                  <div className="checkout-review-guest-grid" style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                    <input className="guest-input" style={{ flex: 1 }} value={guestCity} onChange={(e) => setGuestCity(e.target.value)} placeholder="City" />
-                    <input className="guest-input" style={{ flex: 1 }} value={guestState} onChange={(e) => setGuestState(e.target.value)} placeholder="State" />
-                    <input className="guest-input" style={{ width: 120 }} value={guestPincode} onChange={(e) => setGuestPincode(e.target.value)} placeholder="Pincode" />
-                  </div>
+                    <div className="checkout-review-guest-grid checkout-review-guest-grid-compact" style={{ display: 'grid', gridTemplateColumns: '1.2fr 1.2fr 0.9fr', gap: 8, marginBottom: 8 }}>
+                    <input className="guest-input" value={guestCity} onChange={(e) => setGuestCity(e.target.value)} placeholder="City" />
+                    <input className="guest-input" value={guestState} onChange={(e) => setGuestState(e.target.value)} placeholder="State" />
+                    <input className="guest-input" value={guestPincode} onChange={(e) => setGuestPincode(e.target.value)} placeholder="Pincode" />
+                    </div>
                   <div style={{ marginBottom: 8 }}>
                     <label style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
                       <input type="checkbox" checked={guestSave} onChange={(e) => setGuestSave(e.target.checked)} />

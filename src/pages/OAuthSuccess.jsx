@@ -16,7 +16,14 @@ export default function OAuthSuccess() {
       return;
     }
 
-    // 🔑 CRITICAL: update auth state BEFORE navigating
+    // Keep role-specific tokens in sync for dashboard/header routing.
+    if (role === "supplier") {
+      localStorage.setItem("supplierToken", token);
+      localStorage.removeItem("token");
+    } else {
+      localStorage.setItem("token", token);
+      localStorage.removeItem("supplierToken");
+    }
     login({ role }, token);
 
     // 🔁 Redirect to correct dashboard
