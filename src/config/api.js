@@ -1,0 +1,85 @@
+const ENV_API_URL =
+  import.meta.env.NEXT_PUBLIC_API_URL?.trim() ||
+  import.meta.env.VITE_API_URL?.trim() ||
+  import.meta.env.VITE_API_BASE_URL?.trim() ||
+  "";
+
+const RUNTIME_API_URL =
+  typeof window !== "undefined" && typeof window.__RRN_API_BASE === "string"
+    ? window.__RRN_API_BASE.trim()
+    : "";
+
+const BASE = (ENV_API_URL || RUNTIME_API_URL || (typeof window !== "undefined" ? window.location.origin : ""))
+  .replace(/\/$/, "");
+
+export const BACKEND_BASE = BASE;
+export const API_BASE = `${BACKEND_BASE}/api`;
+
+const API_PREFIXES = [
+  "/api",
+  "/auth",
+  "/orders",
+  "/payments",
+  "/products",
+  "/categories",
+  "/customer",
+  "/customers",
+  "/supplier",
+  "/suppliers",
+  "/admin",
+  "/ads",
+  "/blogs",
+  "/cms",
+  "/subscriptions",
+  "/partner-inquiry",
+  "/cart",
+  "/shops",
+];
+
+export function resolveBackendUrl(path = "") {
+  if (!path) {
+    return BACKEND_BASE;
+  }
+
+  if (/^https?:\/\//i.test(path)) {
+    return path;
+  }
+
+  if (!path.startsWith("/")) {
+    return `${API_BASE}/${path.replace(/^\/+/, "")}`;
+  }
+
+  return `${BACKEND_BASE}${path}`;
+}
+
+export function isBackendPath(path = "") {
+  return API_PREFIXES.some((prefix) => path === prefix || path.startsWith(`${prefix}/`));
+}
+
+export function resolveApiRequestUrl(input) {
+  const raw = typeof input === "string" ? input : input?.url;
+  if (!raw || /^https?:\/\//i.test(raw) || !raw.startsWith("/")) {
+    return raw;
+  }
+
+  if (!isBackendPath(raw)) {
+    return raw;
+  }
+
+  return resolveBackendUrl(raw);
+}
+
+export function sanitizeBase64DataUrl(value) {
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  return /^data:image\/[a-zA-Z0-9.+-]+;base64,[A-Za-z0-9+/=\s]+$/.test(trimmed)
+    ? trimmed
+    : null;
+}

@@ -1,0 +1,33 @@
+.admin-management {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-management h1 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.admin-management table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.admin-management th {
+  background: #f5f5f5;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px;
+  border-bottom: 2px solid #ddd;
+}
+
+.admin-management td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.admin-management tr:hover {
+  background: #f9f9f9;
+}

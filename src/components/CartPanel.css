@@ -1,0 +1,121 @@
+.cart-panel {
+  display: block;
+}
+
+.cart-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cart-panel-toggle {
+  display: none;
+  padding: 6px 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.cart-panel-cta {
+  margin-top: 16px;
+  width: 100%;
+  padding: 10px;
+  background: #ffcc00;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.cart-panel-mobile-bar {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .cart-panel {
+    position: fixed !important;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto !important;
+    min-height: auto !important;
+    height: auto;
+    max-height: 70vh;
+    border-left: none !important;
+    border-top: 1px solid #eee;
+    padding: 6px 8px !important;
+    z-index: 20;
+  }
+
+  .cart-panel-header {
+    display: none;
+  }
+
+  .cart-panel-toggle {
+    display: none;
+  }
+
+  .cart-panel-body {
+    display: none;
+    max-height: 50vh;
+    overflow: auto;
+  }
+
+  .cart-panel.open .cart-panel-header {
+    display: flex;
+    margin-bottom: 8px;
+  }
+
+  .cart-panel.open .cart-panel-body {
+    display: block;
+  }
+
+  .cart-panel-cta {
+    display: none;
+  }
+
+  .cart-panel-cta {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .cart-panel-mobile-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 4px;
+  }
+
+  .cart-panel-mobile-bar button {
+    flex: 1;
+    min-height: 36px;
+    font-size: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #ffcc00;
+    font-weight: 700;
+  }
+
+  .cart-panel-mobile-toggle {
+    flex: 0 0 auto;
+    min-width: 72px;
+    background: #fff;
+    border: 1px solid #eee !important;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .cart-panel-mobile-cta {
+    background: #ffcc00;
+  }
+
+  .cart-panel-mobile-total {
+    min-width: 90px;
+    font-weight: 700;
+    color: #c41920;
+    font-size: 12px;
+    text-align: right;
+  }
+}

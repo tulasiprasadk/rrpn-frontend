@@ -1,0 +1,210 @@
+/* ============ GLOBAL RESET ============ */
+:root {
+  --bg: #fff;
+  --text: #111827;
+  --accent: #3b82f6;
+
+  /* Footer height used to create bottom padding for content so sections don't overlap */
+  --footer-height: 72px;
+}
+
+html, body, #root {
+  background-color: #e9e9e9;
+  color: #111;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-height: 100%;
+  box-sizing: border-box;
+  font-family: 'Noto Sans Kannada', system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.filter-btn {
+  @apply px-3 py-1 border border-gray-300 rounded hover:bg-gray-100 text-sm;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans Kannada', Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Make sure React app wrapper stretches to full height */
+#root > div {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+body, html {
+  background: #FFE44B !important;   /* Pure Karnataka Yellow */
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 70px;
+  }
+}
+
+/* ============ BODY ============ */
+/* (duplicate `body` block removed — first occurrence retained) */
+
+* {
+  box-sizing: border-box;
+}
+
+input, textarea, select, button {
+  font-family: inherit;
+}
+
+/* ============ COMMON UTILITY CLASSES ============ */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+/* ============ BUTTONS ============ */
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* ============ CART LAYOUT ============ */
+.with-cart-panel {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .with-cart-panel {
+    flex-direction: column !important;
+  }
+
+  .cart-panel {
+    position: static !important;
+    min-height: auto !important;
+    width: 100% !important;
+    border-left: none !important;
+    border-top: 1px solid #eee !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .with-cart-panel {
+    flex-direction: column !important;
+    gap: 16px;
+  }
+
+  button,
+  input,
+  select,
+  textarea,
+  .rn-nav-item {
+    min-height: 44px;
+    font-size: 16px;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .pc-card {
+    min-height: auto !important;
+    height: auto !important;
+    aspect-ratio: auto !important;
+  }
+
+  .pc-image {
+    height: 180px !important;
+    aspect-ratio: auto !important;
+  }
+
+  .pc-title,
+  .pc-kn,
+  .pc-desc,
+  .pc-price {
+    text-align: left !important;
+    padding: 0 12px !important;
+  }
+
+  .pc-price {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+  }
+
+  .pc-add {
+    display: block;
+    margin: 12px;
+    width: calc(100% - 24px);
+    padding: 12px;
+    background: #ffd600;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  body {
+    padding-bottom: 72px;
+  }
+
+  .mobile-sticky-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #fff8c4;
+    border-top: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    z-index: 999;
+  }
+
+  .mobile-sticky-btn {
+    padding: 12px 16px;
+    background: #ffcc00;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 16px;
+    min-width: 140px;
+  }
+}

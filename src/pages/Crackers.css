@@ -1,0 +1,14 @@
+/* All styles migrated to theme.css. Use .card, .title, .button, .price, .muted, etc. from theme.css */
+.crackers-list, .groceries-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+}
+
+.loading, .empty {
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 1.2em;
+  margin-top: 40px;
+}

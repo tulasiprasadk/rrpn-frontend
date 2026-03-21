@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RRPN</string>
+    <string name="title_activity_main">RRPN</string>
+    <string name="package_name">com.rrpn.app</string>
+    <string name="custom_url_scheme">com.rrpn.app</string>
+</resources>
