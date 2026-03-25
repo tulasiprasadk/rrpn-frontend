@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import api from "../../api/client";
-import { BACKEND_BASE } from "../../config/api";
+import { API_BASE, BACKEND_BASE } from "../../config/api";
 import "./AdminKycApproval.css";
 
 export default function AdminKycApproval() {
@@ -15,11 +14,44 @@ export default function AdminKycApproval() {
     fetchSuppliers();
   }, []);
 
+  async function fetchAdminJson(path, options = {}) {
+    const token = typeof window !== "undefined" ? localStorage.getItem("adminToken") : null;
+    const headers = {
+      ...(options.headers || {}),
+    };
+
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE}${path}`, {
+      credentials: "include",
+      ...options,
+      headers,
+    });
+
+    const raw = await response.text();
+    let data = null;
+
+    try {
+      data = raw ? JSON.parse(raw) : null;
+    } catch {
+      data = raw;
+    }
+
+    if (!response.ok) {
+      const error = new Error("Request failed");
+      error.response = { status: response.status, data };
+      throw error;
+    }
+
+    return data;
+  }
+
   async function fetchSuppliers() {
     try {
       setLoading(true);
-      const response = await api.get("/admin/suppliers");
-      const data = response.data;
+      const data = await fetchAdminJson("/admin/suppliers");
       const list = Array.isArray(data)
         ? data
         : Array.isArray(data?.suppliers)
@@ -47,7 +79,9 @@ export default function AdminKycApproval() {
 
     try {
       setActionLoading(true);
-      await api.post(`/admin/suppliers/${supplierId}/approve`);
+      await fetchAdminJson(`/admin/suppliers/${supplierId}/approve`, {
+        method: "POST",
+      });
       alert("Supplier approved successfully!");
       setSelectedSupplier(null);
       setRejectionReason("");
@@ -70,8 +104,14 @@ export default function AdminKycApproval() {
 
     try {
       setActionLoading(true);
-      await api.post(`/admin/suppliers/${supplierId}/reject`, {
-        reason: rejectionReason,
+      await fetchAdminJson(`/admin/suppliers/${supplierId}/reject`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          reason: rejectionReason,
+        }),
       });
       alert("Supplier rejected successfully!");
       setSelectedSupplier(null);
