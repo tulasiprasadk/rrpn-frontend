@@ -1,21 +1,26 @@
 import { useEffect, useState } from "react";
-import { useAdminAuth } from "../../../context/AdminAuthContext";
+import api from "../../../api/client";
 
 export default function SupplierPerformanceTab({ supplierId }) {
-  const { adminToken } = useAdminAuth();
   const [kpis, setKpis] = useState(null);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     async function loadStats() {
-      const res = await fetch(`/api/admin/suppliers/stats/${supplierId}`, {
-        headers: { Authorization: `Bearer ${adminToken}` },
-      });
-
-      const data = await res.json();
-      setKpis(data.kpis);
+      try {
+        setError("");
+        const res = await api.get(`/admin/suppliers/stats/${supplierId}`);
+        setKpis(res.data?.kpis || null);
+      } catch (err) {
+        console.error("Failed to load supplier performance:", err);
+        setKpis(null);
+        setError("Performance data is unavailable.");
+      }
     }
     loadStats();
-  }, [supplierId, adminToken]);
+  }, [supplierId]);
+
+  if (error) return error;
 
   if (!kpis) return "Loading...";
 

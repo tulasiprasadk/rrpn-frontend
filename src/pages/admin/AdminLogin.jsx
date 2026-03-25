@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE } from "../../config/api";
 import "./AdminLogin.css";
 import { useAdminAuth } from "../../context/AdminAuthContext";
+import api from "../../api/client";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -24,26 +24,8 @@ const AdminLogin = () => {
     setError("");
 
     try {
-      const res = await fetch(`${API_BASE}/admin/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: 'include',
-        body: JSON.stringify(form),
-      });
-
-      let data = null;
-      try {
-        data = await res.json();
-      } catch (err) {
-        // non-JSON response
-        data = null;
-      }
-
-      if (!res.ok) {
-        const msg = (data && (data.error || data.message)) || `Server error ${res.status}`;
-        setError(msg);
-        return;
-      }
+      const res = await api.post("/admin/login", form);
+      const data = res.data;
 
       if (data?.token) {
         loginAdmin(data.token, data.admin || null);
@@ -52,7 +34,7 @@ const AdminLogin = () => {
       // Session is set on backend (or token stored), just navigate
       navigate("/admin/dashboard", { replace: true });
     } catch (err) {
-      setError(err?.message || "Server error. Try again.");
+      setError(err?.response?.data?.error || err?.response?.data?.message || err?.message || "Server error. Try again.");
     }
   };
 

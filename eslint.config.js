@@ -1,65 +1,76 @@
-import "dotenv/config";
-import express from "express";
-import cors from "cors";
-import session from "express-session";
-import bodyParser from "body-parser";
-import passport from "../passport.js";
-import routes from "../routes/index.js";
+import reactHooks from "eslint-plugin-react-hooks";
+import reactRefresh from "eslint-plugin-react-refresh";
 
-const app = express();
+const browserGlobals = {
+  AbortController: "readonly",
+  alert: "readonly",
+  atob: "readonly",
+  Blob: "readonly",
+  btoa: "readonly",
+  clearInterval: "readonly",
+  clearTimeout: "readonly",
+  confirm: "readonly",
+  console: "readonly",
+  document: "readonly",
+  fetch: "readonly",
+  File: "readonly",
+  FileReader: "readonly",
+  FormData: "readonly",
+  HTMLElement: "readonly",
+  HTMLIFrameElement: "readonly",
+  Image: "readonly",
+  localStorage: "readonly",
+  navigator: "readonly",
+  prompt: "readonly",
+  sessionStorage: "readonly",
+  setInterval: "readonly",
+  setTimeout: "readonly",
+  URL: "readonly",
+  URLSearchParams: "readonly",
+  window: "readonly",
+};
 
-// CORS
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://rrw-frontend.vercel.app",
-      "https://rrnagarfinal-frontend.vercel.app"
+export default [
+  {
+    ignores: [
+      "dist/**",
+      "coverage/**",
+      "node_modules/**",
+      "android/**",
+      "live-index.js",
     ],
-    credentials: true,
-  })
-);
-
-app.use(bodyParser.json());
-
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || "fallback-secret",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: process.env.NODE_ENV === "production",
-      httpOnly: true,
-      sameSite: "lax",
+  },
+  {
+    files: ["**/*.{js,jsx}"],
+    languageOptions: {
+      ecmaVersion: "latest",
+      sourceType: "module",
+      parserOptions: {
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: browserGlobals,
     },
-  })
-);
-
-// Passport
-app.use(passport.initialize());
-app.use(passport.session());
-
-// Health check
-app.get("/api/health", (req, res) => {
-  res.json({ ok: true });
-});
-
-// Root
-app.get("/", (req, res) => {
-  res.json({
-    message: "RR Nagar Backend API",
-    status: "running"
-  });
-});
-
-// Routes
-app.use("/api", routes);
-
-// Error handler
-app.use((err, req, res, next) => {
-  console.error("🔥 Server error:", err);
-  res.status(500).json({ error: "Internal server error" });
-});
-
-// 👇 THIS IS CRITICAL: Export the app directly
-export default app;
+    plugins: {
+      "react-hooks": reactHooks,
+      "react-refresh": reactRefresh,
+    },
+    rules: {
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+      "no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
+    },
+  },
+];

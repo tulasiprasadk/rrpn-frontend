@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { API_BASE } from '../../config/api';
+import api from '../../api/client';
 
 export default function AdminChangePassword() {
   const [form, setForm] = useState({ oldPassword: '', newPassword: '', confirm: '' });
@@ -16,22 +16,14 @@ export default function AdminChangePassword() {
     if (form.newPassword !== form.confirm) return setErr('New passwords do not match');
 
     try {
-      const res = await fetch(`${API_BASE}/admin/change-password`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ oldPassword: form.oldPassword, newPassword: form.newPassword })
+      await api.post('/admin/change-password', {
+        oldPassword: form.oldPassword,
+        newPassword: form.newPassword,
       });
-      let data = null;
-      try { data = await res.json(); } catch (err) { data = null; }
-      if (!res.ok) {
-        const msg = (data && (data.error || data.message)) || `Server error ${res.status}`;
-        return setErr(msg);
-      }
       setOk('Password updated successfully');
       setForm({ oldPassword: '', newPassword: '', confirm: '' });
     } catch (e) {
-      setErr(e?.message || 'Network error');
+      setErr(e?.response?.data?.error || e?.response?.data?.message || e?.message || 'Network error');
     }
   };
 

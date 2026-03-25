@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
-import { API_BASE } from "../../../config/api";
+import api from "../../../api/client";
 import SupplierPerformanceTab from "./SupplierPerformanceTab";
 import BulkUpload from "../../../components/admin/products/BulkUpload";
 
@@ -25,7 +24,7 @@ export default function AdminSupplierDetail() {
   async function loadSupplier() {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE}/admin/suppliers/${id}`);
+      const res = await api.get(`/admin/suppliers/${id}`);
       // some endpoints return { data: ... } while others return direct object
       setSupplier(res.data?.data || res.data);
     } catch (err) {
@@ -37,7 +36,7 @@ export default function AdminSupplierDetail() {
 
   async function loadSupplierProducts() {
     try {
-      const res = await axios.get(`${API_BASE}/admin/suppliers/${id}/products`);
+      const res = await api.get(`/admin/suppliers/${id}/products`);
       setProducts(res.data.products || []);
     } catch (err) {
       console.error("Error loading products", err);
@@ -52,14 +51,14 @@ export default function AdminSupplierDetail() {
   async function updateStatus(newStatus) {
     try {
       if (newStatus === "approved") {
-        await axios.post(`${API_BASE}/admin/suppliers/${id}/approve`);
+        await api.post(`/admin/suppliers/${id}/approve`);
       } else if (newStatus === "rejected") {
         const reason = prompt("Rejection reason:");
         if (!reason || !reason.trim()) return;
-        await axios.post(`${API_BASE}/admin/suppliers/${id}/reject`, { reason });
+        await api.post(`/admin/suppliers/${id}/reject`, { reason });
       } else {
         // fallback: send generic update if exists server-side
-        await axios.put(`${API_BASE}/admin/suppliers/${id}`, { status: newStatus });
+        await api.put(`/admin/suppliers/${id}`, { status: newStatus });
       }
       await loadSupplier(); // refresh supplier data
     } catch (err) {
@@ -70,7 +69,7 @@ export default function AdminSupplierDetail() {
   async function deleteSupplier() {
     if (!confirm("Do you really want to delete this supplier?")) return;
     try {
-      await axios.delete(`${API_BASE}/admin/suppliers/${id}`);
+      await api.delete(`/admin/suppliers/${id}`);
       navigate("/admin/suppliers");
     } catch (err) {
       console.error("Delete failed", err);

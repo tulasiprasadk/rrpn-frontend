@@ -3,26 +3,18 @@
 
 import { Navigate, Outlet } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { API_BASE } from "../../config/api";
+import api from "../../api/client";
 
 const RequireAdmin = () => {
   const [isChecking, setIsChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Check if admin is logged in via session
     const token = localStorage.getItem("adminToken");
-    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
 
-    fetch(`${API_BASE}/admin/me`, { credentials: "include", headers })
-      .then(async (res) => {
-        if (!res.ok) {
-          return { loggedIn: false };
-        }
-        return res.json();
-      })
-      .then((data) => {
-        const loggedIn = !!data?.loggedIn || !!token;
+    api.get("/admin/me")
+      .then((res) => {
+        const loggedIn = !!res.data?.loggedIn || !!token;
         setIsAuthenticated(loggedIn);
         setIsChecking(false);
       })
