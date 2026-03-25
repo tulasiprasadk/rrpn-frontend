@@ -18,7 +18,67 @@
   font-size: 16px;
 }
 
-.loading, .error {
+.kyc-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.summary-card {
+  background: #fff8e1;
+  border: 1px solid #f3d24f;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+}
+
+.summary-card strong {
+  font-size: 28px;
+  color: #1a1a1a;
+}
+
+.summary-card span {
+  color: #7a5d00;
+  font-weight: 600;
+}
+
+.kyc-section {
+  margin-top: 28px;
+}
+
+.kyc-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kyc-section-header h2 {
+  margin: 0;
+  color: #222;
+  font-size: 24px;
+}
+
+.kyc-section-count {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  color: #c41920;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
+}
+
+.loading,
+.error {
   text-align: center;
   padding: 40px;
   font-size: 18px;
@@ -36,6 +96,11 @@
   background: #f9f9f9;
   border-radius: 12px;
   margin-top: 20px;
+}
+
+.compact-empty {
+  margin-top: 0;
+  padding: 28px 20px;
 }
 
 .empty-state h3 {
@@ -56,7 +121,7 @@
 }
 
 .supplier-card {
-  background: white;
+  background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
   overflow: hidden;
@@ -78,7 +143,7 @@
   align-items: center;
   padding: 20px;
   background: #e31e24;
-  color: white;
+  color: #fff;
 }
 
 .card-header h3 {
@@ -97,6 +162,21 @@
 .status-pending {
   background: #fff3cd;
   color: #856404;
+}
+
+.status-awaiting {
+  background: #e8f0fe;
+  color: #1a73e8;
+}
+
+.status-approved {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-rejected {
+  background: #f8d7da;
+  color: #721c24;
 }
 
 .card-body {
@@ -128,6 +208,11 @@
   padding: 15px;
   background: #f9f9f9;
   border-radius: 8px;
+}
+
+.rejection-note {
+  background: #fff1f2;
+  border: 1px solid #f8d7da;
 }
 
 .bank-details {
@@ -202,7 +287,7 @@
 
 .btn-view {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  color: #fff;
 }
 
 .btn-view:hover:not(:disabled) {
@@ -210,7 +295,6 @@
   box-shadow: 0 6px 16px rgb(102 126 234 / 40%);
 }
 
-/* Modal Styles */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -223,7 +307,7 @@
 }
 
 .modal-content {
-  background: white;
+  background: #fff;
   border-radius: 16px;
   max-width: 700px;
   width: 100%;
@@ -243,7 +327,7 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  font-size: 24px;
+  font-size: 20px;
   cursor: pointer;
   line-height: 1;
   transition: all 0.2s;
@@ -251,7 +335,6 @@
 
 .modal-close:hover {
   background: #e0e0e0;
-  transform: rotate(90deg);
 }
 
 .modal-content h2 {
@@ -302,7 +385,7 @@
 
 .doc-preview {
   padding: 15px;
-  background: white;
+  background: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
   display: flex;
@@ -341,7 +424,7 @@
 .btn-approve {
   width: 100%;
   background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
-  color: white;
+  color: #fff;
   margin-bottom: 15px;
 }
 
@@ -374,7 +457,7 @@
 .btn-reject {
   width: 100%;
   background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-  color: white;
+  color: #fff;
 }
 
 .btn-reject:hover:not(:disabled) {
@@ -383,6 +466,10 @@
 }
 
 @media (max-width: 768px) {
+  .kyc-summary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
   .suppliers-grid {
     grid-template-columns: 1fr;
   }
