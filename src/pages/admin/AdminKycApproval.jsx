@@ -24,6 +24,8 @@ export default function AdminKycApproval() {
         ? data
         : Array.isArray(data?.suppliers)
           ? data.suppliers
+          : Array.isArray(data?.data)
+            ? data.data
           : [];
       setSuppliers(list);
       setError("");
