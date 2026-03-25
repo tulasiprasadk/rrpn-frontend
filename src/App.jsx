@@ -207,7 +207,8 @@ function AppWrapper() {
               <Route index element={<AdminDashboard />} />
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="cms" element={<CmsManager />} />
-              <Route path="suppliers" element={<AdminSuppliersList />} />
+              <Route path="suppliers" element={<AdminKycApproval />} />
+              <Route path="suppliers/all" element={<AdminSuppliersList />} />
               <Route path="suppliers/:id" element={<AdminSupplierDetail />} />
               <Route path="ads" element={<AdminAdsList />} />
               <Route path="ads/new" element={<AdminAdForm mode="create" />} />

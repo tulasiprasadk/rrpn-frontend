@@ -51,11 +51,12 @@ export default function AdminSupplierDetail() {
 
   async function updateStatus(newStatus) {
     try {
-      // Prefer explicit endpoints if backend exposes them
       if (newStatus === "approved") {
-        await axios.put(`${API_BASE}/admin/suppliers/${id}/verify`);
+        await axios.post(`${API_BASE}/admin/suppliers/${id}/approve`);
       } else if (newStatus === "rejected") {
-        await axios.put(`${API_BASE}/admin/suppliers/${id}/reject`);
+        const reason = prompt("Rejection reason:");
+        if (!reason || !reason.trim()) return;
+        await axios.post(`${API_BASE}/admin/suppliers/${id}/reject`, { reason });
       } else {
         // fallback: send generic update if exists server-side
         await axios.put(`${API_BASE}/admin/suppliers/${id}`, { status: newStatus });
@@ -91,7 +92,7 @@ export default function AdminSupplierDetail() {
     );
   }
 
-  const canApprove = supplier.status === "pending";
+  const canApprove = supplier.status === "kyc_submitted";
 
   return (
     <div className="p-4">

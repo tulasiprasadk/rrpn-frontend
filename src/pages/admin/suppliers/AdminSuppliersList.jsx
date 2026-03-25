@@ -16,7 +16,13 @@ export default function AdminSuppliersList() {
     try {
       const res = await api.get("/admin/suppliers");
       const data = res.data;
-      const list = Array.isArray(data) ? data : data?.data || data || [];
+      const list = Array.isArray(data)
+        ? data
+        : Array.isArray(data?.suppliers)
+          ? data.suppliers
+          : Array.isArray(data?.data)
+            ? data.data
+            : [];
       setSuppliers(list);
       setError(null);
       console.log("Suppliers loaded:", res.data);
@@ -66,7 +72,9 @@ export default function AdminSuppliersList() {
     }
   }
 
-  const filtered = suppliers.filter((s) =>
+  const safeSuppliers = Array.isArray(suppliers) ? suppliers : [];
+
+  const filtered = safeSuppliers.filter((s) =>
     (s.name || "").toLowerCase().includes(search.toLowerCase())
   );
 
