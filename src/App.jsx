@@ -108,6 +108,11 @@ function AppWrapper() {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const host = window.location.hostname;
+    if (host === "rrnagar.com") {
+      const target = `https://www.rrnagar.com${window.location.pathname}${window.location.search}${window.location.hash}`;
+      window.location.replace(target);
+      return;
+    }
     if (host.includes("vercel.app")) {
       const target = `https://rrnagar.com${window.location.pathname}${window.location.search}${window.location.hash}`;
       window.location.replace(target);

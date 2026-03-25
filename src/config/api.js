@@ -1,3 +1,16 @@
+const CANONICAL_HOSTS = {
+  "rrnagar.com": "https://www.rrnagar.com",
+};
+
+function getCanonicalOrigin() {
+  if (typeof window === "undefined") {
+    return "";
+  }
+
+  const mapped = CANONICAL_HOSTS[window.location.hostname];
+  return mapped || window.location.origin;
+}
+
 const ENV_API_URL =
   import.meta.env.NEXT_PUBLIC_API_URL?.trim() ||
   import.meta.env.VITE_API_URL?.trim() ||
@@ -9,7 +22,7 @@ const RUNTIME_API_URL =
     ? window.__RRN_API_BASE.trim()
     : "";
 
-const BASE = (ENV_API_URL || RUNTIME_API_URL || (typeof window !== "undefined" ? window.location.origin : ""))
+const BASE = (ENV_API_URL || RUNTIME_API_URL || getCanonicalOrigin())
   .replace(/\/$/, "");
 
 export const BACKEND_BASE = BASE;
