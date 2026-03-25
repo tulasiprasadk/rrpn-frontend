@@ -14,10 +14,15 @@ function AdminNotifications() {
   async function load() {
     try {
       const res = await api.get("/admin/notifications");
-      setList(res.data || []);
+      const nextList = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.notifications)
+          ? res.data.notifications
+          : [];
+      setList(nextList);
     } catch (err) {
       console.warn("Notifications load failed:", err?.message || err);
-      throw err;
+      setList([]);
     }
   }
 
@@ -163,7 +168,11 @@ function AdminNotifications() {
           {list.length > 0 && (
             <button
               onClick={async () => {
-                await api.put("/admin/notifications/mark-read");
+                try {
+                  await api.put("/admin/notifications/mark-read");
+                } catch (err) {
+                  console.warn("Mark notifications read failed:", err?.message || err);
+                }
                 setList([]);
               }}
               style={{

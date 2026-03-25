@@ -40,7 +40,10 @@ export function getTranslations() {
 }
 
 export function isKannadaEnabled() {
-  return localStorage.getItem("admin_language") === "kannada";
+  if (typeof window === "undefined" || !window.localStorage) {
+    return false;
+  }
+  return window.localStorage.getItem("admin_language") === "kannada";
 }
 
 export default {

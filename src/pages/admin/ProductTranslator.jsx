@@ -18,9 +18,15 @@ export default function ProductTranslator() {
   const fetchProducts = async () => {
     try {
       const res = await api.get("/products");
-      setProducts(res.data);
+      const list = Array.isArray(res.data)
+        ? res.data
+        : Array.isArray(res.data?.products)
+          ? res.data.products
+          : [];
+      setProducts(list);
     } catch (err) {
       console.error('Error fetching products:', err);
+      setProducts([]);
       setMessage('Error loading products');
     }
   };
@@ -45,8 +51,9 @@ export default function ProductTranslator() {
         productIds: selectedIds
       });
 
-      setTranslations(res.data.translations);
-      setMessage(`Translated ${res.data.translations.length} products. Review and save.`);
+      const nextTranslations = Array.isArray(res.data?.translations) ? res.data.translations : [];
+      setTranslations(nextTranslations);
+      setMessage(`Translated ${nextTranslations.length} products. Review and save.`);
     } catch (err) {
       console.error('Translation error:', err);
       setMessage('Translation failed: ' + (err.response?.data?.message || err.message));
@@ -75,7 +82,8 @@ export default function ProductTranslator() {
         updates
       });
 
-      const successCount = res.data.results.filter(r => r.success).length;
+      const results = Array.isArray(res.data?.results) ? res.data.results : [];
+      const successCount = results.filter(r => r.success).length;
       setMessage(`Saved ${successCount} translations successfully!`);
       
       // Refresh products and clear selections
@@ -110,7 +118,8 @@ export default function ProductTranslator() {
         updates
       });
 
-      const successCount = res.data.results.filter(r => r.success).length;
+      const results = Array.isArray(res.data?.results) ? res.data.results : [];
+      const successCount = results.filter(r => r.success).length;
       setMessage(`Saved English for ${successCount} products!`);
 
       await fetchProducts();
