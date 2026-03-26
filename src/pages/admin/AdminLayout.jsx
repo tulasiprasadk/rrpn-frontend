@@ -9,6 +9,16 @@ function AdminNotifications() {
   const [list, setList] = useState([]);
   const [open, setOpen] = useState(false);
 
+  function parseMeta(value) {
+    if (!value) return null;
+    if (typeof value === "object") return value;
+    try {
+      return JSON.parse(value);
+    } catch (_err) {
+      return null;
+    }
+  }
+
   async function load() {
     try {
       const res = await api.get("/admin/notifications");
@@ -121,7 +131,7 @@ function AdminNotifications() {
             position: "absolute",
             right: 0,
             top: 35,
-            width: 300,
+            width: 320,
             background: "white",
             border: "1px solid #ddd",
             borderRadius: 8,
@@ -133,30 +143,51 @@ function AdminNotifications() {
 
           {list.length === 0 && <p>No new alerts</p>}
 
-          {list.map((item) => (
-            <div
-              key={item.id}
-              style={{
-                padding: "8px 0",
-                borderBottom: "1px solid #eee",
-                cursor: item.type === "supplier_registration" ? "pointer" : "default"
-              }}
-              onClick={() => {
-                if (item.type === "supplier_registration") {
-                  setOpen(false);
-                  window.location.href = "/admin/suppliers";
-                }
-              }}
-            >
-              <strong>{item.title}</strong>
-              <p style={{ margin: "3px 0", fontSize: 13 }}>{item.message}</p>
-              {item.type === "supplier_registration" && (
-                <p style={{ margin: "3px 0", fontSize: 12, color: "#007bff" }}>
-                  Click to view and approve
-                </p>
-              )}
-            </div>
-          ))}
+          {list.map((item) => {
+            const meta = parseMeta(item.meta);
+            const isClickable = ["supplier_registration", "payment_submitted", "order_created"].includes(item.type);
+
+            return (
+              <div
+                key={item.id}
+                style={{
+                  padding: "8px 0",
+                  borderBottom: "1px solid #eee",
+                  cursor: isClickable ? "pointer" : "default"
+                }}
+                onClick={() => {
+                  if (item.type === "supplier_registration") {
+                    setOpen(false);
+                    window.location.href = "/admin/suppliers";
+                  } else if (item.type === "payment_submitted") {
+                    setOpen(false);
+                    window.location.href = meta?.route || "/admin/orders";
+                  } else if (item.type === "order_created") {
+                    setOpen(false);
+                    window.location.href = meta?.route || "/admin/orders";
+                  }
+                }}
+              >
+                <strong>{item.title}</strong>
+                <p style={{ margin: "3px 0", fontSize: 13 }}>{item.message}</p>
+                {item.type === "supplier_registration" && (
+                  <p style={{ margin: "3px 0", fontSize: 12, color: "#007bff" }}>
+                    Click to view and approve
+                  </p>
+                )}
+                {item.type === "payment_submitted" && (
+                  <p style={{ margin: "3px 0", fontSize: 12, color: "#007bff" }}>
+                    Click to review payment and approve
+                  </p>
+                )}
+                {item.type === "order_created" && (
+                  <p style={{ margin: "3px 0", fontSize: 12, color: "#007bff" }}>
+                    Click to open orders
+                  </p>
+                )}
+              </div>
+            );
+          })}
 
           {list.length > 0 && (
             <button
