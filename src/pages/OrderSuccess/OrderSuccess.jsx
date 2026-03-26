@@ -4,11 +4,18 @@ import "./OrderSuccess.css";
 import { API_BASE } from "../../config/api";
 import { useAuth } from "../../context/AuthContext";
 
+const PLAN_LABELS = {
+  monthly: "Monthly",
+  quarterly: "3 Months",
+  half_yearly: "6 Months",
+  yearly: "Yearly"
+};
+
 export default function OrderSuccess() {
   const { orderId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [subscriptionOptions, setSubscriptionOptions] = useState([]);
+  const [subscriptionPlans, setSubscriptionPlans] = useState([]);
   const [subscriptionProductId, setSubscriptionProductId] = useState(null);
   const [subscribeError, setSubscribeError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -16,27 +23,47 @@ export default function OrderSuccess() {
   useEffect(() => {
     if (!orderId) return;
     let mounted = true;
+
     (async () => {
       try {
         const token = localStorage.getItem("token");
         const res = await fetch(`${API_BASE}/orders/${orderId}`, {
           credentials: "include",
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined
         });
         if (!res.ok) return;
         const data = await res.json();
         const product = data?.Product || data?.product || null;
         if (!product || !mounted) return;
-        const options = [];
-        if (product.hasMonthlyPackage) options.push("monthly");
-        if (product.hasYearlyPackage) options.push("yearly");
-        setSubscriptionOptions(options);
+
+        const basePrice = Number(product.price || 0);
+        if (basePrice <= 0) return;
+
+        const plans = [
+          { period: "monthly", label: "Monthly", discountPercent: 5, months: 1 },
+          { period: "quarterly", label: "3 Months", discountPercent: 7, months: 3 },
+          { period: "half_yearly", label: "6 Months", discountPercent: 9, months: 6 },
+          { period: "yearly", label: "Yearly", discountPercent: 12, months: 12 }
+        ].map((plan) => {
+          const baseCyclePrice = basePrice * plan.months;
+          const discountedPrice = Number((baseCyclePrice * (1 - plan.discountPercent / 100)).toFixed(2));
+          return {
+            ...plan,
+            discountedPrice,
+            savings: Number((baseCyclePrice - discountedPrice).toFixed(2))
+          };
+        });
+
+        setSubscriptionPlans(plans);
         setSubscriptionProductId(product.id || data?.productId || null);
-      } catch (err) {
+      } catch {
         // Ignore failures to keep success page clean
       }
     })();
-    return () => { mounted = false; };
+
+    return () => {
+      mounted = false;
+    };
   }, [orderId]);
 
   const subscribeNow = async (period) => {
@@ -57,15 +84,16 @@ export default function OrderSuccess() {
           "Content-Type": "application/json",
           ...(localStorage.getItem("token")
             ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
-            : {}),
+            : {})
         },
         body: JSON.stringify({ productId: subscriptionProductId, period })
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(data?.error || "Failed to subscribe");
       }
       alert("Subscription activated successfully!");
+      setSubscribeError("");
     } catch (err) {
       setSubscribeError(err.message || "Failed to subscribe");
     } finally {
@@ -76,7 +104,7 @@ export default function OrderSuccess() {
   return (
     <div className="os-container">
       <div className="os-card">
-        <div className="os-icon">✔</div>
+        <div className="os-icon">OK</div>
 
         <h1>Order Placed Successfully!</h1>
         <p>Your order has been placed and is now being processed.</p>
@@ -87,23 +115,44 @@ export default function OrderSuccess() {
           </p>
         )}
 
-        {subscriptionOptions.length > 0 && (
-          <div style={{ marginTop: 16, padding: 12, borderRadius: 10, background: "#FFF3B0", color: "#5A3A00" }}>
-            <strong>Subscribe & Save</strong>
+        {subscriptionPlans.length > 0 && (
+          <div style={{ marginTop: 16, padding: 16, borderRadius: 14, background: "#fff3b0", color: "#5A3A00", textAlign: "left" }}>
+            <strong>Subscribe and Save on future deliveries</strong>
             <div style={{ marginTop: 6, fontSize: 14 }}>
-              Keep this item on auto-delivery with a subscription.
+              Get recurring delivery without reminders and unlock extra savings on this product.
             </div>
-            <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
-              {subscriptionOptions.map((option) => (
-                <button
-                  key={option}
-                  className="os-btn"
-                  disabled={submitting}
-                  onClick={() => subscribeNow(option)}
-                  style={{ background: "#C8102E" }}
+            <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
+              {subscriptionPlans.map((plan) => (
+                <div
+                  key={plan.period}
+                  style={{
+                    background: "rgba(255,255,255,0.7)",
+                    borderRadius: 12,
+                    padding: 12,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    gap: 12,
+                    flexWrap: "wrap"
+                  }}
                 >
-                  Subscribe {option === "monthly" ? "Monthly" : "Yearly"}
-                </button>
+                  <div>
+                    <div style={{ fontWeight: 700 }}>
+                      {plan.label} subscription - {plan.discountPercent}% off
+                    </div>
+                    <div style={{ fontSize: 14 }}>
+                      Pay Rs {plan.discountedPrice.toFixed(2)} and save Rs {plan.savings.toFixed(2)}
+                    </div>
+                  </div>
+                  <button
+                    className="os-btn"
+                    disabled={submitting}
+                    onClick={() => subscribeNow(plan.period)}
+                    style={{ background: "#C8102E" }}
+                  >
+                    {submitting ? "Processing..." : `Choose ${PLAN_LABELS[plan.period]}`}
+                  </button>
+                </div>
               ))}
             </div>
             {subscribeError && (
@@ -123,6 +172,3 @@ export default function OrderSuccess() {
     </div>
   );
 }
-
-
-
