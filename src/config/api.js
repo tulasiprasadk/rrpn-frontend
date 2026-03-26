@@ -62,6 +62,14 @@ export function resolveBackendUrl(path = "") {
     return `${API_BASE}/${path.replace(/^\/+/, "")}`;
   }
 
+  if (path === "/api" || path.startsWith("/api/")) {
+    return `${BACKEND_BASE}${path}`;
+  }
+
+  if (isBackendPath(path)) {
+    return `${API_BASE}${path}`;
+  }
+
   return `${BACKEND_BASE}${path}`;
 }
 
