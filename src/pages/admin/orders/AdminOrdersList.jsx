@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../../api/client";
 
 export default function AdminOrdersList() {
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function AdminOrdersList() {
 
   async function loadSuppliers() {
     try {
-      const res = await axios.get("/api/admin/suppliers", { withCredentials: true });
+      const res = await api.get("/admin/suppliers");
       setSuppliers(res.data.data || res.data || []);
     } catch (err) {
       console.error("Failed to load suppliers", err);
@@ -34,14 +34,13 @@ export default function AdminOrdersList() {
     setLoading(true);
 
     try {
-      const res = await axios.get("/api/admin/orders", {
+      const res = await api.get("/admin/orders", {
         params: {
           status,
           supplierId,
           date_from: dateFrom,
           date_to: dateTo,
         },
-        withCredentials: true,
       });
 
       // API returns an array; fall back to res.data.orders if present

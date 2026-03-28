@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../../api/client";
 
 export default function AdminOrderDetail() {
   const { id } = useParams();
@@ -17,13 +17,17 @@ export default function AdminOrderDetail() {
   async function loadOrder() {
     setLoading(true);
     try {
-      const res = await axios.get(`/api/admin/orders/${id}`, { withCredentials: true });
+      const res = await api.get(`/admin/orders/${id}`);
       // API returns order object directly
       const ord = res.data.order || res.data;
       setOrder(ord);
 
-      const setRes = await axios.get(`/api/admin/orders/${id}/settlement`, { withCredentials: true });
-      setSettlement(setRes.data.settlement);
+      try {
+        const setRes = await api.get(`/admin/orders/${id}/settlement`);
+        setSettlement(setRes.data.settlement);
+      } catch (settlementErr) {
+        setSettlement(null);
+      }
     } catch (err) {
       console.error("Failed to load order", err);
     }
@@ -32,7 +36,7 @@ export default function AdminOrderDetail() {
 
   async function updateStatus(status) {
     try {
-      await axios.put(`/api/admin/orders/${id}/status`, { status }, { withCredentials: true });
+      await api.put(`/admin/orders/${id}/status`, { status });
       loadOrder();
     } catch (err) {
       console.error("Status update failed", err);
@@ -41,7 +45,7 @@ export default function AdminOrderDetail() {
 
   async function approvePayment() {
     try {
-      await axios.put(`/api/admin/orders/${id}/approve`, {}, { withCredentials: true });
+      await api.put(`/admin/orders/${id}/approve`, {});
       loadOrder();
     } catch (err) {
       console.error("Approve failed", err);
@@ -50,7 +54,7 @@ export default function AdminOrderDetail() {
 
   async function rejectPayment() {
     try {
-      await axios.put(`/api/admin/orders/${id}/reject`, {}, { withCredentials: true });
+      await api.put(`/admin/orders/${id}/reject`, {});
       loadOrder();
     } catch (err) {
       console.error("Reject failed", err);

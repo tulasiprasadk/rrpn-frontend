@@ -10,6 +10,7 @@ export default function PaymentPage() {
   const navigate = useNavigate();
 
   const orderId = state?.orderId;
+  const subscriptionCandidate = state?.subscriptionCandidate || null;
   const [txnId, setTxnId] = useState("");
   const [file, setFile] = useState(null);
 
@@ -77,7 +78,8 @@ export default function PaymentPage() {
           orderId: orderId,
           txnId: txnId,
           screenshot: file ? URL.createObjectURL(file) : "",
-          paymentMethod: method
+          paymentMethod: method,
+          subscriptionCandidate,
         }
       });
     } catch (error) {

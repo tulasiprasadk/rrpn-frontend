@@ -176,7 +176,18 @@ export default function CheckoutReview() {
         // Clear bag
         localStorage.setItem("bag", JSON.stringify([]));
         localStorage.setItem("cart", JSON.stringify([]));
-        navigate("/payment", { state: { orderId: res.data.orderId, orderDetails: res.data } });
+        navigate("/payment", {
+          state: {
+            orderId: res.data.orderId,
+            orderDetails: res.data,
+            subscriptionCandidate: {
+              productId,
+              title: firstItem.title || firstItem.productName || "",
+              basePrice: Number(firstItem.price || 0),
+              quantity: Number(firstItem.quantity || firstItem.qty || 1),
+            },
+          },
+        });
         return;
       }
 
@@ -222,7 +233,18 @@ export default function CheckoutReview() {
       });
       localStorage.setItem("bag", JSON.stringify([]));
       localStorage.setItem("cart", JSON.stringify([]));
-      navigate("/payment", { state: { orderId: gres.data.orderId, orderDetails: gres.data } });
+      navigate("/payment", {
+        state: {
+          orderId: gres.data.orderId,
+          orderDetails: gres.data,
+          subscriptionCandidate: {
+            productId,
+            title: firstItem.title || firstItem.productName || "",
+            basePrice: Number(firstItem.price || 0),
+            quantity: Number(firstItem.quantity || firstItem.qty || 1),
+          },
+        },
+      });
       
     } catch (err) {
       console.error("Order creation error:", err);

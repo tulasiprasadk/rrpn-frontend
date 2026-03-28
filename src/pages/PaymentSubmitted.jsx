@@ -11,6 +11,26 @@ const PLAN_LABELS = {
   yearly: "Yearly"
 };
 
+function buildPlans(basePrice) {
+  const normalizedPrice = Number(basePrice || 0);
+  if (normalizedPrice <= 0) return [];
+
+  return [
+    { period: "monthly", label: "Monthly", discountPercent: 5, months: 1 },
+    { period: "quarterly", label: "3 Months", discountPercent: 7, months: 3 },
+    { period: "half_yearly", label: "6 Months", discountPercent: 9, months: 6 },
+    { period: "yearly", label: "Yearly", discountPercent: 12, months: 12 }
+  ].map((plan) => {
+    const baseCyclePrice = normalizedPrice * plan.months;
+    const discountedPrice = Number((baseCyclePrice * (1 - plan.discountPercent / 100)).toFixed(2));
+    return {
+      ...plan,
+      discountedPrice,
+      savings: Number((baseCyclePrice - discountedPrice).toFixed(2))
+    };
+  });
+}
+
 export default function PaymentSubmitted() {
   const navigate = useNavigate();
   const { state } = useLocation();
@@ -21,12 +41,20 @@ export default function PaymentSubmitted() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
+    const candidate = state?.subscriptionCandidate || null;
+    if (candidate?.basePrice > 0) {
+      setSubscriptionPlans(buildPlans(candidate.basePrice));
+      setSubscriptionProductId(candidate.productId || null);
+    }
+
     if (!state?.orderId) return;
     let mounted = true;
 
     (async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token =
+          localStorage.getItem("token") ||
+          localStorage.getItem("customerToken");
         const res = await fetch(`${API_BASE}/orders/${state.orderId}`, {
           credentials: "include",
           headers: token ? { Authorization: `Bearer ${token}` } : undefined
@@ -39,22 +67,7 @@ export default function PaymentSubmitted() {
         const basePrice = Number(product.price || 0);
         if (basePrice <= 0) return;
 
-        const plans = [
-          { period: "monthly", label: "Monthly", discountPercent: 5, months: 1 },
-          { period: "quarterly", label: "3 Months", discountPercent: 7, months: 3 },
-          { period: "half_yearly", label: "6 Months", discountPercent: 9, months: 6 },
-          { period: "yearly", label: "Yearly", discountPercent: 12, months: 12 }
-        ].map((plan) => {
-          const baseCyclePrice = basePrice * plan.months;
-          const discountedPrice = Number((baseCyclePrice * (1 - plan.discountPercent / 100)).toFixed(2));
-          return {
-            ...plan,
-            discountedPrice,
-            savings: Number((baseCyclePrice - discountedPrice).toFixed(2))
-          };
-        });
-
-        setSubscriptionPlans(plans);
+        setSubscriptionPlans(buildPlans(basePrice));
         setSubscriptionProductId(product.id || data?.productId || null);
       } catch (_err) {
         // Keep page usable even if subscription fetch fails
