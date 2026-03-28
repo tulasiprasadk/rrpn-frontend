@@ -57,6 +57,7 @@ export default function AdminOrdersList() {
   const [dateTo, setDateTo] = useState("");
 
   const [suppliers, setSuppliers] = useState([]);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
 
   useEffect(() => {
     loadSuppliers();
@@ -120,6 +121,30 @@ export default function AdminOrdersList() {
     }
 
     setLoading(false);
+  }
+
+  async function approvePayment(orderId) {
+    try {
+      setActionLoadingId(orderId);
+      await api.put(`/admin/orders/${orderId}/approve`, {});
+      await loadOrders();
+    } catch (err) {
+      alert(err?.response?.data?.error || err?.message || "Failed to approve payment");
+    } finally {
+      setActionLoadingId(null);
+    }
+  }
+
+  async function rejectPayment(orderId) {
+    try {
+      setActionLoadingId(orderId);
+      await api.put(`/admin/orders/${orderId}/reject`, {});
+      await loadOrders();
+    } catch (err) {
+      alert(err?.response?.data?.error || err?.message || "Failed to reject payment");
+    } finally {
+      setActionLoadingId(null);
+    }
   }
 
   return (
@@ -189,6 +214,7 @@ export default function AdminOrdersList() {
                 <th>Total (Rs)</th>
                 <th>Status</th>
                 <th>Created</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -208,6 +234,34 @@ export default function AdminOrdersList() {
                     </span>
                   </td>
                   <td>{new Date(order.createdAt).toLocaleString()}</td>
+                  <td onClick={(event) => event.stopPropagation()}>
+                    {order.paymentStatus === "pending" ? (
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        <button
+                          className="admin-button primary"
+                          disabled={actionLoadingId === order.id}
+                          onClick={() => approvePayment(order.id)}
+                        >
+                          {actionLoadingId === order.id ? "Working..." : "Approve"}
+                        </button>
+                        <button
+                          className="admin-button"
+                          style={{ background: "#dc2626", color: "#fff" }}
+                          disabled={actionLoadingId === order.id}
+                          onClick={() => rejectPayment(order.id)}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="admin-button outline"
+                        onClick={() => navigate(`/admin/orders/${order.id}`)}
+                      >
+                        View
+                      </button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

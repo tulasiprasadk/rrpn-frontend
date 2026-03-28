@@ -94,26 +94,10 @@ export default function AdminBulkUpload() {
 
     for (let index = 0; index < products.length; index += chunkSize) {
       const chunk = products.slice(index, index + chunkSize);
-      const response = await fetch(
-        `/api/products/bulk${replaceExisting ? "?mode=replace" : ""}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ products: chunk })
-        }
+      const { data } = await api.post(
+        `/admin/products/bulk${replaceExisting ? "?mode=replace" : ""}`,
+        { products: chunk }
       );
-
-      const raw = await response.text();
-      let data = null;
-      try {
-        data = raw ? JSON.parse(raw) : null;
-      } catch {
-        data = { error: raw || "Bulk upload failed" };
-      }
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Bulk upload failed");
-      }
 
       totalCreated += data?.created || 0;
       totalUpdated += data?.updated || 0;
@@ -171,7 +155,7 @@ export default function AdminBulkUpload() {
       }
     } catch (error) {
       console.error(error);
-      alert(error.message || "Server error during upload");
+      alert(error?.response?.data?.error || error.message || "Server error during upload");
     } finally {
       setUploading(false);
     }
