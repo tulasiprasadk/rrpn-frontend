@@ -187,15 +187,16 @@ export default function Groceries() {
         minHeight: "100vh",
         background: "#FFFDE7",
         alignItems: "flex-start",
-        gap: isCompactLayout ? 16 : 24,
+        gap: isCompactLayout ? 16 : 18,
         flexDirection: isCompactLayout ? "column" : "row",
-        padding: isCompactLayout ? "16px 12px 24px" : "0 24px",
+        padding: isCompactLayout ? "16px 12px 24px" : "0 16px",
       }}
     >
       {!isCompactLayout && (
         <aside
           style={{
-            width: 220,
+            width: 160,
+            minWidth: 160,
             position: "sticky",
             top: 24,
             alignSelf: "flex-start",
@@ -215,7 +216,15 @@ export default function Groceries() {
         </aside>
       )}
 
-      <div style={{ flex: 1, minWidth: 0, width: "100%", padding: isCompactLayout ? 0 : "24px 0" }}>
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          width: "100%",
+          maxWidth: isCompactLayout ? "100%" : "calc(100% - 500px)",
+          padding: isCompactLayout ? 0 : "24px 0",
+        }}
+      >
         <div
           style={{
             background: "#FFF9C4",
@@ -317,8 +326,9 @@ export default function Groceries() {
 
       <div
         style={{
-          width: isCompactLayout ? "100%" : 340,
-          minWidth: isCompactLayout ? 0 : 300,
+          width: isCompactLayout ? "100%" : 320,
+          minWidth: isCompactLayout ? 0 : 320,
+          maxWidth: isCompactLayout ? "100%" : 320,
           position: isCompactLayout ? "static" : "sticky",
           top: 24,
           alignSelf: "flex-start",
