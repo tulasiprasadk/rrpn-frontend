@@ -91,30 +91,42 @@ export default function AdminOrdersList() {
       if (payload.length > 0) {
         setOrders(payload);
       } else {
-        const notifyRes = await api.get("/admin/notifications");
-        const fallbackOrders = buildOrdersFromNotifications(
-          Array.isArray(notifyRes.data)
-            ? notifyRes.data
-            : Array.isArray(notifyRes.data?.notifications)
-              ? notifyRes.data.notifications
-              : []
-        );
-        setOrders(fallbackOrders);
+        const paymentRes = await api.get("/admin/payments");
+        const paymentOrders = extractOrdersPayload(paymentRes.data);
+        if (paymentOrders.length > 0) {
+          setOrders(paymentOrders);
+        } else {
+          const notifyRes = await api.get("/admin/notifications");
+          const fallbackOrders = buildOrdersFromNotifications(
+            Array.isArray(notifyRes.data)
+              ? notifyRes.data
+              : Array.isArray(notifyRes.data?.notifications)
+                ? notifyRes.data.notifications
+                : []
+          );
+          setOrders(fallbackOrders);
+        }
       }
     } catch (err) {
       console.error("Failed to load orders", err);
       setError(err?.response?.data?.error || err?.message || "Failed to load orders");
 
       try {
-        const notifyRes = await api.get("/admin/notifications");
-        const fallbackOrders = buildOrdersFromNotifications(
-          Array.isArray(notifyRes.data)
-            ? notifyRes.data
-            : Array.isArray(notifyRes.data?.notifications)
-              ? notifyRes.data.notifications
-              : []
-        );
-        setOrders(fallbackOrders);
+        const paymentRes = await api.get("/admin/payments");
+        const paymentOrders = extractOrdersPayload(paymentRes.data);
+        if (paymentOrders.length > 0) {
+          setOrders(paymentOrders);
+        } else {
+          const notifyRes = await api.get("/admin/notifications");
+          const fallbackOrders = buildOrdersFromNotifications(
+            Array.isArray(notifyRes.data)
+              ? notifyRes.data
+              : Array.isArray(notifyRes.data?.notifications)
+                ? notifyRes.data.notifications
+                : []
+          );
+          setOrders(fallbackOrders);
+        }
       } catch (_fallbackErr) {
         setOrders([]);
       }
@@ -126,7 +138,15 @@ export default function AdminOrdersList() {
   async function approvePayment(orderId) {
     try {
       setActionLoadingId(orderId);
-      await api.put(`/admin/orders/${orderId}/approve`, {});
+      try {
+        await api.put(`/admin/orders/${orderId}/approve`, {});
+      } catch (err) {
+        if (err?.response?.status === 404) {
+          await api.post(`/admin/payments/${orderId}/approve`, {});
+        } else {
+          throw err;
+        }
+      }
       await loadOrders();
     } catch (err) {
       alert(err?.response?.data?.error || err?.message || "Failed to approve payment");
@@ -138,7 +158,15 @@ export default function AdminOrdersList() {
   async function rejectPayment(orderId) {
     try {
       setActionLoadingId(orderId);
-      await api.put(`/admin/orders/${orderId}/reject`, {});
+      try {
+        await api.put(`/admin/orders/${orderId}/reject`, {});
+      } catch (err) {
+        if (err?.response?.status === 404) {
+          await api.post(`/admin/payments/${orderId}/reject`, {});
+        } else {
+          throw err;
+        }
+      }
       await loadOrders();
     } catch (err) {
       alert(err?.response?.data?.error || err?.message || "Failed to reject payment");
