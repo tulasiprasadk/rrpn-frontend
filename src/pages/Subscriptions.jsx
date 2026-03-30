@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../config/api";
 import { useAuth } from "../context/AuthContext";
 import CartPanel from "../components/CartPanel";
+import api from "../api/client";
 
 const PLAN_SECTIONS = [
   { key: "monthly", title: "Monthly Plans", empty: "No monthly subscriptions available yet." },
@@ -10,6 +11,17 @@ const PLAN_SECTIONS = [
   { key: "half_yearly", title: "6 Month Plans", empty: "No 6 month subscriptions available yet." },
   { key: "yearly", title: "Yearly Plans", empty: "No yearly subscriptions available yet." }
 ];
+
+function buildAddressText(address) {
+  return [
+    address?.addressLine,
+    address?.city,
+    address?.state,
+    address?.pincode ? `- ${address.pincode}` : ""
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
 
 export default function Subscriptions() {
   const [plans, setPlans] = useState({
@@ -51,30 +63,60 @@ export default function Subscriptions() {
     };
   }, []);
 
-  const subscribeToPlan = async (productId, period) => {
+  const subscribeToPlan = async (plan) => {
     if (!user) {
       navigate("/login");
       return;
     }
+
     setSubmitting(true);
     setError("");
+
     try {
-      const res = await fetch(`${API_BASE}/subscriptions`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(localStorage.getItem("token")
-            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
-            : {})
-        },
-        body: JSON.stringify({ productId, period })
+      const [addressRes, profileRes] = await Promise.all([
+        api.get("/customer/address"),
+        api.get("/customer/profile").catch(() => ({ data: {} }))
+      ]);
+
+      const addresses = Array.isArray(addressRes.data) ? addressRes.data : [];
+      const defaultAddress = addresses.find((item) => item.isDefault) || addresses[0] || null;
+
+      if (!defaultAddress) {
+        alert("Please save a delivery address before starting a subscription payment.");
+        navigate("/address");
+        return;
+      }
+
+      const profile = profileRes.data || {};
+      const orderPayload = {
+        productId: plan.id,
+        qty: 1,
+        addressId: defaultAddress.id,
+        customerName: defaultAddress.name || profile.name || user?.name || "",
+        customerPhone: defaultAddress.phone || profile.mobile || profile.username || user?.phone || "",
+        customerAddress: buildAddressText(defaultAddress),
+        promoCode: null,
+        discount: 0,
+      };
+
+      const orderRes = await api.post("/orders/create", orderPayload);
+
+      navigate("/payment", {
+        state: {
+          orderId: orderRes.data.orderId,
+          orderDetails: orderRes.data,
+          selectedSubscriptionPeriod: plan.period,
+          subscriptionCandidate: {
+            productId: plan.id,
+            title: plan.title,
+            basePrice: Number(plan.price || 0),
+            quantity: 1,
+          },
+        }
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || "Failed to subscribe");
-      alert("Subscription activated successfully!");
     } catch (err) {
-      setError(err.message || "Failed to subscribe");
+      console.error("Subscription payment start failed:", err);
+      setError(err.response?.data?.error || err.message || "Failed to start subscription payment");
     } finally {
       setSubmitting(false);
     }
@@ -106,6 +148,9 @@ export default function Subscriptions() {
       <div style={{ fontSize: 13, color: "#555" }}>
         Save {plan.discountPercent}% (Rs {Number(plan.savings || 0).toFixed(2)})
       </div>
+      <div style={{ fontSize: 13, color: "#7a2034", fontWeight: 600 }}>
+        Pay now. Subscription starts after payment approval.
+      </div>
       {(plan.unit || plan.variety) && (
         <div style={{ fontSize: 12, color: "#555" }}>
           {[plan.variety, plan.unit].filter(Boolean).join(" | ")}
@@ -113,7 +158,7 @@ export default function Subscriptions() {
       )}
       <button
         disabled={submitting}
-        onClick={() => subscribeToPlan(plan.id, plan.period)}
+        onClick={() => subscribeToPlan(plan)}
         style={{
           marginTop: "auto",
           background: submitting ? "#ccc" : "#C8102E",
@@ -122,10 +167,10 @@ export default function Subscriptions() {
           padding: "8px 10px",
           borderRadius: 8,
           cursor: submitting ? "not-allowed" : "pointer",
-          fontWeight: 600
+          fontWeight: 700
         }}
       >
-        Subscribe {plan.label}
+        {submitting ? "Preparing..." : `Continue to Payment`}
       </button>
     </div>
   );
@@ -135,7 +180,7 @@ export default function Subscriptions() {
       <div style={{ flex: 1, padding: "24px 32px" }}>
         <h1 style={{ marginBottom: 12, color: "#C8102E" }}>Subscriptions</h1>
         <p style={{ marginBottom: 24, color: "#555" }}>
-          Subscribe to your repeat-purchase products for recurring delivery with automatic discounts for 1, 3, 6, or 12 month plans.
+          Choose your recurring plan here, then complete payment. The subscription becomes active only after payment is verified and approved.
         </p>
 
         {loading && <div>Loading subscription plans...</div>}

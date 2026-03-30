@@ -37,7 +37,7 @@ export default function PaymentPage() {
   const subscriptionPlans = buildPaymentPlans(subscriptionCandidate?.basePrice);
   const [txnId, setTxnId] = useState("");
   const [file, setFile] = useState(null);
-  const [selectedSubscriptionPeriod, setSelectedSubscriptionPeriod] = useState("");
+  const [selectedSubscriptionPeriod, setSelectedSubscriptionPeriod] = useState(state?.selectedSubscriptionPeriod || "");
 
   const compressImage = async (imageFile) => {
     const options = {
