@@ -83,7 +83,10 @@ export default function CartPanel() {
 
   if (loading) return <div className="cart-panel">Loading bag...</div>;
 
-  const totalAmount = bag.reduce((sum, item) => sum + (item.price || 0) * (item.quantity || item.qty || 1), 0);
+  const getItemPrice = (item) => Number(item?.price ?? item?.basePrice ?? 0) || 0;
+  const getItemQty = (item) => Number(item?.quantity ?? item?.qty ?? 1) || 1;
+  const totalItems = bag.reduce((sum, item) => sum + getItemQty(item), 0);
+  const totalAmount = bag.reduce((sum, item) => sum + getItemPrice(item) * getItemQty(item), 0);
 
   return (
     <div
@@ -98,6 +101,9 @@ export default function CartPanel() {
           {mobileOpen ? "Hide" : "Show"}
         </button>
       </div>
+      <div style={{ color: '#8b5e00', fontWeight: 700, marginBottom: 10 }}>
+        {totalItems} item{totalItems === 1 ? "" : "s"} added
+      </div>
       <div className="cart-panel-body">
         {bag.length === 0 ? (
           <div style={{ color: '#888' }}>Your bag is empty</div>
@@ -106,8 +112,8 @@ export default function CartPanel() {
             {bag.map(item => (
               <li key={item.id} style={{ marginBottom: 12, borderBottom: '1px solid #eee', paddingBottom: 8 }}>
                 <div style={{ fontWeight: 600 }}>{item.title || item.name}</div>
-                <div>Qty: {item.quantity || item.qty} × ₹{item.price}</div>
-                <div style={{ color: '#28a745', fontWeight: 500 }}>Subtotal: ₹{((item.price || 0) * (item.quantity || item.qty || 1)).toFixed(2)}</div>
+                <div>Qty: {getItemQty(item)} × ₹{getItemPrice(item).toFixed(2)}</div>
+                <div style={{ color: '#28a745', fontWeight: 500 }}>Subtotal: ₹{(getItemPrice(item) * getItemQty(item)).toFixed(2)}</div>
               </li>
             ))}
           </ul>
