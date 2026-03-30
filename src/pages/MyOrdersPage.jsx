@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../api/client";
 import { useNavigate } from "react-router-dom";
+import SubscriptionPrompt from "../components/SubscriptionPrompt";
 
 export default function MyOrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -90,6 +91,8 @@ export default function MyOrdersPage() {
   return (
     <div style={{ padding: 20 }}>
       <h2>My Orders</h2>
+
+      <SubscriptionPrompt compact />
 
       {orders.length === 0 && <p>No orders found.</p>}
 

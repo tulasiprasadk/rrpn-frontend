@@ -1,50 +1,19 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { API_BASE } from "../config/api";
-import { useAuth } from "../context/AuthContext";
+import SubscriptionPrompt, { savePendingSubscriptionCandidate } from "../components/SubscriptionPrompt";
 import "./PaymentSubmitted.css";
-
-const PLAN_LABELS = {
-  monthly: "Monthly",
-  quarterly: "3 Months",
-  half_yearly: "6 Months",
-  yearly: "Yearly"
-};
-
-function buildPlans(basePrice) {
-  const normalizedPrice = Number(basePrice || 0);
-  if (normalizedPrice <= 0) return [];
-
-  return [
-    { period: "monthly", label: "Monthly", discountPercent: 5, months: 1 },
-    { period: "quarterly", label: "3 Months", discountPercent: 7, months: 3 },
-    { period: "half_yearly", label: "6 Months", discountPercent: 9, months: 6 },
-    { period: "yearly", label: "Yearly", discountPercent: 12, months: 12 }
-  ].map((plan) => {
-    const baseCyclePrice = normalizedPrice * plan.months;
-    const discountedPrice = Number((baseCyclePrice * (1 - plan.discountPercent / 100)).toFixed(2));
-    return {
-      ...plan,
-      discountedPrice,
-      savings: Number((baseCyclePrice - discountedPrice).toFixed(2))
-    };
-  });
-}
 
 export default function PaymentSubmitted() {
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { user } = useAuth();
-  const [subscriptionPlans, setSubscriptionPlans] = useState([]);
-  const [subscriptionProductId, setSubscriptionProductId] = useState(null);
-  const [subscribeError, setSubscribeError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [subscriptionCandidate, setSubscriptionCandidate] = useState(state?.subscriptionCandidate || null);
 
   useEffect(() => {
     const candidate = state?.subscriptionCandidate || null;
-    if (candidate?.basePrice > 0) {
-      setSubscriptionPlans(buildPlans(candidate.basePrice));
-      setSubscriptionProductId(candidate.productId || null);
+    if (candidate?.basePrice > 0 && candidate?.productId) {
+      setSubscriptionCandidate(candidate);
+      savePendingSubscriptionCandidate(candidate);
     }
 
     if (!state?.orderId) return;
@@ -67,8 +36,16 @@ export default function PaymentSubmitted() {
         const basePrice = Number(product.price || 0);
         if (basePrice <= 0) return;
 
-        setSubscriptionPlans(buildPlans(basePrice));
-        setSubscriptionProductId(product.id || data?.productId || null);
+        const nextCandidate = {
+          productId: product.id || data?.productId || null,
+          title: product.title || product.name || "",
+          basePrice,
+          orderId: state.orderId
+        };
+        if (nextCandidate.productId) {
+          setSubscriptionCandidate(nextCandidate);
+          savePendingSubscriptionCandidate(nextCandidate);
+        }
       } catch (_err) {
         // Keep page usable even if subscription fetch fails
       }
@@ -78,44 +55,6 @@ export default function PaymentSubmitted() {
       mounted = false;
     };
   }, [state?.orderId]);
-
-  const subscribeNow = async (period) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-
-    setSubscribeError("");
-    setSubmitting(true);
-    try {
-      if (!subscriptionProductId) {
-        throw new Error("Subscription product not available");
-      }
-
-      const res = await fetch(`${API_BASE}/subscriptions`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(localStorage.getItem("token")
-            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
-            : {})
-        },
-        body: JSON.stringify({ productId: subscriptionProductId, period })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || "Failed to subscribe");
-      }
-
-      alert("Subscription activated successfully!");
-      setSubscribeError("");
-    } catch (err) {
-      setSubscribeError(err.message || "Failed to subscribe");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <div className="payment-submitted-page">
@@ -167,67 +106,7 @@ export default function PaymentSubmitted() {
           )}
         </div>
 
-        {subscriptionPlans.length > 0 && (
-          <div
-            style={{
-              marginBottom: "30px",
-              padding: 16,
-              borderRadius: 14,
-              background: "#fff3b0",
-              color: "#5A3A00",
-              textAlign: "left"
-            }}
-          >
-            <strong>Subscribe and Save on future deliveries</strong>
-            <div style={{ marginTop: 6, fontSize: 14 }}>
-              Get recurring delivery without reminders and unlock extra savings on this product.
-            </div>
-            <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
-              {subscriptionPlans.map((plan) => (
-                <div
-                  key={plan.period}
-                  style={{
-                    background: "rgba(255,255,255,0.7)",
-                    borderRadius: 12,
-                    padding: 12,
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: 12,
-                    flexWrap: "wrap"
-                  }}
-                >
-                  <div>
-                    <div style={{ fontWeight: 700 }}>
-                      {plan.label} subscription - {plan.discountPercent}% off
-                    </div>
-                    <div style={{ fontSize: 14 }}>
-                      Pay Rs {plan.discountedPrice.toFixed(2)} and save Rs {plan.savings.toFixed(2)}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => subscribeNow(plan.period)}
-                    disabled={submitting}
-                    style={{
-                      padding: "10px 16px",
-                      background: "#C8102E",
-                      color: "white",
-                      border: "none",
-                      borderRadius: 8,
-                      cursor: submitting ? "not-allowed" : "pointer",
-                      fontWeight: 700
-                    }}
-                  >
-                    {submitting ? "Processing..." : `Choose ${PLAN_LABELS[plan.period]}`}
-                  </button>
-                </div>
-              ))}
-            </div>
-            {subscribeError && (
-              <div style={{ marginTop: 8, color: "#C8102E", fontSize: 13 }}>{subscribeError}</div>
-            )}
-          </div>
-        )}
+        <SubscriptionPrompt initialCandidate={subscriptionCandidate} />
 
         <div
           style={{

@@ -12,6 +12,7 @@ import StatCard from "../components/dashboard/StatCard";
 import ProfileCard from "../components/dashboard/ProfileCard";
 import OrdersPreview from "../components/dashboard/OrdersPreview";
 import SavedShopsPreview from "../components/dashboard/SavedShopsPreview";
+import SubscriptionPrompt from "../components/SubscriptionPrompt";
 
 const CustomerDashboard = () => {
   const { user, login } = useAuth();
@@ -80,6 +81,8 @@ const CustomerDashboard = () => {
   return (
     <div className="customer-dashboard" style={{ minHeight: "70vh" }}>
       <h2>Welcome to your Dashboard!</h2>
+
+      <SubscriptionPrompt compact />
 
       <div className="cd-search" style={{ margin: "24px 0", display: "flex", alignItems: "center" }}>
         <input

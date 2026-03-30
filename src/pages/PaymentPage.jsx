@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../api/client";
 import imageCompression from "browser-image-compression";
 import { useLocation, useNavigate } from "react-router-dom";
+import { savePendingSubscriptionCandidate } from "../components/SubscriptionPrompt";
 import "./PaymentPage.mobile.css";
 
 export default function PaymentPage() {
@@ -73,6 +74,9 @@ export default function PaymentPage() {
       await api.post("/orders/submit-payment", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
+      if (subscriptionCandidate?.productId) {
+        savePendingSubscriptionCandidate(subscriptionCandidate);
+      }
       navigate("/payment-success", {
         state: {
           orderId: orderId,
