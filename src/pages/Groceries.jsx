@@ -26,6 +26,21 @@ export default function Groceries() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedVariety, setSelectedVariety] = useState("All");
+  const [isCompactLayout, setIsCompactLayout] = useState(
+    typeof window !== "undefined" ? window.innerWidth < 1180 : false
+  );
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+
+    const onResize = () => {
+      setIsCompactLayout(window.innerWidth < 1180);
+    };
+
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -111,69 +126,96 @@ export default function Groceries() {
 
   const selectedCount = selectedVariety === "All" ? preparedProducts.length : filteredProducts.length;
 
-  return (
-    <div className="with-cart-panel" style={{ minHeight: "100vh", background: "#FFFDE7", alignItems: "stretch" }}>
-      <aside
+  const varietySelector = (
+    <div
+      style={{
+        display: isCompactLayout ? "flex" : "grid",
+        gap: 8,
+        overflowX: isCompactLayout ? "auto" : "visible",
+        paddingBottom: isCompactLayout ? 4 : 0,
+      }}
+    >
+      <button
+        type="button"
+        onClick={() => setSelectedVariety("All")}
         style={{
-          width: 220,
-          position: "sticky",
-          top: 24,
-          alignSelf: "flex-start",
-          background: "#FFF9C4",
-          border: "1px solid #F2D060",
-          borderRadius: 16,
-          padding: 16,
-          maxHeight: "calc(100vh - 48px)",
-          overflow: "auto",
+          flex: isCompactLayout ? "0 0 auto" : undefined,
+          minWidth: isCompactLayout ? 140 : undefined,
+          border: selectedVariety === "All" ? "2px solid #C8102E" : "1px solid #E6D36A",
+          background: selectedVariety === "All" ? "#fff" : "#FFFDF0",
+          color: "#5A3A00",
+          borderRadius: 12,
+          padding: "10px 12px",
+          textAlign: "left",
+          fontWeight: 700,
+          cursor: "pointer",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#C8102E", fontWeight: 800, marginBottom: 12 }}>
-          <CategoryIcon category="groceries" size={18} />
-          Variety View
-        </div>
-        <div style={{ display: "grid", gap: 8 }}>
-          <button
-            type="button"
-            onClick={() => setSelectedVariety("All")}
-            style={{
-              border: selectedVariety === "All" ? "2px solid #C8102E" : "1px solid #E6D36A",
-              background: selectedVariety === "All" ? "#fff" : "#FFFDF0",
-              color: "#5A3A00",
-              borderRadius: 12,
-              padding: "10px 12px",
-              textAlign: "left",
-              fontWeight: 700,
-              cursor: "pointer",
-            }}
-          >
-            All Varieties
-            <div style={{ fontSize: 12, color: "#8b5e00", marginTop: 4 }}>{preparedProducts.length} items</div>
-          </button>
+        All Varieties
+        <div style={{ fontSize: 12, color: "#8b5e00", marginTop: 4 }}>{preparedProducts.length} items</div>
+      </button>
 
-          {varietyCounts.map((variety) => (
-            <button
-              key={variety.name}
-              type="button"
-              onClick={() => setSelectedVariety(variety.name)}
-              style={{
-                border: selectedVariety === variety.name ? "2px solid #C8102E" : "1px solid #E6D36A",
-                background: selectedVariety === variety.name ? "#fff" : "#FFFDF0",
-                color: "#5A3A00",
-                borderRadius: 12,
-                padding: "10px 12px",
-                textAlign: "left",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
-            >
-              {variety.name}
-              <div style={{ fontSize: 12, color: "#8b5e00", marginTop: 4 }}>{variety.count} items</div>
-            </button>
-          ))}
-        </div>
-      </aside>
+      {varietyCounts.map((variety) => (
+        <button
+          key={variety.name}
+          type="button"
+          onClick={() => setSelectedVariety(variety.name)}
+          style={{
+            flex: isCompactLayout ? "0 0 auto" : undefined,
+            minWidth: isCompactLayout ? 140 : undefined,
+            border: selectedVariety === variety.name ? "2px solid #C8102E" : "1px solid #E6D36A",
+            background: selectedVariety === variety.name ? "#fff" : "#FFFDF0",
+            color: "#5A3A00",
+            borderRadius: 12,
+            padding: "10px 12px",
+            textAlign: "left",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          {variety.name}
+          <div style={{ fontSize: 12, color: "#8b5e00", marginTop: 4 }}>{variety.count} items</div>
+        </button>
+      ))}
+    </div>
+  );
 
-      <div style={{ flex: 1, minWidth: 0, padding: "24px 0" }}>
+  return (
+    <div
+      className="with-cart-panel"
+      style={{
+        minHeight: "100vh",
+        background: "#FFFDE7",
+        alignItems: "flex-start",
+        gap: isCompactLayout ? 16 : 24,
+        flexDirection: isCompactLayout ? "column" : "row",
+        padding: isCompactLayout ? "16px 12px 24px" : "0 24px",
+      }}
+    >
+      {!isCompactLayout && (
+        <aside
+          style={{
+            width: 220,
+            position: "sticky",
+            top: 24,
+            alignSelf: "flex-start",
+            background: "#FFF9C4",
+            border: "1px solid #F2D060",
+            borderRadius: 16,
+            padding: 16,
+            maxHeight: "calc(100vh - 48px)",
+            overflow: "auto",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#C8102E", fontWeight: 800, marginBottom: 12 }}>
+            <CategoryIcon category="groceries" size={18} />
+            Variety View
+          </div>
+          {varietySelector}
+        </aside>
+      )}
+
+      <div style={{ flex: 1, minWidth: 0, width: "100%", padding: isCompactLayout ? 0 : "24px 0" }}>
         <div
           style={{
             background: "#FFF9C4",
@@ -194,6 +236,24 @@ export default function Groceries() {
             {selectedVariety === "All" ? `Showing ${preparedProducts.length} grocery products` : `Showing ${selectedCount} products in ${selectedVariety}`}
           </div>
         </div>
+
+        {isCompactLayout && (
+          <div
+            style={{
+              background: "#FFF9C4",
+              borderRadius: 16,
+              padding: 12,
+              border: "1px solid #F2D060",
+              marginBottom: 16,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, color: "#C8102E", fontWeight: 800, marginBottom: 10 }}>
+              <CategoryIcon category="groceries" size={18} />
+              Browse By Variety
+            </div>
+            {varietySelector}
+          </div>
+        )}
 
         {loading && <p>Loading groceries...</p>}
         {!loading && preparedProducts.length === 0 && <p>No groceries available.</p>}
@@ -240,20 +300,30 @@ export default function Groceries() {
             className="product-grid"
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))",
-              gap: 18,
+              gridTemplateColumns: isCompactLayout
+                ? "repeat(auto-fill, minmax(140px, 1fr))"
+                : "repeat(auto-fill, minmax(150px, 1fr))",
+              gap: isCompactLayout ? 14 : 18,
             }}
           >
             {filteredProducts.map((product) => (
               <div key={product.id} style={{ minWidth: 0, display: "flex" }}>
-                <ProductCard product={product} iconSize={20} style={{ minHeight: 230 }} />
+                <ProductCard product={product} iconSize={20} style={{ minHeight: isCompactLayout ? 210 : 230 }} />
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <div style={{ width: 340, minWidth: 300, position: "sticky", top: 24, alignSelf: "flex-start" }}>
+      <div
+        style={{
+          width: isCompactLayout ? "100%" : 340,
+          minWidth: isCompactLayout ? 0 : 300,
+          position: isCompactLayout ? "static" : "sticky",
+          top: 24,
+          alignSelf: "flex-start",
+        }}
+      >
         <CartPanel orderType="GROCERIES" />
       </div>
     </div>
