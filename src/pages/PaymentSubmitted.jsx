@@ -1,17 +1,31 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { API_BASE } from "../config/api";
-import SubscriptionPrompt, { savePendingSubscriptionCandidate } from "../components/SubscriptionPrompt";
+import SubscriptionPrompt, {
+  clearPendingSubscriptionCandidate,
+  savePendingSubscriptionCandidate
+} from "../components/SubscriptionPrompt";
 import "./PaymentSubmitted.css";
+
+const PLAN_LABELS = {
+  monthly: "Monthly",
+  quarterly: "3 Months",
+  half_yearly: "6 Months",
+  yearly: "Yearly"
+};
 
 export default function PaymentSubmitted() {
   const navigate = useNavigate();
   const { state } = useLocation();
   const [subscriptionCandidate, setSubscriptionCandidate] = useState(state?.subscriptionCandidate || null);
+  const selectedSubscriptionPeriod = state?.selectedSubscriptionPeriod || "";
 
   useEffect(() => {
     const candidate = state?.subscriptionCandidate || null;
-    if (candidate?.basePrice > 0 && candidate?.productId) {
+    if (selectedSubscriptionPeriod && candidate?.productId) {
+      clearPendingSubscriptionCandidate();
+      setSubscriptionCandidate(null);
+    } else if (candidate?.basePrice > 0 && candidate?.productId) {
       setSubscriptionCandidate(candidate);
       savePendingSubscriptionCandidate(candidate);
     }
@@ -42,7 +56,7 @@ export default function PaymentSubmitted() {
           basePrice,
           orderId: state.orderId
         };
-        if (nextCandidate.productId) {
+        if (nextCandidate.productId && !selectedSubscriptionPeriod) {
           setSubscriptionCandidate(nextCandidate);
           savePendingSubscriptionCandidate(nextCandidate);
         }
@@ -54,7 +68,7 @@ export default function PaymentSubmitted() {
     return () => {
       mounted = false;
     };
-  }, [state?.orderId]);
+  }, [state?.orderId, selectedSubscriptionPeriod]);
 
   return (
     <div className="payment-submitted-page">
@@ -106,7 +120,32 @@ export default function PaymentSubmitted() {
           )}
         </div>
 
-        <SubscriptionPrompt initialCandidate={subscriptionCandidate} />
+        {selectedSubscriptionPeriod ? (
+          <div
+            style={{
+              marginBottom: 24,
+              padding: 22,
+              borderRadius: 18,
+              background: "linear-gradient(135deg, #fff8cc 0%, #ffe78a 52%, #ffd55c 100%)",
+              border: "1px solid rgba(210, 140, 0, 0.2)",
+              boxShadow: "0 14px 40px rgba(194, 120, 0, 0.16)",
+              textAlign: "left"
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, color: "#9a3412" }}>
+              Included With This Payment
+            </div>
+            <h3 style={{ margin: "8px 0 8px", fontSize: 30, lineHeight: 1.05, color: "#5A3A00" }}>
+              Subscribe and Forget is locked in
+            </h3>
+            <p style={{ margin: 0, color: "#6b3f00", lineHeight: 1.7, fontSize: 16 }}>
+              Your <strong>{PLAN_LABELS[selectedSubscriptionPeriod] || selectedSubscriptionPeriod}</strong> subscription request has been submitted together with this payment.
+              Once payment is approved, we will activate the plan, remind you before each cycle, and keep the recurring delivery on track.
+            </p>
+          </div>
+        ) : (
+          <SubscriptionPrompt initialCandidate={subscriptionCandidate} />
+        )}
 
         <div
           style={{
