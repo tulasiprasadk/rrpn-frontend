@@ -33,9 +33,10 @@ function buildOrdersFromNotifications(notifications) {
 
       return {
         id: Number(orderId) || orderId,
+        notificationId: item?.id,
         Supplier: { name: "Pending Review" },
         customerName: item?.message?.match(/Customer:\s*([^,]+)/i)?.[1] || "Customer",
-        totalAmount: meta?.totalAmount || "",
+        totalAmount: meta?.totalAmount || meta?.amount || "",
         status: "created",
         paymentStatus: "pending",
         createdAt: item?.createdAt || new Date().toISOString(),
@@ -136,13 +137,22 @@ export default function AdminOrdersList() {
   }
 
   async function approvePayment(orderId) {
+    const order = orders.find((item) => String(item.id) === String(orderId));
     try {
       setActionLoadingId(orderId);
       try {
         await api.put(`/admin/orders/${orderId}/approve`, {});
       } catch (err) {
         if (err?.response?.status === 404) {
-          await api.post(`/admin/payments/${orderId}/approve`, {});
+          try {
+            await api.post(`/admin/payments/${orderId}/approve`, {});
+          } catch (paymentErr) {
+            if (paymentErr?.response?.status === 404 && order?.notificationId) {
+              await api.post(`/admin/payments/notifications/${order.notificationId}/approve`, {});
+            } else {
+              throw paymentErr;
+            }
+          }
         } else {
           throw err;
         }
@@ -156,13 +166,22 @@ export default function AdminOrdersList() {
   }
 
   async function rejectPayment(orderId) {
+    const order = orders.find((item) => String(item.id) === String(orderId));
     try {
       setActionLoadingId(orderId);
       try {
         await api.put(`/admin/orders/${orderId}/reject`, {});
       } catch (err) {
         if (err?.response?.status === 404) {
-          await api.post(`/admin/payments/${orderId}/reject`, {});
+          try {
+            await api.post(`/admin/payments/${orderId}/reject`, {});
+          } catch (paymentErr) {
+            if (paymentErr?.response?.status === 404 && order?.notificationId) {
+              await api.post(`/admin/payments/notifications/${order.notificationId}/reject`, {});
+            } else {
+              throw paymentErr;
+            }
+          }
         } else {
           throw err;
         }
