@@ -178,6 +178,8 @@ export default function Home() {
     if (!category) return;
 
     const name = category.name?.toLowerCase() || "";
+    // TEMP LOG: help debug category routing clicks in production
+    try { console.log("[debug] category click ->", { id, name, category }); } catch(e) {}
     if (name.includes("flower")) return navigate("/flowers");
     if (name.includes("cracker")) return navigate("/crackers");
     if (name.includes("groc")) return navigate("/groceries");
