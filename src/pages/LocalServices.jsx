@@ -2,7 +2,7 @@
 import React, { useMemo } from "react";
 import services from "../data/local_services.json";
 import ProductCard from "../components/ProductCard";
-import CartPanel from "../components/CartPanel";
+import CategoryLayout from "../components/CategoryLayout";
 import { useCrackerCart } from "../context/CrackerCartContext";
 
 
@@ -41,8 +41,8 @@ export default function LocalServices() {
   }
 
   return (
-    <div className="with-cart-panel" style={{ minHeight: "100vh", background: "#FFFDE7" }}>
-      <div style={{ flex: 1, padding: "24px 32px" }}>
+    <CategoryLayout title={"Local Services"} category="local-services" orderType="LOCAL_SERVICES">
+      <div style={{ padding: "24px 32px" }}>
         <h1 style={{ marginBottom: 8, color: "#C8102E", textAlign: 'center' }}>
           <span style={{ color: '#C8102E' }}>🛠️</span> <span style={{ color: '#C8102E' }}>Local Services</span>
         </h1>
@@ -77,16 +77,7 @@ export default function LocalServices() {
           </div>
         ))}
       </div>
-      <div style={{
-        position: 'sticky',
-        top: 32,
-        alignSelf: 'flex-start',
-        height: 'fit-content',
-        zIndex: 10
-      }}>
-        <CartPanel orderType="LOCAL_SERVICES" />
-      </div>
-    </div>
+    </CategoryLayout>
   );
 }
 

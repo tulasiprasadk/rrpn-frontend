@@ -5,7 +5,7 @@ import axios from "axios";
 import { API_BASE } from "../config/api";
 import ProductCard from "../components/ProductCard";
 import CategoryIcon from "../components/CategoryIcon";
-import CartPanel from "../components/CartPanel";
+import CategoryLayout from "../components/CategoryLayout";
 
 export default function Groceries() {
   const [products, setProducts] = useState([]);
@@ -51,73 +51,63 @@ export default function Groceries() {
   }, {});
 
   return (
-    <main
-      style={{
-        background: "#FFFDE7",
-        minHeight: "100vh",
-        paddingBottom: 40,
-      }}
-    >
-      {/* PAGE HEADER — SAME FEEL AS FLOWERS */}
-      <section style={{ padding: "24px", textAlign: "center" }}>
-        <h1 style={{ fontSize: 34, fontWeight: 800, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <CategoryIcon category="groceries" size={36} /> RR Nagar Groceries
-        </h1>
-        <p style={{ color: "#666", fontSize: 16 }}>
-          Daily essentials · Fresh · Local
-        </p>
-      </section>
+    <CategoryLayout title={"RR Nagar Groceries"} category="groceries">
+      <div style={{ padding: "24px" }}>
+        <section style={{ textAlign: "center" }}>
+          <h1 style={{ fontSize: 34, fontWeight: 800, marginBottom: 6, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CategoryIcon category="groceries" size={36} /> RR Nagar Groceries
+          </h1>
+          <p style={{ color: "#666", fontSize: 16 }}>
+            Daily essentials · Fresh · Local
+          </p>
+        </section>
 
-      {loading && <p style={{ textAlign: "center" }}>Loading groceries…</p>}
+        {loading && <p style={{ textAlign: "center" }}>Loading groceries…</p>}
 
-      {!loading && products.length === 0 && (
-        <p style={{ textAlign: "center" }}>No groceries found.</p>
-      )}
+        {!loading && products.length === 0 && (
+          <p style={{ textAlign: "center" }}>No groceries found.</p>
+        )}
 
-      {/* GROUPED SECTIONS (by group, then by variety) */}
-      {!loading &&
-        Object.entries(groupedProducts).map(([group, varieties]) => (
-          <section key={group} style={{ marginBottom: 48 }}>
-            {/* GROUP TITLE */}
-            <h2
-              style={{
-                margin: "0 24px 20px",
-                padding: "12px",
-                textAlign: "center",
-                fontSize: 26,
-                fontWeight: 800,
-                background: "#FFF3B0",
-                borderRadius: 12,
-                letterSpacing: 1,
-              }}
-            >
-              {group}
-            </h2>
+        {!loading &&
+          Object.entries(groupedProducts).map(([group, varieties]) => (
+            <section key={group} style={{ marginBottom: 48 }}>
+              <h2
+                style={{
+                  margin: "0 24px 20px",
+                  padding: "12px",
+                  textAlign: "center",
+                  fontSize: 26,
+                  fontWeight: 800,
+                  background: "#FFF3B0",
+                  borderRadius: 12,
+                  letterSpacing: 1,
+                }}
+              >
+                {group}
+              </h2>
 
-            {/* VARIETY SECTIONS WITHIN GROUP */}
-            {Object.entries(varieties).map(([variety, items]) => (
-              <div key={variety} style={{ marginBottom: 32, background: '#FFF9C4', borderRadius: 12, padding: 12 }}>
-                <h3 style={{ borderBottom: '2px solid #C8102E', paddingBottom: 6, color: '#C8102E', fontSize: 20, textAlign: 'center' }}>{variety}</h3>
-                <div
-                  className="product-grid"
-                  style={{
-                    display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
-                  gap: 20,
-                    padding: "0 24px",
-                  }}
-                >
-                  {items.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
+              {Object.entries(varieties).map(([variety, items]) => (
+                <div key={variety} style={{ marginBottom: 32, background: '#FFF9C4', borderRadius: 12, padding: 12 }}>
+                  <h3 style={{ borderBottom: '2px solid #C8102E', paddingBottom: 6, color: '#C8102E', fontSize: 20, textAlign: 'center' }}>{variety}</h3>
+                  <div
+                    className="product-grid"
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+                      gap: 20,
+                      padding: "0 24px",
+                    }}
+                  >
+                    {items.map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </section>
-        ))}
-
-      <CartPanel />
-    </main>
+              ))}
+            </section>
+          ))}
+      </div>
+    </CategoryLayout>
   );
 }
 

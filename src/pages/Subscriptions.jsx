@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../config/api";
 import { useAuth } from "../context/AuthContext";
-import CartPanel from "../components/CartPanel";
+import CategoryLayout from "../components/CategoryLayout";
 import api from "../api/client";
 
 function buildAddressText(address) {
@@ -128,8 +128,8 @@ export default function Subscriptions() {
   };
 
   return (
-    <div className="with-cart-panel" style={{ minHeight: "100vh", background: "#FFFDE7" }}>
-      <div style={{ flex: 1, padding: "24px 32px" }}>
+    <CategoryLayout title={"Subscriptions"} category="subscriptions">
+      <div style={{ padding: "24px 32px" }}>
         <h1 style={{ marginBottom: 12, color: "#C8102E" }}>Subscriptions</h1>
         <p style={{ marginBottom: 10, color: "#555" }}>
           Pick a product, choose a plan from the dropdown, and continue to payment.
@@ -245,9 +245,6 @@ export default function Subscriptions() {
           </div>
         )}
       </div>
-      <div style={{ position: "sticky", top: 32, alignSelf: "flex-start", height: "fit-content", zIndex: 10 }}>
-        <CartPanel />
-      </div>
-    </div>
+    </CategoryLayout>
   );
 }
