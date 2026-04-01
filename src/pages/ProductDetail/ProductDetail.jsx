@@ -5,6 +5,7 @@ import { useCrackerCart } from "../../context/CrackerCartContext";
 import { useAuth } from "../../context/AuthContext";
 // ...existing code...
 import "./ProductDetail.css";
+import SubscriptionWidget from '../../components/SubscriptionWidget';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -200,6 +201,9 @@ export default function ProductDetail() {
           <button onClick={() => setQuantity(q => Math.max(1, q - 1))}>−</button>
           <span>{quantity}</span>
           <button onClick={() => setQuantity(q => q + 1)}>+</button>
+        </div>
+        <div style={{ marginTop: 12 }}>
+          <SubscriptionWidget product={product} />
         </div>
       </div>
     </div>

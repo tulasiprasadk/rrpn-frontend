@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { API_BASE } from '../config/api';
+import SubscriptionWidget from '../components/SubscriptionWidget';
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -31,6 +32,7 @@ export default function ProductDetail() {
             ))}
           </div>
           <div style={{ marginTop: 12 }} />
+          <SubscriptionWidget product={product} />
         </div>
       </div>
     </div>

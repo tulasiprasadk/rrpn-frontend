@@ -36,7 +36,24 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
   const titleStyle = { margin: 0, fontSize: 11, fontWeight: 600, color: "#b00018", textAlign: 'center', background: 'transparent', border: 'none' };
   const knStyle = { color: "#b00018", fontSize: 10, fontFamily: 'Noto Sans Kannada, Tunga, Arial, sans-serif', fontWeight: 600, textAlign: 'center', background: 'transparent', border: 'none' };
   const iconSizeBase = (iconSize || 28) + 25;
-  const displayPrice = typeof price === "number" ? price : null;
+  let displayPrice = null;
+  if (price === null || price === undefined) {
+    displayPrice = null;
+  } else if (typeof price === "number") {
+    displayPrice = price;
+  } else if (typeof price === "string") {
+    // Accept numeric string like "0", "150" or currency formatted strings like "₹150" or "150.00"
+    const cleaned = price.replace(/[^0-9.\-]+/g, "");
+    const n = parseFloat(cleaned);
+    displayPrice = Number.isFinite(n) ? n : null;
+  } else {
+    try {
+      const n = Number(price);
+      displayPrice = Number.isFinite(n) ? n : null;
+    } catch (e) {
+      displayPrice = null;
+    }
+  }
   const displayKn = knDisplay || kn || titleKannada;
   const showKannada = Boolean(displayKn) && displayKn !== displayName;
   // Keep backward-compatibility: emoji prop still considered, otherwise use category/variety
@@ -46,7 +63,7 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
     const productToAdd = {
       ...product,
       id: product.id || product._id,
-      price: product.price || 0,
+      price: displayPrice ?? 0,
       qty: 1,
       quantity: 1
     };
