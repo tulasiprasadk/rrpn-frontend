@@ -3,8 +3,11 @@ import api from "../api/client";
 import imageCompression from "browser-image-compression";
 import { useLocation, useNavigate } from "react-router-dom";
 import { savePendingSubscriptionCandidate } from "../components/SubscriptionPrompt";
-import { clearPendingSubscriptionDraft } from "../components/SubscriptionWidget";
 import "./PaymentPage.mobile.css";
+
+function clearPendingSubscriptionDraft() {
+  localStorage.removeItem("pendingSubscriptionDraft");
+}
 
 const PAYMENT_SUBSCRIPTION_PLANS = [
   { period: "monthly", label: "Monthly", discountPercent: 5, months: 1, badge: "Easy Start" },
