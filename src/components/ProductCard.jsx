@@ -54,6 +54,15 @@ export default function ProductCard({ product, onClick, variant, iconSize, style
       displayPrice = null;
     }
   }
+  // If still no displayPrice, try common alternate fields that backends sometimes use
+  if (displayPrice === null) {
+    const alt = product.basePrice ?? product.priceFrom ?? product.minPrice ?? product.maxPrice ?? product.priceRange ?? null;
+    if (alt !== null && alt !== undefined) {
+      const cleanedAlt = ("" + alt).replace(/[^0-9.\-]+/g, "");
+      const nAlt = parseFloat(cleanedAlt);
+      displayPrice = Number.isFinite(nAlt) ? nAlt : null;
+    }
+  }
   const displayKn = knDisplay || kn || titleKannada;
   const showKannada = Boolean(displayKn) && displayKn !== displayName;
   // Keep backward-compatibility: emoji prop still considered, otherwise use category/variety

@@ -56,8 +56,14 @@ export default function Subscriptions() {
   }, []);
 
   const groupedProducts = useMemo(() => {
+    // Exclude subscription listings for certain categories
+    const excluded = ["crackers", "local services", "localservices", "consultancy", "consulting", "consult"];
     return products
       .slice()
+      .filter((p) => {
+        const cat = (p.category?.name || p.Category?.name || "").toLowerCase();
+        return !excluded.some((ex) => cat.includes(ex));
+      })
       .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
   }, [products]);
 
