@@ -174,14 +174,23 @@ export default function Home() {
   }
 
   function handleCategoryClick(id, providedName) {
-    const category = categories.find((c) => c.id === id);
-    if (!category) return;
+    const category = categories.find((c) => c.id === id) || {};
+    // Strong id->route map to avoid ambiguous name matching falling through
+    const idRoutes = {
+      1: "/flowers",
+      2: "/crackers",
+      4: "/petservices",
+      5: "/localservices",
+      6: "/groceries",
+      7: "/consultancy",
+    };
 
-    // prefer the displayed/provided name if available (fixes mismatched backend id/name pairs)
+    if (idRoutes[id]) return navigate(idRoutes[id]);
+
+    // Fallback to name-based routing if id not in map
     const name = (providedName || category.name || "").toLowerCase();
-    try { console.log("[debug] category click ->", { id, name, category }); } catch(e) {}
+    try { console.log("[debug] category click ->", { id, name, category }); } catch (e) {}
 
-    // prefer consulting match before local-services to avoid overlapping names
     if (name.includes("consult")) return navigate("/consultancy");
     if (name.includes("local")) return navigate("/localservices");
     if (name.includes("pet")) return navigate("/petservices");
