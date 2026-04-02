@@ -45,12 +45,12 @@ const emojiMap = {
 };
 
 const defaultCategories = [
-  { id: 2, name: "Crackers", nameKannada: "ಪಟಾಕಿಗಳು", icon: emojiMap.crackers },
+  { id: 3, name: "Crackers", nameKannada: "ಪಟಾಕಿಗಳು", icon: emojiMap.crackers },
   { id: 1, name: "Flowers", nameKannada: "ಹೂವುಗಳು", icon: emojiMap.flowers },
-  { id: 6, name: "Groceries", nameKannada: "ಕಿರಾಣಿ ವಸ್ತುಗಳು", icon: emojiMap.groceries },
-  { id: 5, name: "Local Services", nameKannada: "ಸ್ಥಳೀಯ ಸೇವೆಗಳು", icon: emojiMap.localservices },
+  { id: 2, name: "Groceries", nameKannada: "ಕಿರಾಣಿ ವಸ್ತುಗಳು", icon: emojiMap.groceries },
+  { id: 6, name: "Local Services", nameKannada: "ಸ್ಥಳೀಯ ಸೇವೆಗಳು", icon: emojiMap.localservices },
   { id: 4, name: "Pet Services", nameKannada: "ಪೆಟ್ ಸೇವೆಗಳು", icon: emojiMap.petservices },
-  { id: 7, name: "Consultancy", nameKannada: "ಸಲಹಾ ಸೇವೆಗಳು", icon: emojiMap.consultancy },
+  { id: 5, name: "Consultancy", nameKannada: "ಸಲಹಾ ಸೇವೆಗಳು", icon: emojiMap.consultancy },
 ];
 
 export default function Home() {
@@ -175,27 +175,16 @@ export default function Home() {
 
   function handleCategoryClick(id, providedName) {
     const category = categories.find((c) => c.id === id) || {};
-    const name = (providedName || category.name || "").toLowerCase();
+    const normalizedName = (providedName || category.name || "")
+      .replace(/[^a-zA-Z]/g, "")
+      .toLowerCase();
 
-    if (name.includes("consult")) return navigate("/consultancy");
-    if (name.includes("local")) return navigate("/localservices");
-    if (name.includes("pet")) return navigate("/petservices");
-    if (name.includes("groc")) return navigate("/groceries");
-    if (name.includes("cracker")) return navigate("/crackers");
-    if (name.includes("flower")) return navigate("/flowers");
-
-    // Fallback id mapping for legacy records only after name-based routing.
-    const idRoutes = {
-      1: "/flowers",
-      2: "/groceries",
-      3: "/crackers",
-      4: "/petservices",
-      5: "/consultancy",
-      6: "/localservices",
-      7: "/consultancy",
-    };
-
-    if (idRoutes[id]) return navigate(idRoutes[id]);
+    if (normalizedName.includes("consult")) return navigate("/consultancy");
+    if (normalizedName.includes("localservice") || normalizedName === "local") return navigate("/localservices");
+    if (normalizedName.includes("petservice") || normalizedName === "pet") return navigate("/petservices");
+    if (normalizedName.includes("groc")) return navigate("/groceries");
+    if (normalizedName.includes("cracker")) return navigate("/crackers");
+    if (normalizedName.includes("flower")) return navigate("/flowers");
 
     navigate(`/browse?categoryId=${id}`);
   }
