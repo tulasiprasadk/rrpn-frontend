@@ -61,6 +61,7 @@ const parseSimpleCsv = (text) => {
     const values = parseCsvLine(line);
     return headers.reduce((row, header, index) => {
       row[header] = values[index] || "";
+      row[header.trim().toLowerCase()] = values[index] || "";
       return row;
     }, {});
   });
@@ -101,14 +102,14 @@ export default function AdminBulkUpload() {
 
   const parseCatalogCsv = (text) =>
     parseSimpleCsv(text).map((row) => ({
-      title: row.title,
+      title: row.title || null,
       variety: row.variety || null,
-      subVariety: row.subVariety || null,
-      price: Number(row.price) || 0,
-      unit: row.unit || null,
-      description: row.description || null,
-      CategoryId: row.categoryId ? Number(row.categoryId) : null,
-      categoryName: row.categoryName || null
+      subVariety: row.subVariety || row.subvariety || null,
+      price: Number(row.price ?? row.Price) || 0,
+      unit: row.unit ?? row.Unit ?? null,
+      description: row.description || row.Description || null,
+      CategoryId: row.categoryId || row.categoryid ? Number(row.categoryId || row.categoryid) : null,
+      categoryName: row.categoryName || row.categoryname || null
     }));
 
   const parsePriceCsv = (text) =>
