@@ -10,8 +10,8 @@
   max-width: 220px;
   max-height: 200px;
   background: linear-gradient(135deg, #fffbe6 10%, #ffe84b 100%);
-  border-radius: 14px;
-  padding: 14px;
+  border-radius: 18px;
+  padding: 18px 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -20,11 +20,18 @@
   position: relative;   /* popup anchor */
   overflow: visible;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgb(0 0 0 / 12%);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 10%);
   font-family: 'Noto Sans Kannada', system-ui, sans-serif;
   box-sizing: border-box;
-  margin: 0; /* remove extra gaps between discover cards */
+  margin: 0;
   flex: 0 0 auto; /* prevent shrinking in flex containers */
+  border: 1px solid rgb(255 215 0 / 40%);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.explore-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px rgb(200 16 46 / 14%);
 }
 
 /* ===================================
@@ -38,10 +45,11 @@
 }
 
 .explore-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   color: #b00018;
   font-family: 'Noto Sans Kannada', system-ui, sans-serif;
+  margin: 0 0 8px;
 }
 
 /* ===================================
