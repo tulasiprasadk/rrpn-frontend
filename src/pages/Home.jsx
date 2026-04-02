@@ -175,21 +175,7 @@ export default function Home() {
 
   function handleCategoryClick(id, providedName) {
     const category = categories.find((c) => c.id === id) || {};
-    // Strong id->route map to avoid ambiguous name matching falling through
-    const idRoutes = {
-      1: "/flowers",
-      2: "/crackers",
-      4: "/petservices",
-      5: "/localservices",
-      6: "/groceries",
-      7: "/consultancy",
-    };
-
-    if (idRoutes[id]) return navigate(idRoutes[id]);
-
-    // Fallback to name-based routing if id not in map
     const name = (providedName || category.name || "").toLowerCase();
-    try { console.log("[debug] category click ->", { id, name, category }); } catch (e) {}
 
     if (name.includes("consult")) return navigate("/consultancy");
     if (name.includes("local")) return navigate("/localservices");
@@ -197,6 +183,19 @@ export default function Home() {
     if (name.includes("groc")) return navigate("/groceries");
     if (name.includes("cracker")) return navigate("/crackers");
     if (name.includes("flower")) return navigate("/flowers");
+
+    // Fallback id mapping for legacy records only after name-based routing.
+    const idRoutes = {
+      1: "/flowers",
+      2: "/groceries",
+      3: "/crackers",
+      4: "/petservices",
+      5: "/consultancy",
+      6: "/localservices",
+      7: "/consultancy",
+    };
+
+    if (idRoutes[id]) return navigate(idRoutes[id]);
 
     navigate(`/browse?categoryId=${id}`);
   }
