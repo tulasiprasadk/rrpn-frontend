@@ -296,59 +296,6 @@ export default function PaymentPage() {
       <div
         className="payment-card"
         style={{
-          background: "linear-gradient(135deg, #fff7bf 0%, #ffe27a 100%)",
-          padding: "16px 18px",
-          borderRadius: "14px",
-          marginBottom: "18px",
-          border: "1px solid rgba(210, 140, 0, 0.24)",
-          boxShadow: "0 8px 18px rgba(194, 120, 0, 0.1)"
-        }}
-      >
-        <div style={{ fontSize: 12, fontWeight: 900, letterSpacing: 0.5, textTransform: "uppercase", color: "#9a3412" }}>
-          Payable Amount
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr auto",
-            gap: 10,
-            alignItems: "center",
-            marginTop: 8
-          }}
-        >
-          <div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#5A3A00" }}>
-              Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}
-            </div>
-            <div style={{ fontSize: 13, color: "#7c5200", marginTop: 2 }}>
-              {hasSubscriptionAmount
-                ? `Includes subscription${hasOrderAmount ? " and current order" : ""}`
-                : "Current payment amount"}
-            </div>
-          </div>
-          <div
-            style={{
-              background: "rgba(255,255,255,0.78)",
-              borderRadius: 12,
-              padding: "10px 12px",
-              minWidth: 170
-            }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, fontSize: 13, color: "#6b3f00" }}>
-              <span>Order</span>
-              <strong>Rs {Number(paymentSummary.orderAmount || 0).toFixed(2)}</strong>
-            </div>
-            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, fontSize: 13, color: "#6b3f00", marginTop: 4 }}>
-              <span>Subscription</span>
-              <strong>{hasSubscriptionAmount ? `Rs ${Number(paymentSummary.subscriptionAmount || 0).toFixed(2)}` : "—"}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div
-        className="payment-card"
-        style={{
           background: "#fffaf0",
           padding: "20px",
           borderRadius: "14px",
@@ -413,30 +360,6 @@ export default function PaymentPage() {
             </details>
           ) : null}
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: 12,
-              paddingTop: 10,
-              borderTop: "1px dashed #e7c86f"
-            }}
-          >
-            <div>
-              <div style={{ fontWeight: 900, fontSize: 18, color: "#5A3A00" }}>Total payable now</div>
-              <div style={{ fontSize: 13, color: "#8b5e00" }}>
-                {paymentSummary.mode === "selected_plan"
-                  ? "The selected subscription amount becomes the payable amount for this payment."
-                  : paymentSummary.mode === "draft"
-                    ? "Your compact subscription setup is already included in this payable amount."
-                    : "This is the amount to be approved after payment verification."}
-              </div>
-            </div>
-            <div style={{ fontWeight: 900, fontSize: 24, color: "#C8102E" }}>
-              Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}
-            </div>
-          </div>
         </div>
       </div>
 
@@ -452,23 +375,6 @@ export default function PaymentPage() {
       {method === "upi" && (
         <div className="payment-card" style={{ background: "#FFF9C4", padding: 18, borderRadius: 10, marginBottom: 24, boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
           <h3 style={{ margin: 0, fontSize: 18 }}>Pay via UPI</h3>
-          <div
-            style={{
-              marginTop: 12,
-              marginBottom: 12,
-              padding: "12px 14px",
-              borderRadius: 12,
-              background: "#fff",
-              border: "2px solid rgba(200, 16, 46, 0.16)"
-            }}
-          >
-            <div style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#9a3412" }}>
-              Pay exactly this amount
-            </div>
-            <div style={{ marginTop: 4, fontSize: 32, fontWeight: 900, color: "#C8102E" }}>
-              Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}
-            </div>
-          </div>
           <div
             style={{
               marginTop: 12,
@@ -493,36 +399,6 @@ export default function PaymentPage() {
           <div style={{ margin: "12px 0", display: "flex", justifyContent: "center" }}>
             <img src="/UPI QR Code.jpeg" alt="UPI QR Code" style={{ width: 200, height: 200, borderRadius: 8, border: "1.5px solid #007bff", objectFit: "contain" }} />
           </div>
-          <div
-            style={{
-              marginTop: 14,
-              padding: "14px 16px",
-              background: "#fff",
-              borderRadius: 12,
-              border: "1px solid rgba(200, 16, 46, 0.16)"
-            }}
-          >
-            <div style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#9a3412" }}>
-              Amount visible while scanning
-            </div>
-            <div style={{ marginTop: 6, fontSize: 30, fontWeight: 900, color: "#C8102E" }}>
-              Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}
-            </div>
-            <div style={{ marginTop: 8, display: "grid", gap: 4, fontSize: 14, color: "#6b3f00" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                <span>Products selected</span>
-                <strong>Rs {Number(paymentSummary.orderAmount || 0).toFixed(2)}</strong>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                <span>Subscription added</span>
-                <strong>{hasSubscriptionAmount ? `Rs ${Number(paymentSummary.subscriptionAmount || 0).toFixed(2)}` : "No"}</strong>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingTop: 6, borderTop: "1px dashed #f3c15e" }}>
-                <span>Total payment now</span>
-                <strong style={{ color: "#C8102E" }}>Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}</strong>
-              </div>
-            </div>
-          </div>
           <div style={{ fontSize: 14, color: "#555", textAlign: "center" }}>
             Scan the QR code above to make payment. Then upload your payment screenshot and enter the UPI transaction ID below.
           </div>
@@ -532,23 +408,6 @@ export default function PaymentPage() {
       {method === "pi" && (
         <div className="payment-card" style={{ background: "#FFF9C4", padding: 18, borderRadius: 10, marginBottom: 24, boxShadow: "0 1px 6px rgba(0,0,0,0.04)" }}>
           <h3 style={{ margin: 0, fontSize: 18 }}>Pay via Pi Network</h3>
-          <div
-            style={{
-              marginTop: 12,
-              marginBottom: 12,
-              padding: "12px 14px",
-              borderRadius: 12,
-              background: "#fff",
-              border: "2px solid rgba(200, 16, 46, 0.16)"
-            }}
-          >
-            <div style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#9a3412" }}>
-              Pay exactly this amount
-            </div>
-            <div style={{ marginTop: 4, fontSize: 32, fontWeight: 900, color: "#C8102E" }}>
-              Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}
-            </div>
-          </div>
           <div
             style={{
               marginTop: 12,
@@ -572,36 +431,6 @@ export default function PaymentPage() {
           </div>
           <div style={{ margin: "12px 0", display: "flex", justifyContent: "center" }}>
             <img src="/Pi network QR code.jpg" alt="Pi Network QR Code" style={{ width: 200, height: 200, borderRadius: 8, border: "1.5px solid #007bff", objectFit: "contain" }} />
-          </div>
-          <div
-            style={{
-              marginTop: 14,
-              padding: "14px 16px",
-              background: "#fff",
-              borderRadius: 12,
-              border: "1px solid rgba(200, 16, 46, 0.16)"
-            }}
-          >
-            <div style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#9a3412" }}>
-              Amount visible while paying
-            </div>
-            <div style={{ marginTop: 6, fontSize: 30, fontWeight: 900, color: "#C8102E" }}>
-              Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}
-            </div>
-            <div style={{ marginTop: 8, display: "grid", gap: 4, fontSize: 14, color: "#6b3f00" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                <span>Products selected</span>
-                <strong>Rs {Number(paymentSummary.orderAmount || 0).toFixed(2)}</strong>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                <span>Subscription added</span>
-                <strong>{hasSubscriptionAmount ? `Rs ${Number(paymentSummary.subscriptionAmount || 0).toFixed(2)}` : "No"}</strong>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", gap: 10, paddingTop: 6, borderTop: "1px dashed #f3c15e" }}>
-                <span>Total payment now</span>
-                <strong style={{ color: "#C8102E" }}>Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}</strong>
-              </div>
-            </div>
           </div>
           <div style={{ fontSize: 14, color: "#555", textAlign: "center" }}>
             Scan the QR code above with Pi Network app to make payment. Then upload your payment screenshot and enter the Pi transaction ID below.
@@ -641,7 +470,7 @@ export default function PaymentPage() {
                 {subscriptionDraft.pricing.itemCount} item{subscriptionDraft.pricing.itemCount === 1 ? "" : "s"} included
               </div>
               <div style={{ marginTop: 6, fontWeight: 800, color: "#9a3412" }}>
-                Pay Rs {Number(subscriptionDraft.pricing.totalPayable || 0).toFixed(2)} now and save Rs {Number(subscriptionDraft.pricing.savings || 0).toFixed(2)}
+                Pay Rs {Number(subscriptionDraft.pricing.totalPayable || 0).toFixed(2)} now
               </div>
             </div>
           </div>
@@ -744,7 +573,7 @@ export default function PaymentPage() {
                   <option value="">No subscription</option>
                   {subscriptionPlans.map((plan) => (
                     <option key={plan.period} value={plan.period}>
-                      {plan.label} | Save {plan.discountPercent}% | Rs {plan.discountedPrice.toFixed(2)}
+                      {plan.label} | Rs {plan.discountedPrice.toFixed(2)}
                     </option>
                   ))}
                 </select>
@@ -853,7 +682,7 @@ export default function PaymentPage() {
 
           {selectedSubscriptionPeriod && (
             <div style={{ marginTop: 12, color: "#9a3412", fontWeight: 700 }}>
-              Subscription: Rs {Number(subscriptionPlans.find((plan) => plan.period === selectedSubscriptionPeriod)?.discountedPrice || 0).toFixed(2)} | Total payment now: Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}
+              Included subscription amount: Rs {Number(subscriptionPlans.find((plan) => plan.period === selectedSubscriptionPeriod)?.discountedPrice || 0).toFixed(2)}
             </div>
           )}
         </div>
@@ -988,36 +817,6 @@ export default function PaymentPage() {
         </p>
       </div>
 
-      <div
-        style={{
-          position: "sticky",
-          bottom: 12,
-          marginTop: 18,
-          background: "rgba(255, 249, 196, 0.96)",
-          border: "1px solid rgba(210, 140, 0, 0.25)",
-          borderRadius: 14,
-          boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
-          padding: "12px 16px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          gap: 12,
-          zIndex: 5
-        }}
-      >
-        <div>
-          <div style={{ fontSize: 12, fontWeight: 800, textTransform: "uppercase", color: "#9a3412" }}>
-            Final payable amount
-          </div>
-          <div style={{ fontSize: 13, color: "#6b3f00", marginTop: 2 }}>
-            Products: Rs {Number(paymentSummary.orderAmount || 0).toFixed(2)}
-            {hasSubscriptionAmount ? ` | Subscription: Rs ${Number(paymentSummary.subscriptionAmount || 0).toFixed(2)}` : ""}
-          </div>
-        </div>
-        <div style={{ fontSize: 28, fontWeight: 900, color: "#C8102E", whiteSpace: "nowrap" }}>
-          Rs {Number(paymentSummary.payableNow || 0).toFixed(2)}
-        </div>
-      </div>
     </div>
   );
 }
