@@ -501,6 +501,9 @@ export default function PaymentPage() {
   }
 
   const toggleUpsell = (id) => {
+    if (isRationMode) {
+      setGrocerySubscriptionMode(SUBSCRIPTION_MODES.repeat_item);
+    }
     setSelectedUpsellIds((current) =>
       current.includes(id) ? current.filter((itemId) => itemId !== id) : [...current, id]
     );
@@ -993,7 +996,7 @@ export default function PaymentPage() {
                     <div style={{ display: "grid", gap: 10, marginTop: 12 }}>
                       {isRationMode ? (
                         <div style={{ fontSize: 13, color: "#8b5e00" }}>
-                          These add-ons are shown here for reference. They are applied when you use the repeat-item subscription.
+                          Selecting any add-on will switch this setup to repeat-item subscription so the extra products can be included.
                         </div>
                       ) : null}
                       {upsellRecommendations.map((item) => {
@@ -1010,8 +1013,8 @@ export default function PaymentPage() {
                               border: active ? "1px solid #C8102E" : "1px solid #eee",
                               borderRadius: 12,
                               padding: "12px 14px",
-                              cursor: isRationMode ? "default" : "pointer",
-                              opacity: isRationMode ? 0.72 : 1
+                              cursor: "pointer",
+                              opacity: 1
                             }}
                           >
                             <div>
@@ -1023,7 +1026,6 @@ export default function PaymentPage() {
                             <input
                               type="checkbox"
                               checked={active}
-                              disabled={isRationMode}
                               onChange={() => toggleUpsell(item.id)}
                             />
                           </label>
