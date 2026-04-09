@@ -110,16 +110,16 @@ const AdminAdsList = () => {
         </div>
       ) : null}
 
-      <table className="w-full border">
+      <table className="w-full border" style={{ tableLayout: "fixed" }}>
         <thead className="bg-gray-200">
           <tr>
-            <th className="border p-2">Ad</th>
-            <th className="border p-2">Title</th>
-            <th className="border p-2">Image</th>
-            <th className="border p-2">Link</th>
-            <th className="border p-2">Placement</th>
-            <th className="border p-2">Status</th>
-            <th className="border p-2">Actions</th>
+            <th className="border p-2" style={{ width: "18%" }}>Ad</th>
+            <th className="border p-2" style={{ width: "20%" }}>Title</th>
+            <th className="border p-2" style={{ width: "14%" }}>Image</th>
+            <th className="border p-2" style={{ width: "12%" }}>Link</th>
+            <th className="border p-2" style={{ width: "16%" }}>Placement</th>
+            <th className="border p-2" style={{ width: "10%" }}>Status</th>
+            <th className="border p-2" style={{ width: "10%" }}>Actions</th>
           </tr>
         </thead>
 
@@ -127,7 +127,7 @@ const AdminAdsList = () => {
           {ads.map((ad) => (
             <tr key={`${ad.source || "ad"}-${ad.id}`}>
               <td className="border p-2">
-                <div className="font-medium">{ad.id}</div>
+                <div className="font-medium" style={{ wordBreak: "break-word", fontSize: 13 }}>{ad.id}</div>
                 <div className="text-xs text-gray-500">{ad.sourceType || "advertisement"}</div>
               </td>
               <td className="border p-2">
@@ -139,7 +139,15 @@ const AdminAdsList = () => {
                   <img
                     src={ad.imageUrl}
                     alt={ad.title || "ad"}
-                    className="w-32 rounded"
+                    style={{
+                      width: 56,
+                      height: 56,
+                      objectFit: "cover",
+                      borderRadius: 8,
+                      border: "1px solid #e5e7eb",
+                      display: "block",
+                      background: "#fff"
+                    }}
                   />
                 ) : (
                   "-"
