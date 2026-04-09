@@ -141,6 +141,28 @@ export default function PaymentPage() {
     [effectiveSubscriptionBasePrice]
   );
 
+  const groceryPlanTemplate = useMemo(
+    () => GROCERY_PLANS.find((plan) => plan.value === selectedGroceryPlan) || GROCERY_PLANS[0],
+    [selectedGroceryPlan]
+  );
+
+  const groceryPlanItems = useMemo(
+    () =>
+      (groceryPlanTemplate?.items || []).map((item) => ({
+        title: item.title,
+        quantity: Number(item.quantity || 1),
+        unitPrice: Number(item.unitPrice || 0),
+        unit: item.unit || "",
+        metadata: {
+          source: "grocery_plan",
+          key: item.key,
+          title: item.title,
+          unit: item.unit || ""
+        }
+      })),
+    [groceryPlanTemplate]
+  );
+
   const rationDurationPlans = useMemo(
     () =>
       PAYMENT_SUBSCRIPTION_PLANS.map((plan) => {
@@ -164,28 +186,6 @@ export default function PaymentPage() {
   const selectedSubscriptionPlan = useMemo(
     () => visibleSubscriptionPlans.find((plan) => plan.period === selectedSubscriptionPeriod) || null,
     [selectedSubscriptionPeriod, visibleSubscriptionPlans]
-  );
-
-  const groceryPlanTemplate = useMemo(
-    () => GROCERY_PLANS.find((plan) => plan.value === selectedGroceryPlan) || GROCERY_PLANS[0],
-    [selectedGroceryPlan]
-  );
-
-  const groceryPlanItems = useMemo(
-    () =>
-      (groceryPlanTemplate?.items || []).map((item) => ({
-        title: item.title,
-        quantity: Number(item.quantity || 1),
-        unitPrice: Number(item.unitPrice || 0),
-        unit: item.unit || "",
-        metadata: {
-          source: "grocery_plan",
-          key: item.key,
-          title: item.title,
-          unit: item.unit || ""
-        }
-      })),
-    [groceryPlanTemplate]
   );
 
   const grocerySubscriptionPreview = useMemo(() => {
