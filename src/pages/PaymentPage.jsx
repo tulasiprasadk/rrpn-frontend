@@ -146,6 +146,28 @@ export default function PaymentPage() {
     [selectedGroceryPlan]
   );
 
+  const selectedGroceryPlanPreview = useMemo(
+    () =>
+      calculateSubscriptionPreview({
+        category: "groceries",
+        duration: selectedSubscriptionPeriod || "monthly",
+        planType: selectedGroceryPlan,
+        items: (groceryPlanTemplate?.items || []).map((item) => ({
+          title: item.title,
+          quantity: Number(item.quantity || 1),
+          unitPrice: Number(item.unitPrice || 0),
+          unit: item.unit || "",
+          metadata: {
+            source: "grocery_plan",
+            key: item.key,
+            title: item.title,
+            unit: item.unit || ""
+          }
+        }))
+      }),
+    [groceryPlanTemplate, selectedGroceryPlan, selectedSubscriptionPeriod]
+  );
+
   const groceryPlanItems = useMemo(
     () =>
       (groceryPlanTemplate?.items || []).map((item) => ({
@@ -308,11 +330,6 @@ export default function PaymentPage() {
       return;
     }
 
-    if (!["flowers", "pet_services", "groceries"].includes(activeCategory)) {
-      setUpsellRecommendations([]);
-      return;
-    }
-
     let mounted = true;
     api.get("/subscriptions/plans")
       .then((res) => {
@@ -332,7 +349,7 @@ export default function PaymentPage() {
             const rightScore = rightCategory === activeCategory ? 1 : 0;
             return rightScore - leftScore;
           })
-          .slice(0, 3);
+          .slice(0, 6);
         if (mounted) {
           setUpsellRecommendations(nextRows);
         }
@@ -992,17 +1009,18 @@ export default function PaymentPage() {
                   <div style={{ fontWeight: 800, color: "#5A3A00", marginBottom: 10 }}>
                     Select monthly ration package
                   </div>
-                  <div
+                  <select
+                    value={selectedGroceryPlan}
+                    onChange={(event) => setSelectedGroceryPlan(event.target.value)}
                     style={{
-                      display: "grid",
-                      gap: 10,
-                      maxHeight: 280,
-                      overflowY: "auto",
-                      paddingRight: 4
+                      width: "100%",
+                      padding: "12px 14px",
+                      borderRadius: 12,
+                      border: "1px solid rgba(210, 140, 0, 0.2)",
+                      fontWeight: 700
                     }}
                   >
                     {GROCERY_PLANS.map((plan) => {
-                      const active = selectedGroceryPlan === plan.value;
                       const preview = calculateSubscriptionPreview({
                         category: "groceries",
                         duration: selectedSubscriptionPeriod,
@@ -1020,36 +1038,34 @@ export default function PaymentPage() {
                           }
                         }))
                       });
-
                       return (
-                        <button
-                          key={plan.value}
-                          type="button"
-                          onClick={() => setSelectedGroceryPlan(plan.value)}
-                          style={{
-                            textAlign: "left",
-                            borderRadius: 12,
-                            border: active ? "1px solid #C8102E" : "1px solid #eee",
-                            background: active ? "#fff7d6" : "#fff",
-                            padding: "12px 14px",
-                            cursor: "pointer"
-                          }}
-                        >
-                          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-                            <div>
-                              <div style={{ fontWeight: 800, color: "#5A3A00" }}>{plan.label}</div>
-                              <div style={{ marginTop: 4, fontSize: 13, color: "#8b5e00" }}>{plan.badge}</div>
-                            </div>
-                            <div style={{ fontWeight: 800, color: "#9a3412" }}>
-                              Rs {Number(preview.totalPayable || 0).toFixed(2)}
-                            </div>
-                          </div>
-                          <div style={{ marginTop: 8, fontSize: 13, color: "#6b3f00" }}>
-                            {plan.items.map((item) => `${item.title} ${item.quantity}${item.unit ? ` ${item.unit}` : ""}`).join(" | ")}
-                          </div>
-                        </button>
+                        <option key={plan.value} value={plan.value}>
+                          {plan.label} | Rs {Number(preview.totalPayable || 0).toFixed(2)}
+                        </option>
                       );
                     })}
+                  </select>
+                  <div
+                    style={{
+                      marginTop: 12,
+                      borderRadius: 12,
+                      border: "1px solid #C8102E",
+                      background: "#fff7d6",
+                      padding: "12px 14px"
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+                      <div>
+                        <div style={{ fontWeight: 800, color: "#5A3A00" }}>{groceryPlanTemplate.label}</div>
+                        <div style={{ marginTop: 4, fontSize: 13, color: "#8b5e00" }}>{groceryPlanTemplate.badge}</div>
+                      </div>
+                      <div style={{ fontWeight: 800, color: "#9a3412" }}>
+                        Rs {Number(selectedGroceryPlanPreview.totalPayable || 0).toFixed(2)}
+                      </div>
+                    </div>
+                    <div style={{ marginTop: 8, fontSize: 13, color: "#6b3f00" }}>
+                      {groceryPlanTemplate.items.map((item) => `${item.title} ${item.quantity}${item.unit ? ` ${item.unit}` : ""}`).join(" | ")}
+                    </div>
                   </div>
                 </div>
               )}
