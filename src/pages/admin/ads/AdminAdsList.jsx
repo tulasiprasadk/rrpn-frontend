@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../../api/client";
+import { DEFAULT_ADMIN_ADS } from "../../../constants/defaultAds";
 
 const normalizeAds = (items, source, startingIndex = 0) =>
   (Array.isArray(items) ? items : []).map((item, index) => ({
@@ -29,15 +30,24 @@ const placementLabels = {
 const AdminAdsList = () => {
   const [ads, setAds] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [usingFallback, setUsingFallback] = useState(false);
 
   const loadAds = async () => {
     try {
       setLoading(true);
       const res = await api.get("/admin/ads");
-      setAds(normalizeAds(res.data, "advertisements"));
+      const normalized = normalizeAds(res.data, "advertisements");
+      if (normalized.length === 0) {
+        setAds(DEFAULT_ADMIN_ADS);
+        setUsingFallback(true);
+      } else {
+        setAds(normalized);
+        setUsingFallback(false);
+      }
     } catch (err) {
       console.error("Failed loading ads:", err);
-      setAds([]);
+      setAds(DEFAULT_ADMIN_ADS);
+      setUsingFallback(true);
     } finally {
       setLoading(false);
     }
@@ -49,6 +59,11 @@ const AdminAdsList = () => {
 
   const deleteAd = async (id) => {
     if (!window.confirm("Are you sure you want to delete this ad?")) return;
+
+    if (String(id).startsWith("fallback:")) {
+      alert("This ad is coming from the current site default set. Create a new ad to replace it, or we can finish the backend persistence path next.");
+      return;
+    }
 
     try {
       await api.delete(`/admin/ads/${encodeURIComponent(id)}`);
@@ -88,6 +103,12 @@ const AdminAdsList = () => {
           </div>
         ))}
       </div>
+
+      {usingFallback ? (
+        <div className="mb-4 rounded bg-yellow-100 px-3 py-2 text-sm text-yellow-900">
+          Showing the current site default ads because the live stored ad inventory is still empty.
+        </div>
+      ) : null}
 
       <table className="w-full border">
         <thead className="bg-gray-200">
@@ -147,7 +168,7 @@ const AdminAdsList = () => {
               <td className="border p-2">
                 <Link
                   to={`/admin/ads/${encodeURIComponent(ad.id)}/edit`}
-                  className="text-blue-600 mr-3"
+                  className={`mr-3 ${String(ad.id).startsWith("fallback:") ? "pointer-events-none text-gray-400" : "text-blue-600"}`}
                 >
                   Edit
                 </Link>
