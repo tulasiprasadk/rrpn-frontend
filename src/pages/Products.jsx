@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getProducts } from "../api";
 import ProductCard from "../components/ProductCard";
-import CartPanel from "../components/CartPanel";
+import CategoryLayout from "../components/CategoryLayout";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -28,41 +28,28 @@ export default function Products() {
   }, [searchQuery]);
 
   return (
-    <div className="with-cart-panel" style={{ minHeight: "100vh", background: "#FFFDE7" }}>
-      <div style={{ flex: 1, padding: "2rem" }}>
-      <h2>Products {searchQuery ? `"${searchQuery}"` : ""}</h2>
+    <CategoryLayout title={`Products ${searchQuery ? `"${searchQuery}"` : ""}`} category="products">
+      <div style={{ padding: "0 0 16px" }}>
+        {loading && <p>Loading...</p>}
 
-      {loading && <p>Loading...</p>}
+        {!loading && products.length === 0 && <p>No products found.</p>}
 
-      {!loading && products.length === 0 && (
-        <p>No products found.</p>
-      )}
-
-      <div
-        className="product-grid"
-        style={{
-          marginTop: "1.5rem",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
-          gap: "1.25rem",
-          alignItems: "stretch"
-        }}
-      >
-        {products.map((p) => (
-          <ProductCard key={p.id} product={p} />
-        ))}
+        <div
+          className="product-grid"
+          style={{
+            marginTop: "1.5rem",
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+            gap: "1.25rem",
+            alignItems: "stretch",
+          }}
+        >
+          {products.map((p) => (
+            <ProductCard key={p.id} product={p} />
+          ))}
+        </div>
       </div>
-      </div>
-      <div style={{
-        position: 'sticky',
-        top: 32,
-        alignSelf: 'flex-start',
-        height: 'fit-content',
-        zIndex: 10
-      }}>
-        <CartPanel />
-      </div>
-    </div>
+    </CategoryLayout>
   );
 }
 

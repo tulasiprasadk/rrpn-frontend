@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./OrderSuccess.css";
 import { API_BASE } from "../../config/api";
-import { useAuth } from "../../context/AuthContext";
 
 const PLAN_LABELS = {
   monthly: "Monthly",
@@ -14,11 +13,7 @@ const PLAN_LABELS = {
 export default function OrderSuccess() {
   const { orderId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [subscriptionPlans, setSubscriptionPlans] = useState([]);
-  const [subscriptionProductId, setSubscriptionProductId] = useState(null);
-  const [subscribeError, setSubscribeError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!orderId) return;
@@ -55,7 +50,6 @@ export default function OrderSuccess() {
         });
 
         setSubscriptionPlans(plans);
-        setSubscriptionProductId(product.id || data?.productId || null);
       } catch {
         // Ignore failures to keep success page clean
       }
@@ -65,41 +59,6 @@ export default function OrderSuccess() {
       mounted = false;
     };
   }, [orderId]);
-
-  const subscribeNow = async (period) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    setSubscribeError("");
-    setSubmitting(true);
-    try {
-      if (!subscriptionProductId) {
-        throw new Error("Subscription product not available");
-      }
-      const res = await fetch(`${API_BASE}/subscriptions`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(localStorage.getItem("token")
-            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
-            : {})
-        },
-        body: JSON.stringify({ productId: subscriptionProductId, period })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || "Failed to subscribe");
-      }
-      alert("Subscription activated successfully!");
-      setSubscribeError("");
-    } catch (err) {
-      setSubscribeError(err.message || "Failed to subscribe");
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   return (
     <div className="os-container">
@@ -146,18 +105,14 @@ export default function OrderSuccess() {
                   </div>
                   <button
                     className="os-btn"
-                    disabled={submitting}
-                    onClick={() => subscribeNow(plan.period)}
+                    onClick={() => navigate("/subscriptions")}
                     style={{ background: "#C8102E" }}
                   >
-                    {submitting ? "Processing..." : `Choose ${PLAN_LABELS[plan.period]}`}
+                    {`Choose ${PLAN_LABELS[plan.period]}`}
                   </button>
                 </div>
               ))}
             </div>
-            {subscribeError && (
-              <div style={{ marginTop: 8, color: "#C8102E", fontSize: 13 }}>{subscribeError}</div>
-            )}
           </div>
         )}
 

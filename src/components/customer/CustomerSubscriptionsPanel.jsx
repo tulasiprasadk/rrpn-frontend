@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../../config/api";
+import api from "../../api/client";
 
 function formatDate(value) {
   if (!value) return "Not available";
@@ -21,6 +23,7 @@ function getDaysLeft(endDate) {
 }
 
 export default function CustomerSubscriptionsPanel({ compact = false }) {
+  const navigate = useNavigate();
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -70,29 +73,67 @@ export default function CustomerSubscriptionsPanel({ compact = false }) {
 
     setRenewingId(subscription.id);
     try {
-      const token = localStorage.getItem("token") || localStorage.getItem("customerToken");
-      const res = await fetch(`${API_BASE}/subscriptions`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify({
-          productId,
-          period: subscription.period,
-          renewExisting: true
-        })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || "Failed to renew subscription");
+      const [draftRes, addressRes] = await Promise.all([
+        api.post("/subscription/create", {
+          category: subscription.category || subscription?.Product?.Category?.name || "general",
+          primaryProductId: productId,
+          duration: subscription.duration || subscription.period,
+          frequency: subscription.frequency || null,
+          planType: subscription.planType || null,
+          source: "renewal",
+          items: Array.isArray(subscription.items) && subscription.items.length > 0
+            ? subscription.items.map((item) => ({
+                productId: item.productId || item?.Product?.id || null,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice || item?.Product?.price || 0,
+                title: item?.Product?.title || item?.metadata?.title,
+                metadata: item.metadata || null
+              }))
+            : [{
+                productId,
+                quantity: 1,
+                unitPrice: Number(subscription?.Product?.price || subscription.price || 0)
+              }]
+        }),
+        api.get("/customer/address")
+      ]);
+      const addresses = Array.isArray(addressRes.data) ? addressRes.data : [];
+      const defaultAddress = addresses.find((item) => item.isDefault) || addresses[0] || null;
+      if (!defaultAddress) {
+        throw new Error("Please save a delivery address before renewing.");
       }
 
-      alert("Subscription renewed successfully.");
-      await loadSubscriptions();
+      const orderRes = await api.post("/orders/create", {
+        productId,
+        qty: 1,
+        subscriptionDraftId: draftRes.data?.subscription?.id,
+        addressId: defaultAddress.id,
+        customerName: defaultAddress.name || "",
+        customerPhone: defaultAddress.phone || "",
+        customerAddress: [
+          defaultAddress.addressLine,
+          defaultAddress.city,
+          defaultAddress.state,
+          defaultAddress.pincode ? `- ${defaultAddress.pincode}` : ""
+        ].filter(Boolean).join(", "),
+        promoCode: null,
+        discount: 0
+      });
+
+      navigate("/payment", {
+        state: {
+          orderId: orderRes.data.orderId,
+          orderDetails: orderRes.data,
+          subscriptionDraft: {
+            id: draftRes.data?.subscription?.id,
+            pricing: draftRes.data?.pricing,
+            items: draftRes.data?.items || [],
+            productId
+          }
+        }
+      });
     } catch (err) {
-      alert(err.message || "Failed to renew subscription");
+      alert(err.response?.data?.error || err.message || "Failed to renew subscription");
     } finally {
       setRenewingId(null);
     }
@@ -221,8 +262,16 @@ export default function CustomerSubscriptionsPanel({ compact = false }) {
                       {subscription?.Product?.title || subscription?.Product?.name || "Subscription"}
                     </div>
                     <div style={{ color: "#8b5e00", marginTop: 4 }}>
-                      {subscription.period?.replace("_", " ") || "Plan"} | Rs {Number(subscription.price || 0).toFixed(2)}
+                      {(subscription.duration || subscription.period || "Plan").replace("_", " ")}
+                      {subscription.frequency ? ` | ${subscription.frequency.replace("_", " ")}` : ""}
+                      {subscription.planType ? ` | ${subscription.planType.replace("_", " ")}` : ""}
+                      {" | "}Rs {Number(subscription.price || 0).toFixed(2)}
                     </div>
+                    {Array.isArray(subscription.items) && subscription.items.length > 0 && (
+                      <div style={{ color: "#8b5e00", marginTop: 4, fontSize: 13 }}>
+                        {subscription.items.length} item{subscription.items.length === 1 ? "" : "s"} in this subscription
+                      </div>
+                    )}
                   </div>
 
                   <div>

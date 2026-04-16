@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/client";
 import { trackEvent } from "../utils/analytics";
+import { readPendingSubscriptionDraft } from "../components/SubscriptionWidget";
+import { normalizeSubscriptionCategory } from "../components/subscription/subscriptionConfig";
 import "./CheckoutReview.mobile.css";
 
 export default function CheckoutReview() {
@@ -31,6 +33,7 @@ export default function CheckoutReview() {
   const [checkoutOffers, setCheckoutOffers] = useState([]);
   const [checkoutAds, setCheckoutAds] = useState([]);
   const selectedAddress = location.state?.selectedAddress || defaultAddress;
+  const pendingSubscriptionDraft = readPendingSubscriptionDraft();
 
   useEffect(() => {
     async function loadData() {
@@ -108,7 +111,10 @@ export default function CheckoutReview() {
   }, [navigate]);
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
-  const totalAfterDiscount = Math.max(cartTotal - discount, 0);
+  const effectiveCartTotal = pendingSubscriptionDraft?.pricing?.totalPayable
+    ? Number(pendingSubscriptionDraft.pricing.totalPayable)
+    : cartTotal;
+  const totalAfterDiscount = Math.max(effectiveCartTotal - discount, 0);
   const selectedAddressText = selectedAddress
     ? [
         selectedAddress.addressLine,
@@ -156,10 +162,23 @@ export default function CheckoutReview() {
         return;
       }
 
+      const subscriptionCandidates = cart
+        .map((item) => ({
+          productId: item.id || item.productId,
+          title: item.title || item.productName || "Product",
+          basePrice: Number(item.price || 0),
+          quantity: Number(item.quantity || item.qty || 1),
+          category: normalizeSubscriptionCategory(item.category || item.categoryName || item.Category?.name || ""),
+          unit: item.unit || ""
+        }))
+        .filter((item) => item.productId)
+        .filter((item) => ["flowers", "groceries", "pet_services"].includes(item.category));
+
       if (!isGuest) {
         const order = {
           productId: productId,
           qty: firstItem.quantity || firstItem.qty || 1,
+          subscriptionDraftId: pendingSubscriptionDraft?.id || null,
           addressId: selectedAddress.id,
           customerName: selectedAddress.name || "",
           customerPhone: selectedAddress.phone || "",
@@ -180,12 +199,9 @@ export default function CheckoutReview() {
           state: {
             orderId: res.data.orderId,
             orderDetails: res.data,
-            subscriptionCandidate: {
-              productId,
-              title: firstItem.title || firstItem.productName || "",
-              basePrice: Number(firstItem.price || 0),
-              quantity: Number(firstItem.quantity || firstItem.qty || 1),
-            },
+            subscriptionDraft: pendingSubscriptionDraft || null,
+            cartItems: cart,
+            subscriptionCandidates,
           },
         });
         return;
@@ -237,12 +253,9 @@ export default function CheckoutReview() {
         state: {
           orderId: gres.data.orderId,
           orderDetails: gres.data,
-          subscriptionCandidate: {
-            productId,
-            title: firstItem.title || firstItem.productName || "",
-            basePrice: Number(firstItem.price || 0),
-            quantity: Number(firstItem.quantity || firstItem.qty || 1),
-          },
+          subscriptionDraft: pendingSubscriptionDraft || null,
+          cartItems: cart,
+          subscriptionCandidates,
         },
       });
       
@@ -430,9 +443,16 @@ export default function CheckoutReview() {
 
           <h3 style={{ background: '#FFF9C4', padding: '8px 0', borderRadius: '8px', textAlign: 'center', marginBottom: 12 }}>Order Summary</h3>
 
-          {/* Two-column layout: left = products (30%), right = sidebar (offers/ads) */}
-          <div className="checkout-review-layout" style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
-            <div className="checkout-review-items" style={{ flex: '0 0 30%', minWidth: 260 }}>
+          <div
+            className="checkout-review-layout"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'minmax(0, 1.3fr) minmax(320px, 0.9fr)',
+              gap: 24,
+              alignItems: 'start'
+            }}
+          >
+            <div className="checkout-review-items" style={{ minWidth: 0 }}>
               {cart.length === 0 ? (
                 <p style={{ color: "#999" }}>Your bag is empty</p>
               ) : (
@@ -475,6 +495,20 @@ export default function CheckoutReview() {
                 </div>
               )}
 
+              {pendingSubscriptionDraft?.pricing && (
+                <div style={{ marginBottom: 16, background: '#fff6cc', borderRadius: 10, padding: 12, border: '1px solid #f2d060' }}>
+                  <div style={{ fontWeight: 800, color: '#5A3A00' }}>Subscription attached</div>
+                  <div style={{ marginTop: 6, fontSize: 14, color: '#6b3f00' }}>
+                    {pendingSubscriptionDraft.pricing.durationLabel}
+                    {pendingSubscriptionDraft.pricing.frequencyLabel ? ` | ${pendingSubscriptionDraft.pricing.frequencyLabel}` : ''}
+                    {pendingSubscriptionDraft.pricing.planLabel ? ` | ${pendingSubscriptionDraft.pricing.planLabel}` : ''}
+                  </div>
+                  <div style={{ marginTop: 4, fontSize: 13, color: '#8b5e00' }}>
+                    {pendingSubscriptionDraft.pricing.itemCount} item{pendingSubscriptionDraft.pricing.itemCount === 1 ? '' : 's'} | Save â‚¹{Number(pendingSubscriptionDraft.pricing.savings || 0).toFixed(2)}
+                  </div>
+                </div>
+              )}
+
               {/* Promo Code Section */}
               <div style={{ marginTop: 16, background: '#FFF9C4', borderRadius: 10, padding: 12, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
                 <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>Promo Code / Reference Code</label>
@@ -489,7 +523,7 @@ export default function CheckoutReview() {
                   <button
                     onClick={() => {
                       const code = promoCode.trim().toUpperCase();
-                      const total = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
+                      const total = effectiveCartTotal;
                       const matchedOffer = checkoutOffers.find((offer) => (offer.code || "").toUpperCase() === code);
                       if (matchedOffer) {
                         const type = (matchedOffer.type || "percent").toLowerCase();
@@ -514,7 +548,7 @@ export default function CheckoutReview() {
                 )}
               </div>
 
-              <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', marginTop: 8 }}>
+              <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
                 <button
                   onClick={placeOrder}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0)}
@@ -536,7 +570,50 @@ export default function CheckoutReview() {
               </div>
             </div>
 
-            <aside className="checkout-review-sidebar" style={{ flex: '1 1 65%', minWidth: 260 }}>
+            <aside className="checkout-review-sidebar" style={{ minWidth: 0, position: 'sticky', top: 20 }}>
+              <div style={{ background: 'white', padding: 16, borderRadius: 14, boxShadow: '0 8px 22px rgba(0,0,0,0.05)', marginBottom: 14 }}>
+                <h4 style={{ margin: '0 0 12px' }}>Payable Now</h4>
+                <div style={{ display: 'grid', gap: 10 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
+                    <span>Products</span>
+                    <strong>₹{cartTotal.toFixed(2)}</strong>
+                  </div>
+                  {discount > 0 && (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: '#2e7d32' }}>
+                      <span>Discount</span>
+                      <strong>-₹{discount.toFixed(2)}</strong>
+                    </div>
+                  )}
+                  {pendingSubscriptionDraft?.pricing?.totalPayable ? (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, color: '#9a3412' }}>
+                      <span>Subscription attached</span>
+                      <strong>₹{Number(pendingSubscriptionDraft.pricing.totalPayable).toFixed(2)}</strong>
+                    </div>
+                  ) : null}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, paddingTop: 10, borderTop: '1px dashed #e7c86f' }}>
+                    <span style={{ fontWeight: 800 }}>Total</span>
+                    <strong style={{ fontSize: 22, color: '#C8102E' }}>₹{totalAfterDiscount.toFixed(2)}</strong>
+                  </div>
+                </div>
+                <button
+                  onClick={placeOrder}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0)}
+                  style={{
+                    marginTop: 14,
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: (selectedAddress || isGuest) && cart.length > 0 ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 ? 'white' : '#888',
+                    border: 'none',
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 700
+                  }}
+                >
+                  Proceed to Payment
+                </button>
+              </div>
+
               <div style={{ background: 'white', padding: 14, borderRadius: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.04)', marginBottom: 12 }}>
                 <h4 style={{ margin: '0 0 8px' }}>Special Offers</h4>
                 {checkoutOffers.length === 0 ? (

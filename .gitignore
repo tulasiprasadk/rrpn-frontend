@@ -1,31 +1,13 @@
-﻿
-# Node / dependency folders
-node_modules
-package-lock.json
+﻿# Dependencies
+node_modules/
+dist/
+build/
 
-# Environment files
+# Environment
 .env
 .env.local
+.env.production
 
-# Build / output
-dist
-build
-
-# Vercel
-.vercel
-
-# Editor / OS
+# OS Files
 .DS_Store
-.vscode
-.idea
-
-# Logs, cache, coverage
-*.log
-npm-debug.log
-coverage/
-.cache
-
-# Uploaded files / local data
-postgres-data/
-uploads/
-public/uploads/
+Thumbs.db

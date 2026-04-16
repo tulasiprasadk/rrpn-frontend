@@ -17,11 +17,17 @@ const PLAN_LABELS = {
 export default function PaymentSubmitted() {
   const navigate = useNavigate();
   const { state } = useLocation();
+  const subscriptionDraft = state?.subscriptionDraft || null;
   const [subscriptionCandidate, setSubscriptionCandidate] = useState(state?.subscriptionCandidate || null);
   const selectedSubscriptionPeriod = state?.selectedSubscriptionPeriod || "";
 
   useEffect(() => {
     const candidate = state?.subscriptionCandidate || null;
+    if (subscriptionDraft?.id) {
+      clearPendingSubscriptionCandidate();
+      setSubscriptionCandidate(null);
+      return;
+    }
     if (selectedSubscriptionPeriod && candidate?.productId) {
       clearPendingSubscriptionCandidate();
       setSubscriptionCandidate(null);
@@ -68,7 +74,7 @@ export default function PaymentSubmitted() {
     return () => {
       mounted = false;
     };
-  }, [state?.orderId, selectedSubscriptionPeriod]);
+  }, [state?.orderId, selectedSubscriptionPeriod, subscriptionDraft?.id]);
 
   return (
     <div className="payment-submitted-page">
@@ -120,7 +126,37 @@ export default function PaymentSubmitted() {
           )}
         </div>
 
-        {selectedSubscriptionPeriod ? (
+        {subscriptionDraft?.pricing ? (
+          <div
+            style={{
+              marginBottom: 24,
+              padding: 22,
+              borderRadius: 18,
+              background: "linear-gradient(135deg, #fff8cc 0%, #ffe78a 52%, #ffd55c 100%)",
+              border: "1px solid rgba(210, 140, 0, 0.2)",
+              boxShadow: "0 14px 40px rgba(194, 120, 0, 0.16)",
+              textAlign: "left"
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 800, textTransform: "uppercase", letterSpacing: 0.4, color: "#9a3412" }}>
+              Included With This Payment
+            </div>
+            <h3 style={{ margin: "8px 0 8px", fontSize: 30, lineHeight: 1.05, color: "#5A3A00" }}>
+              Subscription request submitted
+            </h3>
+            <p style={{ margin: 0, color: "#6b3f00", lineHeight: 1.7, fontSize: 16 }}>
+              We received your subscription setup together with this payment.
+            </p>
+            <div style={{ marginTop: 12, color: "#7a4b00", fontWeight: 700 }}>
+              {subscriptionDraft.pricing.durationLabel}
+              {subscriptionDraft.pricing.frequencyLabel ? ` | ${subscriptionDraft.pricing.frequencyLabel}` : ""}
+              {subscriptionDraft.pricing.planLabel ? ` | ${subscriptionDraft.pricing.planLabel}` : ""}
+            </div>
+            <div style={{ marginTop: 6, color: "#7a4b00" }}>
+              {subscriptionDraft.pricing.itemCount} item{subscriptionDraft.pricing.itemCount === 1 ? "" : "s"} | Payable Rs {Number(subscriptionDraft.pricing.totalPayable || 0).toFixed(2)}
+            </div>
+          </div>
+        ) : selectedSubscriptionPeriod ? (
           <div
             style={{
               marginBottom: 24,

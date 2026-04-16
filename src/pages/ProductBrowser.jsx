@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { getProducts } from "../api";
 import ProductCard from "../components/ProductCard";
-import CartPanel from "../components/CartPanel";
+import CategoryLayout from "../components/CategoryLayout";
 
 function ProductBrowser() {
 	const [searchParams, setSearchParams] = useSearchParams();
@@ -49,49 +49,35 @@ function ProductBrowser() {
 		setSearchParams(params);
 	};
 
-	return (
-		<div className="with-cart-panel" style={{ minHeight: "100vh", background: "#FFFDE7" }}>
-			<div style={{ flex: 1, padding: 24 }}>
-			<div style={{ display: 'flex', alignItems: 'center', marginBottom: 24 }}>
-				<input
-					type="text"
-					placeholder="Search for products, varieties..."
-					value={searchQuery}
-					onChange={handleInputChange}
-					style={{ padding: 8, fontSize: 16, width: 300, marginRight: 12 }}
-				/>
-				<button onClick={handleSearch} style={{ padding: '8px 18px', fontSize: 16 }}>
-					🔍 Search
-				</button>
-			</div>
-			{loading ? (
-				<div>Loading products…</div>
-			) : products.length === 0 ? (
-				<div>No products found.</div>
-			) : (
-				<div className="product-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: 20, alignItems: 'stretch' }}>
-					{products.map((product) => (
-						<ProductCard
-							key={product.id}
-							product={product}
-							// Remove onClick - let ProductCard handle add to cart by default
-							// User can click product name to navigate to detail page if needed
+		return (
+			<CategoryLayout title={categoryId ? "Category" : "Browse Products"} category="products">
+				<div style={{ padding: 24 }}>
+					<div style={{ display: "flex", alignItems: "center", marginBottom: 24 }}>
+						<input
+							type="text"
+							placeholder="Search for products, varieties..."
+							value={searchQuery}
+							onChange={handleInputChange}
+							style={{ padding: 8, fontSize: 16, width: 300, marginRight: 12 }}
 						/>
-					))}
+						<button onClick={handleSearch} style={{ padding: "8px 18px", fontSize: 16 }}>
+							🔍 Search
+						</button>
+					</div>
+					{loading ? (
+						<div>Loading products…</div>
+					) : products.length === 0 ? (
+						<div>No products found.</div>
+					) : (
+						<div className="product-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))", gap: 20, alignItems: "stretch" }}>
+							{products.map((product) => (
+								<ProductCard key={product.id} product={product} />
+							))}
+						</div>
+					)}
 				</div>
-			)}
-			</div>
-			<div style={{
-				position: 'sticky',
-				top: 32,
-				alignSelf: 'flex-start',
-				height: 'fit-content',
-				zIndex: 10
-			}}>
-				<CartPanel />
-			</div>
-		</div>
-	);
+			</CategoryLayout>
+		);
 }
 
 export default ProductBrowser;

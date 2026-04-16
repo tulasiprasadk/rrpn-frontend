@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE } from "../config/api";
+import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { clearPendingSubscriptionDraft } from "./SubscriptionWidget";
 
 const PLAN_LABELS = {
   monthly: "Monthly",
@@ -92,27 +93,62 @@ export default function SubscriptionPrompt({ initialCandidate = null, compact = 
     setSubscribeError("");
     setSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE}/subscriptions`, {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(localStorage.getItem("token")
-            ? { Authorization: `Bearer ${localStorage.getItem("token")}` }
-            : {})
-        },
-        body: JSON.stringify({ productId: candidate.productId, period })
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || "Failed to subscribe");
+      const [addressRes, createRes] = await Promise.all([
+        api.get("/customer/address"),
+        api.post("/subscription/create", {
+          category: candidate.category || "general",
+          primaryProductId: candidate.productId,
+          duration: period,
+          source: "subscription_prompt",
+          items: [
+            {
+              productId: candidate.productId,
+              quantity: Number(candidate.quantity || 1),
+              unitPrice: Number(candidate.basePrice || 0)
+            }
+          ]
+        })
+      ]);
+      const addresses = Array.isArray(addressRes.data) ? addressRes.data : [];
+      const defaultAddress = addresses.find((item) => item.isDefault) || addresses[0] || null;
+      if (!defaultAddress) {
+        throw new Error("Please save a delivery address before starting a subscription.");
       }
 
+      const orderRes = await api.post("/orders/create", {
+        productId: candidate.productId,
+        qty: Number(candidate.quantity || 1),
+        subscriptionDraftId: createRes.data?.subscription?.id,
+        addressId: defaultAddress.id,
+        customerName: defaultAddress.name || "",
+        customerPhone: defaultAddress.phone || "",
+        customerAddress: [
+          defaultAddress.addressLine,
+          defaultAddress.city,
+          defaultAddress.state,
+          defaultAddress.pincode ? `- ${defaultAddress.pincode}` : ""
+        ].filter(Boolean).join(", "),
+        promoCode: null,
+        discount: 0
+      });
+
       clearPendingSubscriptionCandidate();
+      clearPendingSubscriptionDraft();
       setDismissed(true);
-      alert("Subscription activated successfully!");
+      navigate("/payment", {
+        state: {
+          orderId: orderRes.data.orderId,
+          orderDetails: orderRes.data,
+          subscriptionDraft: {
+            id: createRes.data?.subscription?.id,
+            pricing: createRes.data?.pricing,
+            items: createRes.data?.items || [],
+            productId: candidate.productId
+          }
+        }
+      });
     } catch (err) {
-      setSubscribeError(err.message || "Failed to subscribe");
+      setSubscribeError(err.response?.data?.error || err.message || "Failed to subscribe");
     } finally {
       setSubmitting(false);
     }

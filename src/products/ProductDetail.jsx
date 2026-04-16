@@ -32,7 +32,7 @@ export default function ProductDetail() {
             ))}
           </div>
           <div style={{ marginTop: 12 }} />
-          <SubscriptionWidget product={product} />
+          <SubscriptionWidget product={product} quantity={1} />
         </div>
       </div>
     </div>

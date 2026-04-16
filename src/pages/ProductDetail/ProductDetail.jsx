@@ -203,7 +203,11 @@ export default function ProductDetail() {
           <button onClick={() => setQuantity(q => q + 1)}>+</button>
         </div>
         <div style={{ marginTop: 12 }}>
-          <SubscriptionWidget product={product} />
+          <SubscriptionWidget
+            product={{ ...product, price }}
+            quantity={quantity}
+            onAddToBag={handleAddToBag}
+          />
         </div>
       </div>
     </div>

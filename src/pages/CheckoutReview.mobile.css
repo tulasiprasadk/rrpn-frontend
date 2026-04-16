@@ -6,15 +6,17 @@
   }
 
   .checkout-review-layout {
-    flex-direction: column !important;
-    align-items: stretch !important;
+    grid-template-columns: 1fr !important;
     gap: 16px !important;
   }
 
   .checkout-review-items,
   .checkout-review-sidebar {
-    flex: 1 1 100% !important;
     min-width: 100% !important;
+  }
+
+  .checkout-review-sidebar {
+    position: static !important;
   }
 
   .checkout-review-address-actions {
