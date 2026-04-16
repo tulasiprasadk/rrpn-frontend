@@ -1,60 +1,46 @@
 /**
- * Handles structured order placement via WhatsApp including Subscriptions and Upsells.
- * 
- * @param {Object} user - { name, phone }
- * @param {Object} cart - { items: [], total }
- * @param {Object} address - { street, city, pincode }
- * @param {string} slot - Selected delivery slot
- * @param {Object} subscription - { type, duration, frequency, upsellItems: [], total: 0 }
- * @param {string} whatsappNumber - Recipient number (e.g., '919876543210')
+ * Constructs and opens a structured WhatsApp order message.
  */
 export const handleWhatsAppOrder = (user, cart, address, slot, subscription, whatsappNumber) => {
-  // 1. MANDATORY VALIDATIONS
-  if (!cart || !cart.items || cart.items.length === 0) {
-    alert("Cart is empty");
-    return;
-  }
+  // Validations
+  if (!cart?.items?.length) return alert("Cart is empty");
+  if (!address) return alert("Please add delivery address");
+  if (!user?.phone) return alert("Please add phone number");
 
-  if (!address) {
-    alert("Please add delivery address");
-    return;
-  }
-
-  if (!user || !user.phone) {
-    alert("Please add phone number");
-    return;
-  }
-
-  // 2. DATA EXTRACTION & FORMATTING
   const name = user.name || 'Customer';
   const phone = user.phone;
   const fullAddress = `${address.street || ''}, ${address.city || ''} - ${address.pincode || ''}`.trim();
   
-  // Format Standard Items
+  // 1. Format Standard Items
   const itemsList = cart.items
     .map(item => `- ${item.product_name} (${item.quantity}) ₹${item.price}`)
     .join('\n');
 
-  // Format Subscription Details (if applicable)
-  let subscriptionSection = '';
-  if (subscription && subscription.type) {
-    subscriptionSection = `\nSubscription Details:
+  // 2. Format Subscription Section
+  let subText = '';
+  if (subscription) {
+    subText = `\nSubscription Request:
 Type: ${subscription.type}
 Duration: ${subscription.duration}
-Frequency: ${subscription.frequency}\n`;
-
-    if (subscription.upsellItems && subscription.upsellItems.length > 0) {
-      const upsells = subscription.upsellItems
-        .map(item => `- ${item.product_name} (${item.quantity || 1}) ₹${item.price}`)
-        .join('\n');
-      subscriptionSection += `\nUpsell Items:\n${upsells}\n`;
+Frequency: ${subscription.frequency}`;
+    
+    if (subscription.rationPackage) {
+      subText += `\nPackage: ${subscription.rationPackage}`;
     }
+
+    if (subscription.upsellItems?.length > 0) {
+      const upsells = subscription.upsellItems
+        .map(item => `- ${item.product_name} ₹${item.price}`)
+        .join('\n');
+      subText += `\n\nUpsell Items:\n${upsells}`;
+    }
+    subText += '\n';
   }
 
-  // Calculate Grand Total (Cart + Subscription)
+  // 3. Totals
   const grandTotal = cart.total + (subscription?.total || 0);
 
-  // 3. CONSTRUCT MESSAGE (STRICT FORMAT)
+  // 4. Construct Final Message
   const message = `New Order Request
 
 Name: ${name}
@@ -63,25 +49,13 @@ Address: ${fullAddress}
 
 Items:
 ${itemsList}
-${subscriptionSection}
+${subText}
 Total: ₹${grandTotal}
 
-Preferred Delivery Slot: ${slot || 'Not Selected'}
+Preferred Delivery Slot: ${slot || 'Standard'}
 Payment Mode: UPI / WhatsApp Pay`;
 
-  // 4. LOGGING
-  console.log("whatsapp_order_clicked", { 
-    timestamp: new Date().toISOString(), 
-    orderSummary: { items: cart.items.length, hasSubscription: !!subscription } 
-  });
-
-  // 5. ENCODING & REDIRECTION
+  // 5. Redirection
   const encodedMessage = encodeURIComponent(message);
-  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-
-  // Open in new tab (Works on Mobile App and WhatsApp Web)
-  const newWindow = window.open(whatsappUrl, '_blank');
-  if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
-    alert("Pop-up blocked! Please allow pop-ups to open WhatsApp.");
-  }
+  window.open(`https://wa.me/${whatsappNumber}?text=${encodedMessage}`, '_blank');
 };
