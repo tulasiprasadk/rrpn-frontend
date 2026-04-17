@@ -24,8 +24,44 @@ function buildBaseItem(product, quantity = 1) {
   };
 }
 
+function buildRationItems(product) {
+  const rows = Array.isArray(product?.metadata?.items) ? product.metadata.items : [];
+  return rows.map((item) => ({
+    title: item.title,
+    quantity: Number(item.quantity || 1),
+    unitPrice: Number(item.unitPrice || 0),
+    unit: item.unit || "",
+    metadata: {
+      source: "ration_plan",
+      key: item.key,
+      title: item.title,
+      section: item.section || "",
+      unit: item.unit || ""
+    }
+  }));
+}
+
+function HighlightChip({ children }) {
+  return (
+    <span
+      style={{
+        background: "#fff",
+        border: "1px solid #f2d060",
+        color: "#7a2034",
+        borderRadius: 999,
+        padding: "7px 12px",
+        fontSize: 13,
+        fontWeight: 700
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
 export default function SubscriptionPopup({ open, onClose, product, quantity = 1, onConfirmed }) {
   const category = normalizeSubscriptionCategory(product?.category || product?.Category?.name || "");
+  const isRation = category === "ration";
   const [enabled, setEnabled] = useState(true);
   const [frequency, setFrequency] = useState(SUBSCRIPTION_FREQUENCIES[0].value);
   const [duration, setDuration] = useState(SUBSCRIPTION_DURATIONS[0].value);
@@ -39,12 +75,14 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
 
   useEffect(() => {
     if (!open || !product) return;
+
     setEnabled(true);
     setDuration(SUBSCRIPTION_DURATIONS[0].value);
     setFrequency(SUBSCRIPTION_FREQUENCIES[0].value);
     setPlanType(GROCERY_PLANS[0].value);
     setGroceryItems(GROCERY_PLANS[0].items);
     setSelectedUpsell([]);
+    setPlanExpanded(false);
     setError("");
 
     if (["flowers", "pet_services"].includes(category)) {
@@ -59,18 +97,29 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
           setRecommendations(sameCategory);
         })
         .catch(() => setRecommendations([]));
-    } else {
-      setRecommendations([]);
+      return;
     }
-  }, [open, product?.id, category]);
+
+    setRecommendations([]);
+  }, [open, product, category]);
 
   const selectedPlan = useMemo(
     () => GROCERY_PLANS.find((plan) => plan.value === planType) || GROCERY_PLANS[0],
     [planType]
   );
 
+  const rationHighlights = Array.isArray(product?.metadata?.highlights) ? product.metadata.highlights : [];
+  const rationPreviewItems = useMemo(
+    () => (Array.isArray(product?.metadata?.items) ? product.metadata.items.slice(0, 8) : []),
+    [product]
+  );
+
   const draftItems = useMemo(() => {
     if (!product) return [];
+
+    if (isRation) {
+      return buildRationItems(product);
+    }
 
     if (category === "groceries") {
       return groceryItems.map((item) => ({
@@ -93,7 +142,7 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
       }));
 
     return [buildBaseItem(product, quantity), ...upsellItems];
-  }, [category, groceryItems, product, quantity, recommendations, selectedUpsell]);
+  }, [category, groceryItems, isRation, product, quantity, recommendations, selectedUpsell]);
 
   const pricing = useMemo(
     () =>
@@ -141,7 +190,7 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
         duration,
         frequency: needsFrequency(category) ? frequency : null,
         planType: category === "groceries" ? planType : null,
-        source: "product_popup",
+        source: isRation ? "ration_popup" : "product_popup",
         upsellAccepted: selectedUpsell.length > 0,
         recommendationIds: selectedUpsell,
         items: draftItems
@@ -168,11 +217,15 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
         <div className="subscription-popup__header">
           <div>
             <div className="subscription-popup__eyebrow">
-              {category === "groceries" ? "Subscribe Monthly Ration" : "Subscribe & Save More"}
+              {isRation ? "Featured Monthly Ration" : category === "groceries" ? "Subscribe Monthly Ration" : "Subscribe & Save More"}
             </div>
-            <div className="subscription-popup__title">Subscribe & Save More</div>
+            <div className="subscription-popup__title">
+              {isRation ? product.title || "Choose your ration basket" : "Subscribe & Save More"}
+            </div>
             <div className="subscription-popup__subtitle">
-              Keep this flow guided: switch it on, choose the cycle, optionally add related items, and carry everything into payment in one go.
+              {isRation
+                ? "Pick a duration, review what is included, and continue with one clear bundled monthly basket."
+                : "Keep this flow guided: switch it on, choose the cycle, optionally add related items, and carry everything into payment in one go."}
             </div>
           </div>
           <button type="button" className="subscription-popup__close" onClick={onClose}>
@@ -194,7 +247,9 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
           {enabled && (
             <>
               <div className="subscription-popup__card">
-                <div className="subscription-popup__section-title">Step 1. Choose your cycle</div>
+                <div className="subscription-popup__section-title">
+                  {isRation ? "Step 1. Choose your subscription duration" : "Step 1. Choose your cycle"}
+                </div>
                 <div className="subscription-popup__selectors">
                   {needsFrequency(category) && (
                     <FrequencyDropdown
@@ -211,7 +266,89 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
                 </div>
               </div>
 
-              {category === "groceries" ? (
+              {isRation ? (
+                <div className="subscription-popup__card">
+                  <div
+                    style={{
+                      display: "grid",
+                      gap: 14,
+                      background: "linear-gradient(135deg, #fff7d6 0%, #fff2b0 100%)",
+                      border: "1px solid #f2d060",
+                      borderRadius: 16,
+                      padding: 16
+                    }}
+                  >
+                    <div style={{ display: "flex", justifyContent: "space-between", gap: 16, alignItems: "start", flexWrap: "wrap" }}>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: 0.6, color: "#8b5e00", textTransform: "uppercase" }}>
+                          Highlighted Ration Basket
+                        </div>
+                        <div style={{ fontSize: 22, fontWeight: 900, color: "#5a3a00", marginTop: 4 }}>
+                          {product.title}
+                        </div>
+                        <div style={{ fontSize: 14, color: "#6b4b00", marginTop: 6 }}>
+                          {product.description}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: "right" }}>
+                        <div style={{ fontSize: 12, color: "#8b5e00", fontWeight: 800 }}>
+                          {product.metadata?.badge || "Ration Plan"}
+                        </div>
+                        <div style={{ fontSize: 28, fontWeight: 900, color: "#C8102E", marginTop: 4 }}>
+                          Rs {Number(product.price || 0).toFixed(2)}
+                        </div>
+                        <div style={{ fontSize: 13, color: "#6b4b00" }}>
+                          {Number(product.metadata?.itemCount || rationPreviewItems.length)} items included
+                        </div>
+                      </div>
+                    </div>
+
+                    {rationHighlights.length > 0 && (
+                      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                        {rationHighlights.map((item) => (
+                          <HighlightChip key={item}>{item}</HighlightChip>
+                        ))}
+                      </div>
+                    )}
+
+                    {rationPreviewItems.length > 0 && (
+                      <div>
+                        <div className="subscription-popup__section-title" style={{ marginBottom: 10 }}>
+                          Included in this basket
+                        </div>
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                            gap: 10
+                          }}
+                        >
+                          {rationPreviewItems.map((item) => (
+                            <div
+                              key={item.key}
+                              style={{
+                                background: "#fff",
+                                borderRadius: 12,
+                                padding: 12,
+                                border: "1px solid #f5deb0"
+                              }}
+                            >
+                              <div style={{ fontWeight: 800, color: "#5a3a00" }}>{item.title}</div>
+                              <div style={{ fontSize: 13, color: "#7a5a00", marginTop: 4 }}>{item.unit}</div>
+                              <div style={{ fontSize: 12, color: "#9a6f00", marginTop: 4 }}>{item.section}</div>
+                            </div>
+                          ))}
+                        </div>
+                        {Number(product.metadata?.itemCount || 0) > rationPreviewItems.length && (
+                          <div style={{ marginTop: 10, fontSize: 13, color: "#7a5a00", fontWeight: 700 }}>
+                            Plus {Number(product.metadata?.itemCount || 0) - rationPreviewItems.length} more items in the full ration basket
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ) : category === "groceries" ? (
                 <GroceryPlanSelector
                   value={planType}
                   plans={GROCERY_PLANS}
@@ -250,7 +387,11 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
         <div className="subscription-popup__footer">
           <div className="subscription-popup__error">{error}</div>
           <div className="subscription-popup__actions">
-            <button type="button" className="subscription-popup__button subscription-popup__button--secondary" onClick={onClose}>
+            <button
+              type="button"
+              className="subscription-popup__button subscription-popup__button--secondary"
+              onClick={onClose}
+            >
               Cancel
             </button>
             <button

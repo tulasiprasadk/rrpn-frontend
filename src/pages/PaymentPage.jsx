@@ -22,6 +22,12 @@ const REPEAT_FREQUENCY_OPTIONS = [
   { value: "monthly_30", label: "30 times/month", hint: "Daily repeat delivery" }
 ];
 
+const QUICK_BENEFITS = [
+  "Extra savings on repeat orders",
+  "No need to reorder every week",
+  "Easy approval-based activation"
+];
+
 function clearPendingSubscriptionDraft() {
   localStorage.removeItem("pendingSubscriptionDraft");
 }
@@ -114,6 +120,8 @@ export default function PaymentPage() {
 
   const activeCategory = normalizeSubscriptionCategory(activeSubscriptionCandidate?.category || "");
   const isRationMode = grocerySubscriptionMode === SUBSCRIPTION_MODES.ration;
+  const canShowRationMode = ["groceries", "ration"].includes(activeCategory);
+  const isDedicatedRationCategory = activeCategory === "ration";
 
   const selectedUpsells = useMemo(
     () => upsellRecommendations.filter((item) => selectedUpsellIds.includes(item.id)),
@@ -331,9 +339,9 @@ export default function PaymentPage() {
     if (!activeSubscriptionCandidate?.productId) return;
     setSelectedUpsellIds([]);
     setUpsellExpanded(false);
-    setGrocerySubscriptionMode(SUBSCRIPTION_MODES.repeat_item);
+    setGrocerySubscriptionMode(isDedicatedRationCategory ? SUBSCRIPTION_MODES.ration : SUBSCRIPTION_MODES.repeat_item);
     setSelectedRepeatFrequency("monthly_4");
-  }, [activeSubscriptionCandidate?.productId]);
+  }, [activeSubscriptionCandidate?.productId, isDedicatedRationCategory]);
 
   useEffect(() => {
     if (!activeSubscriptionCandidate?.productId || subscriptionDraft?.id) {
@@ -838,6 +846,392 @@ export default function PaymentPage() {
           </button>
 
           {subscriptionExpanded && (
+            <>
+              <div style={{ display: "grid", gap: 14, marginTop: 14 }}>
+                <div
+                  style={{
+                    background: "linear-gradient(135deg, rgba(255,248,204,0.98) 0%, rgba(255,231,138,0.92) 100%)",
+                    borderRadius: 18,
+                    padding: "16px 18px",
+                    border: "1px solid rgba(210, 140, 0, 0.2)"
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5, color: "#9a3412" }}>
+                    Simple Subscription Setup
+                  </div>
+                  <div style={{ marginTop: 6, fontSize: 24, fontWeight: 900, color: "#5A3A00" }}>
+                    Choose a plan in two quick steps
+                  </div>
+                  <div style={{ marginTop: 8, fontSize: 14, color: "#6b3f00", maxWidth: 760 }}>
+                    Pick a subscription style, tap the duration card you like, and continue. The price updates instantly and activation happens only after payment approval.
+                  </div>
+                  <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>
+                    {QUICK_BENEFITS.map((point) => (
+                      <div
+                        key={point}
+                        style={{
+                          padding: "8px 12px",
+                          borderRadius: 999,
+                          background: "rgba(255,255,255,0.82)",
+                          fontSize: 13,
+                          fontWeight: 800,
+                          color: "#7a2034"
+                        }}
+                      >
+                        {point}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {canShowRationMode && (
+                  <div
+                    style={{
+                      background: "rgba(255,255,255,0.82)",
+                      borderRadius: 16,
+                      padding: "16px 18px",
+                      border: "1px solid rgba(210, 140, 0, 0.16)"
+                    }}
+                  >
+                    <div style={{ fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5, color: "#9a3412", marginBottom: 10 }}>
+                      Step 1
+                    </div>
+                    <div style={{ fontWeight: 900, color: "#5A3A00", fontSize: 20, marginBottom: 6 }}>
+                      Choose your subscription style
+                    </div>
+                    <div style={{ color: "#8b5e00", fontSize: 14, marginBottom: 14 }}>
+                      {isDedicatedRationCategory
+                        ? "This is already a ration basket, so the flow stays focused on the ration option."
+                        : "Pick the quick repeat plan or switch to the highlighted monthly ration basket."}
+                    </div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                        gap: 12
+                      }}
+                    >
+                      {[
+                        {
+                          value: SUBSCRIPTION_MODES.repeat_item,
+                          title: "Repeat This Item",
+                          description: `Keep ${activeSubscriptionCandidate?.title || "this product"} on recurring delivery`,
+                          eyebrow: "Quick Refill",
+                          hidden: isDedicatedRationCategory
+                        },
+                        {
+                          value: SUBSCRIPTION_MODES.ration,
+                          title: "Choose Monthly Ration",
+                          description: "A clearer basket-style offer with stronger monthly value",
+                          eyebrow: "Highlighted",
+                          hidden: false
+                        }
+                      ]
+                        .filter((option) => !option.hidden)
+                        .map((option) => {
+                          const active = grocerySubscriptionMode === option.value;
+                          return (
+                            <button
+                              key={option.value}
+                              type="button"
+                              onClick={() => setGrocerySubscriptionMode(option.value)}
+                              style={{
+                                textAlign: "left",
+                                borderRadius: 16,
+                                border: active ? "1px solid #C8102E" : "1px solid #ecd9a0",
+                                background: active
+                                  ? "linear-gradient(135deg, #fff7d6 0%, #ffe7b3 100%)"
+                                  : "#fff",
+                                padding: "16px",
+                                cursor: "pointer",
+                                boxShadow: active ? "0 12px 28px rgba(200, 16, 46, 0.12)" : "none"
+                              }}
+                            >
+                              <div style={{ fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5, color: active ? "#C8102E" : "#9a3412" }}>
+                                {option.eyebrow}
+                              </div>
+                              <div style={{ marginTop: 6, fontWeight: 900, color: "#5A3A00", fontSize: 18 }}>
+                                {option.title}
+                              </div>
+                              <div style={{ marginTop: 6, fontSize: 13, color: "#8b5e00", lineHeight: 1.5 }}>
+                                {option.description}
+                              </div>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </div>
+                )}
+
+                <div
+                  style={{
+                    background: "rgba(255,255,255,0.82)",
+                    borderRadius: 16,
+                    padding: "16px 18px",
+                    border: "1px solid rgba(210, 140, 0, 0.16)"
+                  }}
+                >
+                  <div style={{ fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5, color: "#9a3412", marginBottom: 10 }}>
+                    Step 2
+                  </div>
+                  <div style={{ fontWeight: 900, color: "#5A3A00", fontSize: 20, marginBottom: 6 }}>
+                    Pick your duration
+                  </div>
+                  <div style={{ color: "#8b5e00", fontSize: 14, marginBottom: 14 }}>
+                    {isRationMode
+                      ? "Each card shows the actual ration payable amount for that duration."
+                      : "Each card already includes the repeat-order discount."}
+                  </div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                      gap: 12
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSubscriptionPeriod("")}
+                      style={{
+                        textAlign: "left",
+                        borderRadius: 16,
+                        border: !selectedSubscriptionPeriod ? "1px solid #6b7280" : "1px solid #e5e7eb",
+                        background: !selectedSubscriptionPeriod ? "#f9fafb" : "#fff",
+                        padding: "14px 16px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <div style={{ fontWeight: 900, color: "#374151" }}>No subscription</div>
+                      <div style={{ marginTop: 6, fontSize: 13, color: "#6b7280" }}>Continue with a one-time order</div>
+                    </button>
+                    {visibleSubscriptionPlans.map((plan) => {
+                      const active = selectedSubscriptionPeriod === plan.period;
+                      return (
+                        <button
+                          key={plan.period}
+                          type="button"
+                          onClick={() => setSelectedSubscriptionPeriod(plan.period)}
+                          style={{
+                            textAlign: "left",
+                            borderRadius: 16,
+                            border: active ? "1px solid #C8102E" : "1px solid #ecd9a0",
+                            background: active
+                              ? "linear-gradient(135deg, #fff7d6 0%, #ffe7b3 100%)"
+                              : "#fff",
+                            padding: "14px 16px",
+                            cursor: "pointer",
+                            boxShadow: active ? "0 12px 28px rgba(200, 16, 46, 0.12)" : "none"
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start" }}>
+                            <div>
+                              <div style={{ fontWeight: 900, color: "#5A3A00" }}>{plan.label}</div>
+                              <div style={{ marginTop: 4, fontSize: 12, fontWeight: 800, color: "#9a3412" }}>
+                                {plan.badge}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: 12, fontWeight: 900, color: "#C8102E" }}>
+                              Save Rs {Number(plan.savings || 0).toFixed(2)}
+                            </div>
+                          </div>
+                          <div style={{ marginTop: 10, fontSize: 24, fontWeight: 900, color: "#C8102E" }}>
+                            Rs {Number(plan.discountedPrice || 0).toFixed(2)}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {selectedSubscriptionPeriod && !isRationMode && (
+                  <div
+                    style={{
+                      background: "rgba(255,255,255,0.82)",
+                      borderRadius: 16,
+                      padding: "16px 18px",
+                      border: "1px solid rgba(210, 140, 0, 0.16)"
+                    }}
+                  >
+                    <div style={{ fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5, color: "#9a3412", marginBottom: 10 }}>
+                      Delivery Pace
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12 }}>
+                      {REPEAT_FREQUENCY_OPTIONS.map((option) => {
+                        const active = selectedRepeatFrequency === option.value;
+                        return (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setSelectedRepeatFrequency(option.value)}
+                            style={{
+                              textAlign: "left",
+                              borderRadius: 14,
+                              border: active ? "1px solid #C8102E" : "1px solid #ecd9a0",
+                              background: active ? "#fff7d6" : "#fff",
+                              padding: "14px",
+                              cursor: "pointer"
+                            }}
+                          >
+                            <div style={{ fontWeight: 900, color: "#5A3A00" }}>{option.label}</div>
+                            <div style={{ marginTop: 6, fontSize: 13, color: "#8b5e00" }}>{option.hint}</div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {selectedSubscriptionPeriod && isRationMode && (
+                  <div
+                    style={{
+                      background: "rgba(255,255,255,0.82)",
+                      borderRadius: 16,
+                      padding: "16px 18px",
+                      border: "1px solid rgba(210, 140, 0, 0.16)"
+                    }}
+                  >
+                    <div style={{ fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5, color: "#9a3412", marginBottom: 10 }}>
+                      Highlighted Ration Baskets
+                    </div>
+                    <div style={{ color: "#8b5e00", fontSize: 14, marginBottom: 14 }}>
+                      Pick the basket that best fits your home needs.
+                    </div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+                      {GROCERY_PLANS.map((plan) => {
+                        const preview = calculateSubscriptionPreview({
+                          category: "groceries",
+                          duration: selectedSubscriptionPeriod,
+                          planType: plan.value,
+                          items: plan.items.map((item) => ({
+                            title: item.title,
+                            quantity: Number(item.quantity || 1),
+                            unitPrice: Number(item.unitPrice || 0),
+                            unit: item.unit || "",
+                            metadata: {
+                              source: "grocery_plan",
+                              key: item.key,
+                              title: item.title,
+                              unit: item.unit || ""
+                            }
+                          }))
+                        });
+                        const active = selectedGroceryPlan === plan.value;
+                        return (
+                          <button
+                            key={plan.value}
+                            type="button"
+                            onClick={() => setSelectedGroceryPlan(plan.value)}
+                            style={{
+                              textAlign: "left",
+                              borderRadius: 16,
+                              border: active ? "1px solid #C8102E" : "1px solid #ecd9a0",
+                              background: active
+                                ? "linear-gradient(135deg, #fff7d6 0%, #ffe7b3 100%)"
+                                : "#fff",
+                              padding: "14px 16px",
+                              cursor: "pointer",
+                              boxShadow: active ? "0 12px 28px rgba(200, 16, 46, 0.12)" : "none"
+                            }}
+                          >
+                            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "start" }}>
+                              <div>
+                                <div style={{ fontWeight: 900, color: "#5A3A00" }}>{plan.label}</div>
+                                <div style={{ marginTop: 4, fontSize: 12, fontWeight: 800, color: "#9a3412" }}>
+                                  {plan.badge}
+                                </div>
+                              </div>
+                              <div style={{ fontSize: 12, fontWeight: 900, color: "#7a2034" }}>
+                                {plan.items.length} items
+                              </div>
+                            </div>
+                            <div style={{ marginTop: 10, fontSize: 24, fontWeight: 900, color: "#C8102E" }}>
+                              Rs {Number(preview.totalPayable || 0).toFixed(2)}
+                            </div>
+                            <div style={{ marginTop: 8, fontSize: 13, color: "#8b5e00", lineHeight: 1.5 }}>
+                              {plan.items.slice(0, 4).map((item) => item.title).join(" • ")}
+                              {plan.items.length > 4 ? " • more" : ""}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {upsellRecommendations.length > 0 && selectedSubscriptionPeriod && !isRationMode && (
+                  <div
+                    style={{
+                      background: "rgba(255,255,255,0.82)",
+                      borderRadius: 16,
+                      padding: "16px 18px",
+                      border: "1px solid rgba(210, 140, 0, 0.16)"
+                    }}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setUpsellExpanded((current) => !current)}
+                      style={{
+                        width: "100%",
+                        border: "none",
+                        background: "transparent",
+                        cursor: "pointer",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: 0,
+                        color: "#5A3A00"
+                      }}
+                    >
+                      <span style={{ textAlign: "left" }}>
+                        <span style={{ display: "block", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.5, color: "#9a3412" }}>
+                          Optional Add-ons
+                        </span>
+                        <span style={{ display: "block", fontWeight: 900, marginTop: 6, fontSize: 18 }}>
+                          Add a few related products
+                        </span>
+                      </span>
+                      <span>{upsellExpanded ? "▲" : "▼"}</span>
+                    </button>
+                    {upsellExpanded && (
+                      <div style={{ display: "grid", gap: 10, marginTop: 14 }}>
+                        {upsellRecommendations.map((item) => {
+                          const active = selectedUpsellIds.includes(item.id);
+                          return (
+                            <label
+                              key={item.id}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                gap: 12,
+                                background: active ? "#fff7d6" : "#fff",
+                                border: active ? "1px solid #C8102E" : "1px solid #eee",
+                                borderRadius: 14,
+                                padding: "12px 14px",
+                                cursor: "pointer"
+                              }}
+                            >
+                              <div>
+                                <div style={{ fontWeight: 800, color: "#5A3A00" }}>{item.title}</div>
+                                <div style={{ marginTop: 4, fontSize: 13, color: "#8b5e00" }}>
+                                  Rs {Number(item.price || 0).toFixed(2)} {item.unit ? `| ${item.unit}` : ""}
+                                </div>
+                              </div>
+                              <input
+                                type="checkbox"
+                                checked={active}
+                                onChange={() => toggleUpsell(item.id)}
+                              />
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div style={{ display: "none" }}>
             <div style={{ display: "grid", gap: 12, marginTop: 14 }}>
               <div
                 style={{
@@ -1113,6 +1507,8 @@ export default function PaymentPage() {
                 </div>
               )}
             </div>
+              </div>
+            </>
           )}
 
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 14 }}>

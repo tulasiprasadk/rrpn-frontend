@@ -4,6 +4,7 @@ import api from "../../../api/client";
 
 const fallbackCategories = [
   { id: 1, name: "Groceries" },
+  { id: 7, name: "Ration" },
   { id: 2, name: "Flowers" },
   { id: 3, name: "Local Services" },
   { id: 4, name: "Pet Services" },

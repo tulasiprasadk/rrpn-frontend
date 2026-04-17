@@ -25,7 +25,7 @@ export default function SubscriptionWidget({ product, quantity = 1, onAddToBag }
     () => normalizeSubscriptionCategory(product?.category || product?.Category?.name || ""),
     [product]
   );
-  const supported = ["flowers", "groceries", "pet_services"].includes(category);
+  const supported = ["flowers", "groceries", "ration", "pet_services"].includes(category);
 
   if (!supported || !product) {
     return null;

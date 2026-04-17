@@ -56,6 +56,16 @@ export default function Subscriptions() {
       .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
   }, [products]);
 
+  const rationProducts = useMemo(
+    () => listedProducts.filter((product) => normalizeSubscriptionCategory(product.category?.name || product.category || "") === "ration"),
+    [listedProducts]
+  );
+
+  const regularProducts = useMemo(
+    () => listedProducts.filter((product) => normalizeSubscriptionCategory(product.category?.name || product.category || "") !== "ration"),
+    [listedProducts]
+  );
+
   const startSubscriptionPayment = async ({ draft, items, pricing }) => {
     try {
       const addressRes = await api.get("/customer/address");
@@ -101,7 +111,7 @@ export default function Subscriptions() {
       <div style={{ padding: "24px 32px" }}>
         <h1 style={{ marginBottom: 10, color: "#C8102E" }}>Subscriptions</h1>
         <p style={{ marginBottom: 10, color: "#555" }}>
-          Keep it compact: choose a product first, configure the subscription in a popup, then continue to payment.
+          Pick a basket or service first, review a short guided setup, then continue to payment.
         </p>
         <p style={{ marginBottom: 24, color: "#7a2034", fontWeight: 700 }}>
           Subscription activates only after payment is verified and approved.
@@ -115,54 +125,142 @@ export default function Subscriptions() {
         )}
 
         {!loading && listedProducts.length > 0 && (
-          <div style={{ display: "grid", gap: 12 }}>
-            {listedProducts.map((product) => (
-              <div
-                key={product.id}
+          <div style={{ display: "grid", gap: 24 }}>
+            {rationProducts.length > 0 && (
+              <section
                 style={{
-                  background: "#FFF9C4",
-                  borderRadius: 14,
-                  padding: 16,
-                  border: "1px solid #F2D060",
-                  display: "grid",
-                  gridTemplateColumns: "minmax(220px, 1.2fr) minmax(160px, 0.8fr) auto",
-                  gap: 14,
-                  alignItems: "center"
+                  background: "linear-gradient(135deg, #fff5cf 0%, #ffe58f 100%)",
+                  border: "1px solid #f2d060",
+                  borderRadius: 18,
+                  padding: 18
                 }}
               >
-                <div>
-                  <div style={{ fontWeight: 800, color: "#C8102E", fontSize: 20 }}>{product.title}</div>
-                  <div style={{ color: "#666", fontSize: 13, marginTop: 4 }}>
-                    {product.category?.name || "Category"} {product.unit ? `| ${product.unit}` : ""}
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 16, flexWrap: "wrap", marginBottom: 14 }}>
+                  <div>
+                    <div style={{ color: "#8b5e00", fontSize: 12, fontWeight: 900, textTransform: "uppercase", letterSpacing: 0.7 }}>
+                      Highlighted Category
+                    </div>
+                    <div style={{ color: "#C8102E", fontSize: 28, fontWeight: 900, marginTop: 4 }}>Ration Plans</div>
+                    <div style={{ color: "#6b4b00", marginTop: 6, maxWidth: 720 }}>
+                      A shorter, clearer way to subscribe: choose one ready monthly basket instead of building a long custom slab.
+                    </div>
+                  </div>
+                  <div style={{ alignSelf: "center", color: "#7a2034", fontWeight: 800 }}>
+                    {rationProducts.length} curated basket{rationProducts.length === 1 ? "" : "s"}
                   </div>
                 </div>
 
-                <div>
-                  <div style={{ color: "#5A3A00", fontWeight: 800 }}>
-                    Base price: Rs {Number(product.price || 0).toFixed(2)}
-                  </div>
-                  <div style={{ marginTop: 4, fontSize: 13, color: "#8b5e00" }}>
-                    Configure duration, frequency, plan, and upsell inside the popup.
-                  </div>
-                </div>
+                <div style={{ display: "grid", gap: 12 }}>
+                  {rationProducts.map((product) => (
+                    <div
+                      key={product.id}
+                      style={{
+                        background: "#fffdf4",
+                        borderRadius: 16,
+                        padding: 16,
+                        border: "1px solid #f0d995",
+                        display: "grid",
+                        gridTemplateColumns: "minmax(220px, 1.2fr) minmax(220px, 0.9fr) auto",
+                        gap: 14,
+                        alignItems: "center"
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 900, color: "#5A3A00", fontSize: 22 }}>{product.title}</div>
+                        <div style={{ color: "#8b5e00", fontSize: 13, marginTop: 4 }}>
+                          {product.metadata?.badge || "Monthly ration"} {product.metadata?.itemCount ? `| ${product.metadata.itemCount} items` : ""}
+                        </div>
+                        <div style={{ color: "#666", fontSize: 14, marginTop: 8 }}>
+                          {product.description}
+                        </div>
+                      </div>
 
-                <button
-                  onClick={() => setActiveProduct(product)}
-                  style={{
-                    background: "#C8102E",
-                    color: "#fff",
-                    border: "none",
-                    padding: "12px 16px",
-                    borderRadius: 10,
-                    cursor: "pointer",
-                    fontWeight: 800,
-                    minWidth: 180
-                  }}
-                >
-                  Configure Subscription
-                </button>
-              </div>
-            ))}
+                      <div>
+                        <div style={{ color: "#C8102E", fontWeight: 900, fontSize: 24 }}>
+                          Rs {Number(product.price || 0).toFixed(2)}
+                        </div>
+                        <div style={{ marginTop: 6, fontSize: 13, color: "#8b5e00" }}>
+                          Choose a duration, preview what is included, and continue in one simple flow.
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveProduct(product)}
+                        style={{
+                          background: "linear-gradient(135deg, #C8102E 0%, #9f1239 100%)",
+                          color: "#fff",
+                          border: "none",
+                          padding: "12px 16px",
+                          borderRadius: 10,
+                          cursor: "pointer",
+                          fontWeight: 800,
+                          minWidth: 190
+                        }}
+                      >
+                        Choose Ration Plan
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {regularProducts.length > 0 && (
+              <section>
+                <div style={{ color: "#C8102E", fontWeight: 900, fontSize: 22, marginBottom: 12 }}>
+                  More Subscription Options
+                </div>
+                <div style={{ display: "grid", gap: 12 }}>
+                  {regularProducts.map((product) => (
+                    <div
+                      key={product.id}
+                      style={{
+                        background: "#FFF9C4",
+                        borderRadius: 14,
+                        padding: 16,
+                        border: "1px solid #F2D060",
+                        display: "grid",
+                        gridTemplateColumns: "minmax(220px, 1.2fr) minmax(160px, 0.8fr) auto",
+                        gap: 14,
+                        alignItems: "center"
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: 800, color: "#C8102E", fontSize: 20 }}>{product.title}</div>
+                        <div style={{ color: "#666", fontSize: 13, marginTop: 4 }}>
+                          {product.category?.name || "Category"} {product.unit ? `| ${product.unit}` : ""}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div style={{ color: "#5A3A00", fontWeight: 800 }}>
+                          Base price: Rs {Number(product.price || 0).toFixed(2)}
+                        </div>
+                        <div style={{ marginTop: 4, fontSize: 13, color: "#8b5e00" }}>
+                          Configure duration, frequency, plan, and upsell inside the popup.
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => setActiveProduct(product)}
+                        style={{
+                          background: "#C8102E",
+                          color: "#fff",
+                          border: "none",
+                          padding: "12px 16px",
+                          borderRadius: 10,
+                          cursor: "pointer",
+                          fontWeight: 800,
+                          minWidth: 180
+                        }}
+                      >
+                        Configure Subscription
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </div>

@@ -125,6 +125,7 @@ export function normalizeSubscriptionCategory(input) {
   const raw = String(input?.name || input || "").trim().toLowerCase();
   if (raw.includes("flower")) return "flowers";
   if (raw.includes("grocery") || raw.includes("pickle")) return "groceries";
+  if (raw.includes("ration")) return "ration";
   if (raw.includes("pet")) return "pet_services";
   return raw || "general";
 }
