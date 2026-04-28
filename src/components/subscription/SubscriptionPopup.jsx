@@ -219,7 +219,30 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
       });
       onClose();
     } catch (err) {
-      setError(err?.response?.data?.error || err?.message || "Failed to prepare subscription");
+      const msg = err?.response?.data?.error || err?.message || "Failed to prepare subscription";
+      // If the backend timed out or network is unavailable, fall back to a local draft
+      if (
+        typeof msg === "string" &&
+        (msg.toLowerCase().includes("timeout") ||
+          msg.toLowerCase().includes("unable to connect") ||
+          msg.toLowerCase().includes("network"))
+      ) {
+        const localDraft = {
+          id: `local-${Date.now()}`,
+          productId: product.id,
+          category,
+          pricing: pricing || {},
+          items: draftItems || [],
+          savedAt: new Date().toISOString()
+        };
+        // Let the parent continue the flow with a local draft so the user can proceed to payment
+        onConfirmed?.({ draft: localDraft, items: draftItems, pricing });
+        onClose();
+        setSubmitting(false);
+        return;
+      }
+
+      setError(msg);
     } finally {
       setSubmitting(false);
     }

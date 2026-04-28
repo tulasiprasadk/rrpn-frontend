@@ -29,10 +29,52 @@ export const fetchSubscriptionPlans = async () => {
   } catch (error) {
     console.error("Error fetching subscription plans:", error);
     // Fallback: return a set of sensible default plans so the UI remains functional
+    // Provide richer fallback objects that the subscriptions UI expects (title, category, metadata)
     const fallbackPlans = [
-      { id: 'basic', name: 'Basic Ration', price: 1499, savings: 200, totalWeight: 15, isPopular: false, items: [{name: 'Rice', quantity: '5kg'}, {name: 'Oil', quantity: '1L'}] },
-      { id: 'standard', name: 'Standard Family', price: 2499, savings: 450, totalWeight: 26, isPopular: true, items: [{name: 'Rice', quantity: '10kg'}, {name: 'Atta', quantity: '5kg'}, {name: 'Oil', quantity: '2L'}] },
-      { id: 'premium', name: 'Premium Mega', price: 4299, savings: 800, totalWeight: 45, isPopular: false, items: [{name: 'Rice', quantity: '20kg'}, {name: 'Atta', quantity: '10kg'}, {name: 'Oil', quantity: '5L'}] },
+      {
+        id: 'basic',
+        title: 'Basic Ration',
+        price: 1499,
+        savings: 200,
+        totalWeight: 15,
+        isPopular: false,
+        category: 'ration',
+        metadata: { badge: 'Monthly ration', itemCount: 6 },
+        items: [
+          { title: 'Rice', quantity: '5kg' },
+          { title: 'Oil', quantity: '1L' }
+        ]
+      },
+      {
+        id: 'standard',
+        title: 'Standard Family',
+        price: 2499,
+        savings: 450,
+        totalWeight: 26,
+        isPopular: true,
+        category: 'ration',
+        metadata: { badge: 'Family plan', itemCount: 10 },
+        items: [
+          { title: 'Rice', quantity: '10kg' },
+          { title: 'Atta', quantity: '5kg' },
+          { title: 'Oil', quantity: '2L' }
+        ]
+      },
+      {
+        id: 'premium',
+        title: 'Premium Mega',
+        price: 4299,
+        savings: 800,
+        totalWeight: 45,
+        isPopular: false,
+        category: 'ration',
+        metadata: { badge: 'Premium basket', itemCount: 18 },
+        items: [
+          { title: 'Rice', quantity: '20kg' },
+          { title: 'Atta', quantity: '10kg' },
+          { title: 'Oil', quantity: '5L' }
+        ]
+      }
     ];
 
     console.warn('Using fallback subscription plans due to API error.');
