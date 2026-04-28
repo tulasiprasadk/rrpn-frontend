@@ -17,7 +17,22 @@ export async function getProducts(query = "", categoryId = "", limit = 50000) {
       credentials: "include",
     });
 
-    if (!res.ok) throw new Error("Failed to load products");
+    // Some deployments may return an HTML page (deployment protection or misrouting).
+    // Detect non-JSON responses and fall back to the local static `products.json`.
+    const contentType = res.headers.get("content-type") || "";
+    if (!res.ok || !contentType.includes("application/json")) {
+      console.warn("API getProducts: non-JSON response, falling back to local products.json", url, contentType);
+      try {
+        const fallback = await fetch("/products.json");
+        if (!fallback.ok) throw new Error("Failed to load local products.json");
+        const json = await fallback.json();
+        return json && json.value ? json.value : json || [];
+      } catch (fbErr) {
+        console.error("Failed to load fallback products.json:", fbErr);
+        throw new Error("Failed to load products");
+      }
+    }
+
     const data = await res.json();
     return data && data.value ? data.value : data;
   } catch (err) {
