@@ -1,61 +1,124 @@
-export const handleWhatsAppOrder = (user, cart, address, slot, subscription, whatsappNumber) => {
-  if (!cart?.items?.length) return alert("Cart is empty");
-  if (!address) return alert("Please add delivery address");
-  if (!user?.phone) return alert("Please add phone number");
+const DEFAULT_WHATSAPP_NUMBER =
+  (import.meta.env?.VITE_WHATSAPP_NUMBER || "919844007900").toString();
 
-  const name = user.name || "Customer";
-  const phone = user.phone;
-  const fullAddress = `${address.street || ""}, ${address.city || ""} ${address.pincode || ""}`.trim();
+function digitsOnly(value) {
+  return String(value || "").replace(/[^0-9]/g, "");
+}
 
-  const itemsList = cart.items
-    .map((item) => `- ${item.product_name || item.title || "Product"} x${item.quantity} - ₹${Number(item.price || 0).toFixed(2)}`)
-    .join("\n");
+function getItemTitle(item) {
+  return item?.product_name || item?.productName || item?.title || item?.name || "Product";
+}
 
-  let subSection = "";
-  if (subscription) {
-    subSection = `\nSubscription Details:
-Type: ${subscription.type}
-Duration: ${subscription.duration}
-Frequency: ${subscription.frequency}`;
+function getItemQty(item) {
+  return Number(item?.quantity ?? item?.qty ?? 1) || 1;
+}
 
-    if (subscription.rationPackage) {
-      subSection += `\nPackage: ${subscription.rationPackage}`;
-    }
+function getItemPrice(item) {
+  return Number(item?.price ?? item?.basePrice ?? item?.amount ?? 0) || 0;
+}
 
-    if (subscription.upsellItems?.length > 0) {
-      const upsells = subscription.upsellItems
-        .map((item) => `- ${item.product_name || item.title || "Upsell"} - ₹${Number(item.price || 0).toFixed(2)}`)
-        .join("\n");
-      subSection += `\n\nUpsell Items:\n${upsells}`;
-    }
-    subSection += "\n";
+export function normalizeWhatsAppCart(cartInput) {
+  const items = Array.isArray(cartInput)
+    ? cartInput
+    : Array.isArray(cartInput?.items)
+      ? cartInput.items
+      : [];
+
+  return items.map((item) => ({
+    ...item,
+    title: getItemTitle(item),
+    quantity: getItemQty(item),
+    price: getItemPrice(item),
+  }));
+}
+
+export function buildWhatsAppOrderMessage({
+  user,
+  cart,
+  address,
+  slot,
+  subscription,
+  note,
+  promoCode,
+  discount = 0,
+} = {}) {
+  const items = normalizeWhatsAppCart(cart);
+  if (!items.length) {
+    return "";
   }
 
-  const calculatedCartTotal = cart.items.reduce(
-    (sum, item) => sum + Number(item.price || 0) * Number(item.quantity || 1),
-    0
-  );
-  const total = Number(cart.total || calculatedCartTotal) + Number(subscription?.total || 0);
+  const customerName = user?.name || user?.fullName || user?.customerName || "";
+  const customerPhone = user?.phone || user?.mobile || user?.customerPhone || "";
+  const addressText =
+    typeof address === "string"
+      ? address
+      : [
+          address?.name ? `Name: ${address.name}` : "",
+          address?.phone ? `Phone: ${address.phone}` : "",
+          address?.addressLine || address?.street || address?.line1 || "",
+          address?.city || "",
+          address?.state || "",
+          address?.pincode ? `PIN: ${address.pincode}` : "",
+        ]
+          .filter(Boolean)
+          .join(", ");
 
-  const message = `New Order Request
+  const itemsList = items
+    .map((item, index) => {
+      const qty = getItemQty(item);
+      const price = getItemPrice(item);
+      const subtotal = qty * price;
+      return `${index + 1}. ${getItemTitle(item)} x ${qty} - INR ${subtotal.toFixed(2)}`;
+    })
+    .join("\n");
 
-Name: ${name}
-Phone: ${phone}
-Address: ${fullAddress}
+  const cartTotal = items.reduce((sum, item) => sum + getItemPrice(item) * getItemQty(item), 0);
+  const subscriptionTotal = Number(subscription?.total || subscription?.pricing?.totalPayable || 0) || 0;
+  const total = Math.max(cartTotal + subscriptionTotal - Number(discount || 0), 0);
 
-Items:
-${itemsList}
-${subSection}
-Total: ₹${Number(total || 0).toFixed(2)}
+  const sections = [
+    "New RR Nagar order request",
+    customerName ? `Customer: ${customerName}` : "",
+    customerPhone ? `Phone: ${customerPhone}` : "",
+    addressText ? `Delivery Address: ${addressText}` : "Delivery Address: Please confirm",
+    "",
+    "Items:",
+    itemsList,
+    "",
+    promoCode ? `Promo Code: ${promoCode}` : "",
+    Number(discount || 0) > 0 ? `Discount: INR ${Number(discount).toFixed(2)}` : "",
+    subscription ? `Subscription: ${subscription.type || subscription.category || "Attached"}` : "",
+    `Total: INR ${total.toFixed(2)}`,
+    slot ? `Preferred Delivery Slot: ${slot}` : "Preferred Delivery Slot: Please confirm",
+    note ? `Note: ${note}` : "",
+    "",
+    "Please confirm availability, delivery time, and payment details.",
+  ];
 
-Preferred Delivery Slot: ${slot || "Standard"}
-Payment Mode: UPI / WhatsApp Pay`;
+  return sections.filter((line, index) => line || sections[index - 1]).join("\n").trim();
+}
 
-  const phoneDigits = String(whatsappNumber || "").replace(/[^0-9]/g, "");
-  console.log("[WhatsAppOrder] opening order link", {
-    itemCount: cart.items.length,
-    total,
-    phoneDigits,
-  });
-  window.open(`https://wa.me/${phoneDigits}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+export function buildWhatsAppOrderUrl(orderDetails = {}, whatsappNumber = DEFAULT_WHATSAPP_NUMBER) {
+  const message = buildWhatsAppOrderMessage(orderDetails);
+  const phoneDigits = digitsOnly(whatsappNumber);
+  if (!message || !phoneDigits) {
+    return "";
+  }
+
+  return `https://wa.me/${phoneDigits}?text=${encodeURIComponent(message)}`;
+}
+
+export function openWhatsAppOrder(orderDetails = {}, whatsappNumber = DEFAULT_WHATSAPP_NUMBER) {
+  const url = buildWhatsAppOrderUrl(orderDetails, whatsappNumber);
+  if (!url) {
+    alert("Your bag is empty");
+    return false;
+  }
+
+  window.open(url, "_blank", "noopener,noreferrer");
+  return true;
+}
+
+export const handleWhatsAppOrder = (user, cart, address, slot, subscription, whatsappNumber) => {
+  return openWhatsAppOrder({ user, cart, address, slot, subscription }, whatsappNumber);
 };

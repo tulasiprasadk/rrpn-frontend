@@ -4,6 +4,7 @@ import api from "../api/client";
 import { trackEvent } from "../utils/analytics";
 import { readPendingSubscriptionDraft } from "../components/SubscriptionWidget";
 import { normalizeSubscriptionCategory } from "../components/subscription/subscriptionConfig";
+import { openWhatsAppOrder } from "../utils/whatsappOrderHelper";
 import "./CheckoutReview.mobile.css";
 
 export default function CheckoutReview() {
@@ -262,6 +263,58 @@ export default function CheckoutReview() {
     } catch (err) {
       console.error("Order creation error:", err);
       alert("Failed to create order: " + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const sendOrderOnWhatsApp = () => {
+    if (!Array.isArray(cart) || cart.length === 0) {
+      alert("Your bag is empty");
+      return;
+    }
+
+    if (!selectedAddress && !isGuest) {
+      alert("Please select a delivery address or checkout as guest");
+      return;
+    }
+
+    let address = selectedAddress;
+    let user = selectedAddress
+      ? { name: selectedAddress.name, phone: selectedAddress.phone }
+      : null;
+
+    if (isGuest) {
+      if (!guestName?.trim() || !guestPhone?.trim() || !guestAddressLine?.trim()) {
+        alert("Please fill name, phone and address to continue as guest");
+        return;
+      }
+
+      address = {
+        name: guestName,
+        phone: guestPhone,
+        addressLine: guestAddressLine,
+        city: guestCity,
+        state: guestState,
+        pincode: guestPincode,
+      };
+      user = { name: guestName, phone: guestPhone };
+    }
+
+    const opened = openWhatsAppOrder({
+      user,
+      cart,
+      address,
+      subscription: pendingSubscriptionDraft || null,
+      promoCode: promoCode || "",
+      discount,
+      note: "Order sent from Checkout page",
+    });
+
+    if (opened) {
+      trackEvent("whatsapp_order_started", {
+        value: totalAfterDiscount,
+        items: cart.length,
+        method: isGuest ? "guest" : "saved_address",
+      });
     }
   };
 
@@ -550,7 +603,7 @@ export default function CheckoutReview() {
 
               <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
                 <button
-                  onClick={placeOrder}
+                  onClick={sendOrderOnWhatsApp}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0)}
                   style={{
                     padding: '12px 20px',
@@ -565,7 +618,7 @@ export default function CheckoutReview() {
                     boxShadow: (selectedAddress || isGuest) && cart.length > 0 ? '0 6px 18px rgba(46,125,50,0.18)' : 'none'
                   }}
                 >
-                  Proceed to Payment →
+                  Send Order on WhatsApp
                 </button>
               </div>
             </div>
@@ -596,7 +649,7 @@ export default function CheckoutReview() {
                   </div>
                 </div>
                 <button
-                  onClick={placeOrder}
+                  onClick={sendOrderOnWhatsApp}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0)}
                   style={{
                     marginTop: 14,
@@ -610,7 +663,7 @@ export default function CheckoutReview() {
                     fontWeight: 700
                   }}
                 >
-                  Proceed to Payment
+                  Send Order on WhatsApp
                 </button>
               </div>
 
@@ -680,10 +733,10 @@ export default function CheckoutReview() {
           <div className="checkout-review-mobile-cta">
             <div className="checkout-review-mobile-total">Total: ₹{totalAfterDiscount.toFixed(2)}</div>
             <button
-              onClick={placeOrder}
+              onClick={sendOrderOnWhatsApp}
               disabled={!((selectedAddress || isGuest) && cart.length > 0)}
             >
-              Proceed to Payment
+              Send Order on WhatsApp
             </button>
           </div>
         </>

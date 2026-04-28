@@ -1,6 +1,7 @@
 // frontend/src/pages/CartPage.jsx
 import { useNavigate } from "react-router-dom";
 import { useCrackerCart } from "../context/CrackerCartContext";
+import { openWhatsAppOrder } from "../utils/whatsappOrderHelper";
 import "./CartPage.css";
 
 export default function BagPage() {
@@ -21,6 +22,18 @@ export default function BagPage() {
       return;
     }
     navigate("/checkout");
+  };
+
+  const orderOnWhatsApp = () => {
+    if (cart.length === 0) {
+      alert("Your bag is empty!");
+      return;
+    }
+
+    openWhatsAppOrder({
+      cart,
+      note: "Order started from Bag page",
+    });
   };
 
   return (
@@ -61,7 +74,8 @@ export default function BagPage() {
             </ul>
             <div className="bag-summary">
               <h3>Total: ₹{total.toFixed(2)}</h3>
-              <button className="checkout-btn" onClick={checkout}>Proceed to Checkout</button>
+              <button className="checkout-btn whatsapp-order-btn" onClick={orderOnWhatsApp}>Order on WhatsApp</button>
+              <button className="secondary-checkout-btn" onClick={checkout}>Add delivery details</button>
               <button className="clear-btn" onClick={clearBag}>Clear Bag</button>
             </div>
           </>

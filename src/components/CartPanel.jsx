@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useCrackerCart } from "../context/CrackerCartContext";
 import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { openWhatsAppOrder } from "../utils/whatsappOrderHelper";
 import "./CartPanel.css";
 
 /**
@@ -87,6 +88,17 @@ export default function CartPanel() {
   const getItemQty = (item) => Number(item?.quantity ?? item?.qty ?? 1) || 1;
   const totalItems = bag.reduce((sum, item) => sum + getItemQty(item), 0);
   const totalAmount = bag.reduce((sum, item) => sum + getItemPrice(item) * getItemQty(item), 0);
+  const orderOnWhatsApp = () => {
+    if (bag.length === 0) {
+      alert("Your bag is empty");
+      return;
+    }
+
+    openWhatsAppOrder({
+      cart: bag,
+      note: "Order started from side bag",
+    });
+  };
 
   return (
     <div
@@ -123,8 +135,11 @@ export default function CartPanel() {
             Total: ₹{totalAmount.toFixed(2)}
           </div>
         )}
-        <button className="cart-panel-cta" onClick={() => window.location.href = '/bag'}>
-          Go to Bag
+        <button className="cart-panel-cta" onClick={orderOnWhatsApp}>
+          Order on WhatsApp
+        </button>
+        <button className="cart-panel-secondary-cta" onClick={() => window.location.href = '/bag'}>
+          Review Bag
         </button>
       </div>
       <div className="cart-panel-mobile-bar">
@@ -135,8 +150,8 @@ export default function CartPanel() {
           {mobileOpen ? "Hide" : "Details"}
         </button>
         <div className="cart-panel-mobile-total">Total: ₹{totalAmount.toFixed(2)}</div>
-        <button className="cart-panel-mobile-cta" onClick={() => window.location.href = '/bag'}>
-          Go to Bag
+        <button className="cart-panel-mobile-cta" onClick={orderOnWhatsApp}>
+          WhatsApp Order
         </button>
       </div>
     </div>
