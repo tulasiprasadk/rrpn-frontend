@@ -13,18 +13,27 @@ export const fetchSubscriptionPlans = async () => {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
-    // Map backend response to the desired frontend format
-    return data.map(plan => ({
+    // Map backend response to the frontend product shape expected by the UI
+    return (Array.isArray(data) ? data : []).map((plan) => ({
       id: plan.id,
-      name: plan.title || plan.name, // Assuming 'title' or 'name' from backend
-      price: plan.monthlyPrice || plan.price,
-      savings: plan.discountAmount || plan.savings || 0, // Assuming 'discountAmount' or 'savings'
-      totalWeight: plan.weightKg || plan.totalWeight || 0, // Assuming 'weightKg' or 'totalWeight'
-      items: plan.includedItems ? plan.includedItems.map(item => ({ // Assuming 'includedItems'
-        name: item.itemName || item.name,
-        quantity: item.itemQuantity || item.quantity
-      })) : [],
-      isPopular: plan.isPopular || false, // Assuming backend provides this
+      title: plan.title || plan.name || plan.productName || "Subscription",
+      price: Number(plan.monthlyPrice || plan.price || plan.amount || 0),
+      description: plan.description || plan.summary || "",
+      category: plan.category || plan.category?.name || "ration",
+      metadata: plan.metadata || plan.meta || {},
+      items: Array.isArray(plan.includedItems)
+        ? plan.includedItems.map((it, idx) => ({
+            key: it.key || `item-${idx}`,
+            title: it.itemName || it.name || it.title || "Item",
+            quantity: Number(it.itemQuantity || it.quantity || 1),
+            unitPrice: Number(it.unitPrice || it.price || 0),
+            unit: it.unit || "",
+            section: it.section || ""
+          }))
+        : Array.isArray(plan.items)
+        ? plan.items
+        : [],
+      isPopular: plan.isPopular || plan.popular || false
     }));
   } catch (error) {
     console.error("Error fetching subscription plans:", error);
@@ -35,45 +44,49 @@ export const fetchSubscriptionPlans = async () => {
         id: 'basic',
         title: 'Basic Ration',
         price: 1499,
-        savings: 200,
-        totalWeight: 15,
         isPopular: false,
         category: 'ration',
-        metadata: { badge: 'Monthly ration', itemCount: 6 },
-        items: [
-          { title: 'Rice', quantity: '5kg' },
-          { title: 'Oil', quantity: '1L' }
-        ]
+        metadata: {
+          badge: 'Monthly ration',
+          itemCount: 6,
+          // include items inside metadata so `SubscriptionPopup` can read them as a ration
+          items: [
+            { key: 'rice-5', title: 'Rice', quantity: 5, unitPrice: 0, unit: 'kg', section: 'Grains' },
+            { key: 'oil-1', title: 'Oil', quantity: 1, unitPrice: 0, unit: 'L', section: 'Oils' }
+          ]
+        }
       },
       {
         id: 'standard',
         title: 'Standard Family',
         price: 2499,
-        savings: 450,
-        totalWeight: 26,
         isPopular: true,
         category: 'ration',
-        metadata: { badge: 'Family plan', itemCount: 10 },
-        items: [
-          { title: 'Rice', quantity: '10kg' },
-          { title: 'Atta', quantity: '5kg' },
-          { title: 'Oil', quantity: '2L' }
-        ]
+        metadata: {
+          badge: 'Family plan',
+          itemCount: 10,
+          items: [
+            { key: 'rice-10', title: 'Rice', quantity: 10, unitPrice: 0, unit: 'kg' },
+            { key: 'atta-5', title: 'Atta', quantity: 5, unitPrice: 0, unit: 'kg' },
+            { key: 'oil-2', title: 'Oil', quantity: 2, unitPrice: 0, unit: 'L' }
+          ]
+        }
       },
       {
         id: 'premium',
         title: 'Premium Mega',
         price: 4299,
-        savings: 800,
-        totalWeight: 45,
         isPopular: false,
         category: 'ration',
-        metadata: { badge: 'Premium basket', itemCount: 18 },
-        items: [
-          { title: 'Rice', quantity: '20kg' },
-          { title: 'Atta', quantity: '10kg' },
-          { title: 'Oil', quantity: '5L' }
-        ]
+        metadata: {
+          badge: 'Premium basket',
+          itemCount: 18,
+          items: [
+            { key: 'rice-20', title: 'Rice', quantity: 20, unitPrice: 0, unit: 'kg' },
+            { key: 'atta-10', title: 'Atta', quantity: 10, unitPrice: 0, unit: 'kg' },
+            { key: 'oil-5', title: 'Oil', quantity: 5, unitPrice: 0, unit: 'L' }
+          ]
+        }
       }
     ];
 
