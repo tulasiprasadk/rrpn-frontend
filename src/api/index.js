@@ -1,8 +1,6 @@
-// src/api/index.js
-
+import api from "./client";
 import { API_BASE } from "../config/api";
 
-// Get all products or search by keyword
 export async function getProducts(query = "", categoryId = "", limit = 50000) {
   try {
     const params = new URLSearchParams();
@@ -21,7 +19,6 @@ export async function getProducts(query = "", categoryId = "", limit = 50000) {
 
     if (!res.ok) throw new Error("Failed to load products");
     const data = await res.json();
-    // Backend may return a wrapper { value: [...], Count }
     return data && data.value ? data.value : data;
   } catch (err) {
     console.error("API getProducts error:", err);
@@ -29,7 +26,6 @@ export async function getProducts(query = "", categoryId = "", limit = 50000) {
   }
 }
 
-// Get a single product by ID
 export async function getProduct(id) {
   try {
     const res = await fetch(`${API_BASE}/products/${id}`, {
@@ -45,19 +41,16 @@ export async function getProduct(id) {
   }
 }
 
-// Get list of categories
 export async function getCategories() {
   try {
-    const res = await fetch(`${API_BASE}/categories`, { credentials: 'include' });
-    if (!res.ok) throw new Error('Failed to load categories');
+    const res = await fetch(`${API_BASE}/categories`, { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to load categories");
     const data = await res.json();
-    // Backend may return a wrapper { value: [...], Count }
     return data && data.value ? data.value : data || [];
   } catch (err) {
-    console.error('API getCategories error:', err);
+    console.error("API getCategories error:", err);
     return [];
   }
 }
 
-
-
+export default api;
