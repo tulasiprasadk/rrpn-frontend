@@ -28,6 +28,14 @@ export const fetchSubscriptionPlans = async () => {
     }));
   } catch (error) {
     console.error("Error fetching subscription plans:", error);
-    throw error;
+    // Fallback: return a set of sensible default plans so the UI remains functional
+    const fallbackPlans = [
+      { id: 'basic', name: 'Basic Ration', price: 1499, savings: 200, totalWeight: 15, isPopular: false, items: [{name: 'Rice', quantity: '5kg'}, {name: 'Oil', quantity: '1L'}] },
+      { id: 'standard', name: 'Standard Family', price: 2499, savings: 450, totalWeight: 26, isPopular: true, items: [{name: 'Rice', quantity: '10kg'}, {name: 'Atta', quantity: '5kg'}, {name: 'Oil', quantity: '2L'}] },
+      { id: 'premium', name: 'Premium Mega', price: 4299, savings: 800, totalWeight: 45, isPopular: false, items: [{name: 'Rice', quantity: '20kg'}, {name: 'Atta', quantity: '10kg'}, {name: 'Oil', quantity: '5L'}] },
+    ];
+
+    console.warn('Using fallback subscription plans due to API error.');
+    return fallbackPlans;
   }
 };
