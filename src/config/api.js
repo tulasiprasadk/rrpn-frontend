@@ -25,7 +25,7 @@ const RUNTIME_API_URL =
 const BASE =
   RUNTIME_API_URL ||
   ENV_API_URL ||
-  "https://backend-push-temp.vercel.app";
+  "https://rrpn-backend.vercel.app";
 
 export const BACKEND_BASE = BASE;
 export const API_BASE = `${BACKEND_BASE}/api`;
