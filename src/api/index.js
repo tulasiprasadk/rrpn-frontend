@@ -13,9 +13,7 @@ export async function getProducts(query = "", categoryId = "", limit = 50000) {
         ? `${API_BASE}/products?${params.toString()}`
         : `${API_BASE}/products`;
 
-    const res = await fetch(url, {
-      credentials: "include",
-    });
+    const res = await fetch(url);
 
     // Some deployments may return an HTML page (deployment protection or misrouting).
     // Detect non-JSON responses and fall back to the local static `products.json`.
@@ -43,9 +41,7 @@ export async function getProducts(query = "", categoryId = "", limit = 50000) {
 
 export async function getProduct(id) {
   try {
-    const res = await fetch(`${API_BASE}/products/${id}`, {
-      credentials: "include",
-    });
+    const res = await fetch(`${API_BASE}/products/${id}`);
 
     if (!res.ok) throw new Error("Failed to load product");
     const data = await res.json();
@@ -58,7 +54,7 @@ export async function getProduct(id) {
 
 export async function getCategories() {
   try {
-    const res = await fetch(`${API_BASE}/categories`, { credentials: "include" });
+    const res = await fetch(`${API_BASE}/categories`);
     if (!res.ok) throw new Error("Failed to load categories");
     const data = await res.json();
     return data && data.value ? data.value : data || [];
