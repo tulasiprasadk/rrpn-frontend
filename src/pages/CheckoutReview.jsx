@@ -41,8 +41,14 @@ export default function CheckoutReview() {
       try {
         setLoading(true);
         setError("");
+        const token = localStorage.getItem("token");
         
         // Load address
+        if (!token) {
+          setIsGuest(true);
+          setShowGuestForm(true);
+          setDefaultAddress(null);
+        } else {
         try {
           const res = await api.get("/customer/address");
           const list = Array.isArray(res.data) ? res.data : [];
@@ -57,13 +63,18 @@ export default function CheckoutReview() {
             setShowGuestForm(true);
             setDefaultAddress(null);
           } else if (addrErr.code === 'ERR_NETWORK') {
-            setError("Cannot connect to server. Please check if the backend is running.");
+            setIsGuest(true);
+            setShowGuestForm(true);
+            setDefaultAddress(null);
           } else if (addrErr.response?.status === 404) {
             // No address found, but do not block checkout
             setDefaultAddress(null);
           } else {
-            setError(`Failed to load address: ${addrErr.response?.data?.error || addrErr.message}`);
+            setIsGuest(true);
+            setShowGuestForm(true);
+            setDefaultAddress(null);
           }
+        }
         }
 
         // Load cart from localStorage (prefer `bag` produced by CrackerCartContext)
@@ -78,17 +89,20 @@ export default function CheckoutReview() {
         // Load checkout offers + ads (public CMS)
         try {
           const [offersRes, adsRes] = await Promise.all([
-            api.get("/cms/checkout-offers"),
-            api.get("/cms/checkout-ads")
+            fetch("/api/cms/checkout-offers", { credentials: "omit" }),
+            fetch("/api/cms/checkout-ads", { credentials: "omit" })
           ]);
-          setCheckoutOffers(Array.isArray(offersRes.data) ? offersRes.data : []);
-          setCheckoutAds(Array.isArray(adsRes.data) ? adsRes.data : []);
+          const offers = offersRes.ok ? await offersRes.json() : [];
+          const ads = adsRes.ok ? await adsRes.json() : [];
+          setCheckoutOffers(Array.isArray(offers) ? offers : []);
+          setCheckoutAds(Array.isArray(ads) ? ads : []);
         } catch (cmsErr) {
           console.error("Checkout CMS load error:", cmsErr);
         }
 
         // Load session guest addresses (if any) to prefill guest form
         try {
+          if (!token) return;
           const g = await api.get('/customer/address/guest');
           if (Array.isArray(g.data) && g.data.length) {
             const latest = g.data[g.data.length - 1];

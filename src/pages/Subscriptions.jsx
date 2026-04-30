@@ -19,11 +19,29 @@ function buildAddressText(address) {
     .join(", ");
 }
 
+function getPlanCategory(product) {
+  return normalizeSubscriptionCategory(product.category?.name || product.category || "");
+}
+
+function getRationItems(product) {
+  let metadata = product.metadata || {};
+  if (typeof metadata === "string") {
+    try {
+      metadata = JSON.parse(metadata || "{}");
+    } catch (_err) {
+      metadata = {};
+    }
+  }
+  return Array.isArray(metadata.items) ? metadata.items : Array.isArray(product.items) ? product.items : [];
+}
+
 export default function Subscriptions() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeProduct, setActiveProduct] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("all");
   const navigate = useNavigate();
   const { addItem } = useCrackerCart();
 
@@ -54,20 +72,50 @@ export default function Subscriptions() {
     const excluded = ["crackers", "local services", "consultancy"];
     return products
       .filter((product) => {
-        const category = normalizeSubscriptionCategory(product.category?.name || product.category || "");
+        const category = getPlanCategory(product);
         return !excluded.includes(category);
       })
       .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
   }, [products]);
 
+  const categoryOptions = useMemo(() => {
+    const labels = new Map([
+      ["ration", "Ration baskets"],
+      ["groceries", "Groceries"],
+      ["flowers", "Flowers"],
+      ["pet_services", "Pet services"]
+    ]);
+    return [...new Set(listedProducts.map(getPlanCategory))]
+      .filter(Boolean)
+      .map((value) => ({ value, label: labels.get(value) || value.replace("_", " ") }));
+  }, [listedProducts]);
+
+  const filteredProducts = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return listedProducts.filter((product) => {
+      const category = getPlanCategory(product);
+      const matchesCategory = activeCategory === "all" || category === activeCategory;
+      const text = [
+        product.title,
+        product.description,
+        product.metadata?.badge,
+        ...getRationItems(product).map((item) => item.title || item.name || item.key)
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return matchesCategory && (!query || text.includes(query));
+    });
+  }, [activeCategory, listedProducts, searchQuery]);
+
   const rationProducts = useMemo(
-    () => listedProducts.filter((product) => normalizeSubscriptionCategory(product.category?.name || product.category || "") === "ration"),
-    [listedProducts]
+    () => filteredProducts.filter((product) => getPlanCategory(product) === "ration"),
+    [filteredProducts]
   );
 
   const regularProducts = useMemo(
-    () => listedProducts.filter((product) => normalizeSubscriptionCategory(product.category?.name || product.category || "") !== "ration"),
-    [listedProducts]
+    () => filteredProducts.filter((product) => getPlanCategory(product) !== "ration"),
+    [filteredProducts]
   );
 
   const startSubscriptionPayment = async ({ draft, items, pricing }) => {
@@ -172,14 +220,80 @@ export default function Subscriptions() {
           Subscription activates only after payment is verified and approved.
         </p>
 
+        <div
+          style={{
+            background: "#fff",
+            border: "1px solid #f2d060",
+            borderRadius: 14,
+            padding: 14,
+            marginBottom: 18,
+            display: "grid",
+            gap: 12
+          }}
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: 12, alignItems: "center" }}>
+            <input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Search by item, basket, flower, grocery..."
+              style={{
+                minHeight: 44,
+                border: "1px solid #e7c86f",
+                borderRadius: 10,
+                padding: "0 14px",
+                fontSize: 15
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setActiveCategory("all");
+              }}
+              style={{
+                minHeight: 44,
+                border: "1px solid #e7c86f",
+                borderRadius: 10,
+                background: "#fff9c4",
+                color: "#5A3A00",
+                fontWeight: 800,
+                padding: "0 14px",
+                cursor: "pointer"
+              }}
+            >
+              Reset
+            </button>
+          </div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {[{ value: "all", label: "All plans" }, ...categoryOptions].map((item) => (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setActiveCategory(item.value)}
+                style={{
+                  border: "1px solid #f2d060",
+                  borderRadius: 999,
+                  padding: "8px 12px",
+                  background: activeCategory === item.value ? "#C8102E" : "#fffdf4",
+                  color: activeCategory === item.value ? "#fff" : "#6b4b00",
+                  fontWeight: 800,
+                  cursor: "pointer"
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         {loading && <div>Loading subscription products...</div>}
         {error && <div style={{ color: "#C8102E", marginBottom: 12 }}>{error}</div>}
 
-        {!loading && !error && listedProducts.length === 0 && (
-          <div style={{ color: "#777" }}>No subscription products available yet.</div>
+        {!loading && !error && filteredProducts.length === 0 && (
+          <div style={{ color: "#777" }}>No matching subscription plans found.</div>
         )}
 
-        {!loading && listedProducts.length > 0 && (
+        {!loading && filteredProducts.length > 0 && (
           <div style={{ display: "grid", gap: 24 }}>
             {rationProducts.length > 0 && (
               <section
@@ -227,6 +341,24 @@ export default function Subscriptions() {
                         </div>
                         <div style={{ color: "#666", fontSize: 14, marginTop: 8 }}>
                           {product.description}
+                        </div>
+                        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 10 }}>
+                          {getRationItems(product).slice(0, 5).map((item) => (
+                            <span
+                              key={item.key || item.title}
+                              style={{
+                                background: "#fff",
+                                border: "1px solid #f2d060",
+                                borderRadius: 999,
+                                color: "#5A3A00",
+                                fontSize: 12,
+                                fontWeight: 800,
+                                padding: "6px 10px"
+                              }}
+                            >
+                              {item.title || item.name} {item.quantity ? `x ${item.quantity}${item.unit || ""}` : ""}
+                            </span>
+                          ))}
                         </div>
                       </div>
 
