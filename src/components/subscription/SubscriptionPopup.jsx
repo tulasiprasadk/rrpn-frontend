@@ -36,19 +36,39 @@ function buildBaseItem(product, quantity = 1) {
 
 function buildRationItems(product) {
   const metadata = parseMetadata(product?.metadata);
-  const rows = Array.isArray(metadata?.items) ? metadata.items : [];
-  return rows.map((item) => ({
-    title: item.title,
+  const rows = Array.isArray(metadata?.items)
+    ? metadata.items
+    : Array.isArray(product?.items)
+      ? product.items
+      : [];
+  const normalizedRows = rows.map((item) => ({
+    title: item.title || item.name || "Ration item",
     quantity: Number(item.quantity || 1),
-    unitPrice: Number(item.unitPrice || 0),
-    unit: item.unit || "",
+    unitPrice: Number(item.unitPrice || item.price || 0),
+    unit: item.unit || item.quantityText || "",
     metadata: {
       source: "ration_plan",
       key: item.key,
-      title: item.title,
+      title: item.title || item.name || "Ration item",
       section: item.section || "",
-      unit: item.unit || ""
+      unit: item.unit || item.quantityText || ""
     }
+  }));
+  const currentSubtotal = normalizedRows.reduce((sum, item) => sum + item.quantity * item.unitPrice, 0);
+
+  if (currentSubtotal > 0 || !normalizedRows.length) {
+    return normalizedRows;
+  }
+
+  const monthlyPrice = Number(product?.monthlyPrice || product?.price || 0);
+  const linePrice = Number((monthlyPrice / normalizedRows.length).toFixed(2));
+  const remainder = Number((monthlyPrice - linePrice * normalizedRows.length).toFixed(2));
+
+  return normalizedRows.map((item, index) => ({
+    ...item,
+    unitPrice: Number(
+      ((linePrice + (index === normalizedRows.length - 1 ? remainder : 0)) / Math.max(Number(item.quantity || 1), 1)).toFixed(2)
+    )
   }));
 }
 
@@ -125,10 +145,12 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
   );
 
   const rationHighlights = Array.isArray(productMetadata?.highlights) ? productMetadata.highlights : [];
-  const rationPreviewItems = useMemo(
-    () => (Array.isArray(productMetadata?.items) ? productMetadata.items.slice(0, 8) : []),
-    [productMetadata]
-  );
+  const rationItems = useMemo(() => {
+    if (Array.isArray(productMetadata?.items)) return productMetadata.items;
+    if (Array.isArray(product?.items)) return product.items;
+    return [];
+  }, [product?.items, productMetadata]);
+  const rationPreviewItems = useMemo(() => rationItems.slice(0, 12), [rationItems]);
 
   const draftItems = useMemo(() => {
     if (!product) return [];
@@ -337,7 +359,7 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
                           Rs {Number(product.price || 0).toFixed(2)}
                         </div>
                         <div style={{ fontSize: 13, color: "#6b4b00" }}>
-                          {Number(productMetadata?.itemCount || rationPreviewItems.length)} items included
+                          {Number(productMetadata?.itemCount || rationItems.length)} items included
                         </div>
                       </div>
                     </div>
@@ -373,14 +395,16 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
                               }}
                             >
                               <div style={{ fontWeight: 800, color: "#5a3a00" }}>{item.title}</div>
-                              <div style={{ fontSize: 13, color: "#7a5a00", marginTop: 4 }}>{item.unit}</div>
+                              <div style={{ fontSize: 13, color: "#7a5a00", marginTop: 4 }}>
+                                {item.unit || item.quantityText || ""}
+                              </div>
                               <div style={{ fontSize: 12, color: "#9a6f00", marginTop: 4 }}>{item.section}</div>
                             </div>
                           ))}
                         </div>
-                        {Number(productMetadata?.itemCount || 0) > rationPreviewItems.length && (
+                        {Number(productMetadata?.itemCount || rationItems.length || 0) > rationPreviewItems.length && (
                           <div style={{ marginTop: 10, fontSize: 13, color: "#7a5a00", fontWeight: 700 }}>
-                            Plus {Number(productMetadata?.itemCount || 0) - rationPreviewItems.length} more items in the full ration basket
+                            Plus {Number(productMetadata?.itemCount || rationItems.length || 0) - rationPreviewItems.length} more items in the full ration basket
                           </div>
                         )}
                       </div>

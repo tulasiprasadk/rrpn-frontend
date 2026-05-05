@@ -75,7 +75,14 @@ export default function Subscriptions() {
         const category = getPlanCategory(product);
         return !excluded.includes(category);
       })
-      .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
+      .sort((a, b) => {
+        const categoryA = getPlanCategory(a);
+        const categoryB = getPlanCategory(b);
+        if (categoryA === "ration" && categoryB === "ration") {
+          return Number(a.sortOrder || a.metadata?.sortOrder || 999) - Number(b.sortOrder || b.metadata?.sortOrder || 999);
+        }
+        return String(a.title || "").localeCompare(String(b.title || ""));
+      });
   }, [products]);
 
   const categoryOptions = useMemo(() => {
@@ -356,7 +363,7 @@ export default function Subscriptions() {
                                 padding: "6px 10px"
                               }}
                             >
-                              {item.title || item.name} {item.quantity ? `x ${item.quantity}${item.unit || ""}` : ""}
+                              {item.title || item.name} {item.quantity ? `x ${item.quantity}${item.unit ? ` ${item.unit}` : ""}` : ""}
                             </span>
                           ))}
                         </div>

@@ -155,8 +155,8 @@ export function getGroceryPlan(planType) {
 export function calculateSubscriptionPreview({ category, duration, frequency, planType, items }) {
   const normalizedCategory = normalizeSubscriptionCategory(category);
   const durationConfig = getDurationConfig(duration);
-  const frequencyConfig = getFrequencyConfig(frequency);
-  const plan = getGroceryPlan(planType);
+  const frequencyConfig = needsFrequency(normalizedCategory) ? getFrequencyConfig(frequency) : null;
+  const plan = normalizedCategory === "groceries" ? getGroceryPlan(planType) : null;
 
   const normalizedItems = (Array.isArray(items) ? items : []).map((item) => {
     const quantity = Number(item.quantity || 1);
@@ -174,7 +174,7 @@ export function calculateSubscriptionPreview({ category, duration, frequency, pl
   let cycleMultiplier = 1;
   if (frequencyConfig?.occurrencesPerMonth) {
     cycleMultiplier = frequencyConfig.occurrencesPerMonth;
-  } else if (needsFrequency(normalizedCategory) && frequencyConfig) {
+  } else if (frequencyConfig) {
     cycleMultiplier = (frequencyConfig.multiplier || 1) * 7;
   }
   const cycleSubtotal = Number((baseSubtotal * cycleMultiplier).toFixed(2));

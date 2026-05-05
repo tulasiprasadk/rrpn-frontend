@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/client";
 import { trackEvent } from "../utils/analytics";
-import { readPendingSubscriptionDraft } from "../components/SubscriptionWidget";
+import {
+  readPendingSubscriptionDraft,
+  savePendingSubscriptionDraft
+} from "../components/SubscriptionWidget";
+import SubscriptionPopup from "../components/subscription/SubscriptionPopup";
 import { normalizeSubscriptionCategory } from "../components/subscription/subscriptionConfig";
 import { openWhatsAppOrder } from "../utils/whatsappOrderHelper";
 import "./CheckoutReview.mobile.css";
@@ -33,8 +37,11 @@ export default function CheckoutReview() {
   const [discount, setDiscount] = useState(0);
   const [checkoutOffers, setCheckoutOffers] = useState([]);
   const [checkoutAds, setCheckoutAds] = useState([]);
+  const [subscriptionDraft, setSubscriptionDraft] = useState(() => readPendingSubscriptionDraft());
+  const [subscriptionProduct, setSubscriptionProduct] = useState(null);
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
   const selectedAddress = location.state?.selectedAddress || defaultAddress;
-  const pendingSubscriptionDraft = readPendingSubscriptionDraft();
+  const pendingSubscriptionDraft = subscriptionDraft;
 
   useEffect(() => {
     async function loadData() {
@@ -126,10 +133,26 @@ export default function CheckoutReview() {
   }, [navigate]);
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
-  const effectiveCartTotal = pendingSubscriptionDraft?.pricing?.totalPayable
-    ? Number(pendingSubscriptionDraft.pricing.totalPayable)
-    : cartTotal;
+  const subscriptionTotal = Number(pendingSubscriptionDraft?.pricing?.totalPayable || 0);
+  const effectiveCartTotal = cartTotal + subscriptionTotal;
   const totalAfterDiscount = Math.max(effectiveCartTotal - discount, 0);
+  const subscriptionCandidate = cart
+    .map((item) => {
+      const category = normalizeSubscriptionCategory(item.category || item.categoryName || item.Category?.name || "");
+      const productId = item.id || item.productId || item.product_id || item._id;
+      return {
+        id: productId,
+        productId,
+        title: item.title || item.productName || item.name || "Product",
+        name: item.title || item.productName || item.name || "Product",
+        price: Number(item.price || item.basePrice || item.amount || 0),
+        basePrice: Number(item.price || item.basePrice || item.amount || 0),
+        category,
+        unit: item.unit || "",
+        metadata: item.metadata || item.meta || {}
+      };
+    })
+    .find((item) => item.productId && ["flowers", "groceries", "ration", "pet_services"].includes(item.category));
   const selectedAddressText = selectedAddress
     ? [
         selectedAddress.addressLine,
@@ -158,6 +181,7 @@ export default function CheckoutReview() {
     }
 
     try {
+      setOrderSubmitting(true);
       // Get cart items from localStorage (prefer `bag`)
       const bag = JSON.parse(localStorage.getItem("bag") || "null");
       const cart = Array.isArray(bag) && bag.length ? bag.map(i => ({ ...i, quantity: i.quantity || i.qty || 1 })) : JSON.parse(localStorage.getItem("cart") || "[]");
@@ -172,6 +196,23 @@ export default function CheckoutReview() {
       let productId = firstItem && (firstItem.id || firstItem.productId || firstItem.product_id || (firstItem.product && (firstItem.product.id || firstItem.product._id)) || firstItem._id || firstItem.sku);
       // Coerce to number when possible
       if (productId != null && !isNaN(Number(productId))) productId = Number(productId);
+      const isServiceOrder = productId != null && !Number.isFinite(Number(productId));
+      const serviceInfo = isServiceOrder
+        ? {
+            id: String(productId),
+            title: firstItem.title || firstItem.productName || firstItem.name || "Service",
+            category: firstItem.category || firstItem.categoryName || firstItem.Category?.name || "service",
+            price: Number(firstItem.price || firstItem.basePrice || firstItem.amount || 0),
+            quantity: Number(firstItem.quantity || firstItem.qty || 1),
+            items: cart.map((item) => ({
+              id: item.id || item.productId || item.product_id || item._id || item.sku,
+              title: item.title || item.productName || item.name || "Item",
+              price: Number(item.price || item.basePrice || item.amount || 0),
+              quantity: Number(item.quantity || item.qty || 1),
+              category: item.category || item.categoryName || item.Category?.name || ""
+            }))
+          }
+        : null;
       if (!productId) {
         alert('Invalid product in bag. Please re-add the item from the product page.');
         return;
@@ -236,6 +277,8 @@ export default function CheckoutReview() {
         customerName: guestName,
         customerPhone: guestPhone,
         customerAddress: guestAddr,
+        totalAmount: totalAfterDiscount,
+        serviceInfo,
         promoCode: promoCode || null,
         discount: discount || 0,
       };
@@ -277,7 +320,27 @@ export default function CheckoutReview() {
     } catch (err) {
       console.error("Order creation error:", err);
       alert("Failed to create order: " + (err.response?.data?.error || err.message));
+    } finally {
+      setOrderSubmitting(false);
     }
+  };
+
+  const handleSubscriptionConfirmed = ({ draft, items, pricing }) => {
+    const payload = {
+      id: draft?.id,
+      productId: subscriptionProduct?.id || subscriptionProduct?.productId,
+      category: normalizeSubscriptionCategory(subscriptionProduct?.category || ""),
+      quantity: 1,
+      pricing,
+      items,
+      savedAt: new Date().toISOString()
+    };
+    savePendingSubscriptionDraft(payload);
+    setSubscriptionDraft(payload);
+    trackEvent("checkout_subscription_added", {
+      value: Number(pricing?.totalPayable || 0),
+      category: payload.category
+    });
   };
 
   const sendOrderOnWhatsApp = () => {
@@ -576,6 +639,54 @@ export default function CheckoutReview() {
                 </div>
               )}
 
+              <div style={{ marginBottom: 16, background: '#fff', borderRadius: 10, padding: 14, border: '1px solid #f2d060', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ fontWeight: 800, color: '#5A3A00' }}>Subscription & upsell options</div>
+                    <div style={{ marginTop: 4, color: '#6b4b00', fontSize: 13 }}>
+                      {subscriptionCandidate
+                        ? pendingSubscriptionDraft?.pricing
+                          ? `Added: ${pendingSubscriptionDraft.pricing.durationLabel}${pendingSubscriptionDraft.pricing.frequencyLabel ? ` | ${pendingSubscriptionDraft.pricing.frequencyLabel}` : ''}${pendingSubscriptionDraft.pricing.planLabel ? ` | ${pendingSubscriptionDraft.pricing.planLabel}` : ''}`
+                          : `Available for ${subscriptionCandidate.title}`
+                        : 'Add monthly ration, grocery, flower, or pet-service subscriptions from the subscriptions page.'}
+                    </div>
+                  </div>
+                  {subscriptionCandidate ? (
+                    <button
+                      type="button"
+                      onClick={() => setSubscriptionProduct(subscriptionCandidate)}
+                      style={{
+                        padding: '10px 14px',
+                        background: '#C8102E',
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: 8,
+                        fontWeight: 800,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {pendingSubscriptionDraft?.pricing ? 'Change Subscription' : 'Add Subscription'}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => navigate('/subscriptions')}
+                      style={{
+                        padding: '10px 14px',
+                        background: '#fff9c4',
+                        color: '#5A3A00',
+                        border: '1px solid #f2d060',
+                        borderRadius: 8,
+                        fontWeight: 800,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Browse Subscriptions
+                    </button>
+                  )}
+                </div>
+              </div>
+
               {/* Promo Code Section */}
               <div style={{ marginTop: 16, background: '#FFF9C4', borderRadius: 10, padding: 12, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
                 <label style={{ display: 'block', marginBottom: 8, fontWeight: 600 }}>Promo Code / Reference Code</label>
@@ -615,21 +726,39 @@ export default function CheckoutReview() {
                 )}
               </div>
 
-              <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+              <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
                 <button
-                  onClick={sendOrderOnWhatsApp}
-                  disabled={!((selectedAddress || isGuest) && cart.length > 0)}
+                  onClick={placeOrder}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
                   style={{
                     padding: '12px 20px',
-                    background: (selectedAddress || isGuest) && cart.length > 0 ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
-                    color: (selectedAddress || isGuest) && cart.length > 0 ? 'white' : '#888',
+                    background: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '#C8102E' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'white' : '#888',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 15,
                     fontWeight: 700,
                     minWidth: 200,
-                    cursor: (selectedAddress || isGuest) && cart.length > 0 ? 'pointer' : 'not-allowed',
-                    boxShadow: (selectedAddress || isGuest) && cart.length > 0 ? '0 6px 18px rgba(46,125,50,0.18)' : 'none'
+                    cursor: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'pointer' : 'not-allowed',
+                    boxShadow: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '0 6px 18px rgba(200,16,46,0.16)' : 'none'
+                  }}
+                >
+                  {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
+                </button>
+                <button
+                  onClick={sendOrderOnWhatsApp}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
+                  style={{
+                    padding: '12px 20px',
+                    background: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'white' : '#888',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontSize: 15,
+                    fontWeight: 700,
+                    minWidth: 200,
+                    cursor: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'pointer' : 'not-allowed',
+                    boxShadow: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '0 6px 18px rgba(46,125,50,0.18)' : 'none'
                   }}
                 >
                   Send Order on WhatsApp
@@ -663,14 +792,31 @@ export default function CheckoutReview() {
                   </div>
                 </div>
                 <button
-                  onClick={sendOrderOnWhatsApp}
-                  disabled={!((selectedAddress || isGuest) && cart.length > 0)}
+                  onClick={placeOrder}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
                   style={{
                     marginTop: 14,
                     width: '100%',
                     padding: '12px 16px',
-                    background: (selectedAddress || isGuest) && cart.length > 0 ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
-                    color: (selectedAddress || isGuest) && cart.length > 0 ? 'white' : '#888',
+                    background: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '#C8102E' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'white' : '#888',
+                    border: 'none',
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 700
+                  }}
+                >
+                  {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
+                </button>
+                <button
+                  onClick={sendOrderOnWhatsApp}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
+                  style={{
+                    marginTop: 10,
+                    width: '100%',
+                    padding: '11px 16px',
+                    background: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '#239a3b' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'white' : '#888',
                     border: 'none',
                     borderRadius: 10,
                     fontSize: 15,
@@ -747,12 +893,20 @@ export default function CheckoutReview() {
           <div className="checkout-review-mobile-cta">
             <div className="checkout-review-mobile-total">Total: ₹{totalAfterDiscount.toFixed(2)}</div>
             <button
-              onClick={sendOrderOnWhatsApp}
-              disabled={!((selectedAddress || isGuest) && cart.length > 0)}
+              onClick={placeOrder}
+              disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
             >
-              Send Order on WhatsApp
+              {orderSubmitting ? 'Creating...' : 'Continue to Payment'}
             </button>
           </div>
+
+          <SubscriptionPopup
+            open={Boolean(subscriptionProduct)}
+            onClose={() => setSubscriptionProduct(null)}
+            product={subscriptionProduct}
+            quantity={1}
+            onConfirmed={handleSubscriptionConfirmed}
+          />
         </>
       )}
     </div>
