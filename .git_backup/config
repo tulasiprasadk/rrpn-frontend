@@ -1,0 +1,28 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = false
+	logallrefupdates = true
+	symlinks = false
+	ignorecase = true
+[user]
+	name = rrpn-bot
+	email = rrpn-bot@example.com
+[remote "rrpn-frontend"]
+	url = git@github.com:tulasiprasadk/rrpn-frontend.git
+	fetch = +refs/heads/*:refs/remotes/rrpn-frontend/*
+[remote "rrpn-backend"]
+	url = git@github.com:tulasiprasadk/rrpn-backend.git
+	fetch = +refs/heads/*:refs/remotes/rrpn-backend/*
+[branch "main"]
+	vscode-merge-base = origin/main
+	vscode-merge-base = origin/main
+[branch "feature/subscription-engine"]
+	vscode-merge-base = origin/main
+[branch "feature/subscription-pricing"]
+	vscode-merge-base = origin/main
+[remote "origin"]
+	url = https://github.com/tulasiprasadk/rrpn-backend.git
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "undefined"]
+	vscode-merge-base = origin/main

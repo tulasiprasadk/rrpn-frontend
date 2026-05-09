@@ -1,0 +1,4 @@
+0000000000000000000000000000000000000000 3df780f95ebbd3f5bda05c365ba90c9b25736f57 rrpn-bot <rrpn-bot@example.com> 1774948832 +0530	branch: Created from HEAD
+3df780f95ebbd3f5bda05c365ba90c9b25736f57 4923cc023cb4b2b44fe18ed4dfb10bbb13485c07 rrpn-bot <rrpn-bot@example.com> 1774948832 +0530	commit: Add subscription engine API, DB migration, and logic (Supabase-ready)
+4923cc023cb4b2b44fe18ed4dfb10bbb13485c07 b6d8903e95aba2c8c286d15f332fa539987f59a6 rrpn-bot <rrpn-bot@example.com> 1774948853 +0530	commit: Add migration runner and migrate script
+b6d8903e95aba2c8c286d15f332fa539987f59a6 6b90a48a52ab6bbd9a034f75b761ab863b7e371f rrpn-bot <rrpn-bot@example.com> 1774948878 +0530	commit: Add CI workflow: migrations + build/push for subscription engine

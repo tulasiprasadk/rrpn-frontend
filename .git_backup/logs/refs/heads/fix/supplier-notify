@@ -1,0 +1,5 @@
+0000000000000000000000000000000000000000 4628d494bcded5f359ce4ad9e3b80dba25d74ba8 rrpn-bot <rrpn-bot@example.com> 1769395473 +0530	branch: Created from HEAD
+4628d494bcded5f359ce4ad9e3b80dba25d74ba8 9d7298ddd190fa7691df0e4db24e8e6b30fe1579 rrpn-bot <rrpn-bot@example.com> 1769667269 +0530	commit: fix(admin): mark supplier registration notifications read on approve/reject
+9d7298ddd190fa7691df0e4db24e8e6b30fe1579 970c5eceb7afe73439fe2239a9c276ef366ec61b rrpn-bot <rrpn-bot@example.com> 1769675239 +0530	commit: Replace groceries CSV
+970c5eceb7afe73439fe2239a9c276ef366ec61b 925b392dff455572c1663720265693999448f2db rrpn-bot <rrpn-bot@example.com> 1769675368 +0530	commit: Add groceries CSV and replace script
+925b392dff455572c1663720265693999448f2db d78f24a3cc3775dcb8cb30bc59a21fce77dcdaef rrpn-bot <rrpn-bot@example.com> 1770812407 +0530	commit: dev: temporary admin suppliers bypass; fix partner notify import; set frontend API base to localhost:3000 for dev
