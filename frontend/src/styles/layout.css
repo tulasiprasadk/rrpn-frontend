@@ -1,0 +1,54 @@
+/* Global Layout Optimization for Full Width & Compactness */
+
+:root {
+  --container-max-width: 1440px;
+  --spacing-compact: 0.75rem;
+  --spacing-standard: 1.5rem;
+}
+
+/* 1. Full-Width Fluid Container */
+.main-content-wrapper {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-standard);
+}
+
+/* 2. Responsive Grid System (Reduces vertical scrolling) */
+.responsive-grid {
+  display: grid;
+  gap: var(--spacing-standard);
+  grid-template-columns: 1fr; /* Mobile */
+}
+
+@media (min-width: 768px) {
+  .responsive-grid {
+    grid-template-columns: repeat(2, 1fr); /* Tablet */
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Desktop Full Width */
+  }
+}
+
+/* 3. Compact Form/Card Layouts */
+.compact-card {
+  padding: var(--spacing-compact);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+}
+
+.compact-card:hover {
+  transform: translateY(-2px);
+}
+
+/* 4. Grouping & Hierarchy */
+.section-header {
+  margin-bottom: var(--spacing-compact);
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 4px;
+  font-weight: 700;
+}
