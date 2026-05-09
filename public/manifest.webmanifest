@@ -1,0 +1,23 @@
+{
+  "name": "RR Nagar - Shop Local",
+  "short_name": "RR Nagar",
+  "description": "Shop local for groceries, flowers, crackers, pet supplies, services, and more.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

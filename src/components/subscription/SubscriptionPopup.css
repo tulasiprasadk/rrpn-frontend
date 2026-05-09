@@ -1,0 +1,260 @@
+.subscription-popup__backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+  padding: 20px;
+}
+
+.subscription-popup__modal {
+  width: min(720px, 100%);
+  background: #fffdf3;
+  border-radius: 20px;
+  border: 1px solid #f2d060;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  padding: 22px;
+  max-height: 92vh;
+  overflow: auto;
+}
+
+.subscription-popup__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.subscription-popup__eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  font-weight: 800;
+  color: #9a3412;
+}
+
+.subscription-popup__title {
+  font-size: 30px;
+  font-weight: 900;
+  color: #5a3a00;
+  margin-top: 6px;
+}
+
+.subscription-popup__subtitle {
+  color: #6b3f00;
+  line-height: 1.6;
+  margin-top: 6px;
+}
+
+.subscription-popup__close {
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+  color: #6b3f00;
+}
+
+.subscription-popup__steps {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.subscription-popup__card {
+  background: rgba(255, 251, 220, 0.86);
+  border: 1px solid rgba(210, 140, 0, 0.18);
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.subscription-popup__toggle-row,
+.subscription-popup__selectors {
+  display: grid;
+  gap: 14px;
+}
+
+.subscription-popup__selectors {
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+
+.subscription-popup__label,
+.subscription-popup__section-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: #5a3a00;
+}
+
+.subscription-popup__section-subtitle {
+  margin-top: 4px;
+  color: #7a5b00;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.subscription-popup__select,
+.subscription-popup__qty-input {
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid #d4b14c;
+  border-radius: 12px;
+  padding: 11px 12px;
+  font-weight: 700;
+}
+
+.subscription-popup__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  color: #5a3a00;
+}
+
+.subscription-popup__upsell-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.subscription-popup__upsell-item {
+  border: 1px solid #e7d28d;
+  border-radius: 14px;
+  background: #fff;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.subscription-popup__upsell-item.is-active {
+  border-color: #c8102e;
+  box-shadow: 0 10px 24px rgba(200, 16, 46, 0.12);
+}
+
+.subscription-popup__upsell-title,
+.subscription-popup__plan-title {
+  font-weight: 800;
+  color: #5a3a00;
+}
+
+.subscription-popup__upsell-price,
+.subscription-popup__plan-meta {
+  margin-top: 4px;
+  color: #8b5e00;
+  font-size: 13px;
+}
+
+.subscription-popup__pill-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.subscription-popup__pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #fff1f2;
+  color: #be123c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.subscription-popup__expand-toggle {
+  margin-top: 12px;
+  background: transparent;
+  border: none;
+  color: #9a3412;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0;
+}
+
+.subscription-popup__plan-items {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.subscription-popup__plan-row {
+  display: grid;
+  grid-template-columns: 1fr 90px;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.subscription-popup__summary {
+  margin-top: 16px;
+  background: linear-gradient(135deg, #fff8cc 0%, #ffe78a 52%, #ffd55c 100%);
+  border-radius: 16px;
+  padding: 18px;
+  border: 1px solid rgba(210, 140, 0, 0.2);
+}
+
+.subscription-popup__price {
+  font-size: 30px;
+  font-weight: 900;
+  color: #5a3a00;
+}
+
+.subscription-popup__meta {
+  margin-top: 6px;
+  color: #6b3f00;
+}
+
+.subscription-popup__footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.subscription-popup__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.subscription-popup__button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.subscription-popup__button--primary {
+  background: linear-gradient(135deg, #c8102e 0%, #9f1239 100%);
+  color: #fff;
+}
+
+.subscription-popup__button--secondary {
+  background: #fff;
+  color: #5a3a00;
+  border: 1px solid #e7d28d;
+}
+
+.subscription-popup__error {
+  color: #c8102e;
+  font-size: 13px;
+}
+
+@media (max-width: 700px) {
+  .subscription-popup__modal {
+    padding: 18px;
+  }
+
+  .subscription-popup__title {
+    font-size: 26px;
+  }
+
+  .subscription-popup__plan-row {
+    grid-template-columns: 1fr;
+  }
+}

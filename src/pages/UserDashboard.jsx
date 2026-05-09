@@ -1,0 +1,323 @@
+import React, { useEffect, useState } from "react";
+import api from "../api/client";
+import { useNavigate } from "react-router-dom";
+import "./UserDashboard.css";
+
+export default function UserDashboard() {
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState(null);
+  const [orders, setOrders] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
+  const [stats, setStats] = useState({
+    orders: 0,
+    saved: 0,
+    addresses: 0,
+  });
+  const [activeTab, setActiveTab] = useState("overview");
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  async function loadData() {
+    setLoadError("");
+
+    try {
+      const profileRes = await api.get("/customer/profile");
+      setProfile(profileRes?.data && typeof profileRes.data === "object" ? profileRes.data : null);
+    } catch (err) {
+      console.log("Dashboard profile load error:", err);
+      setLoadError("We could not load your dashboard right now.");
+      return;
+    }
+
+    const [statsRes, ordersRes, addressRes, suppliersRes] = await Promise.all([
+      api
+        .get("/customer/dashboard-stats")
+        .catch((err) => {
+          console.warn("Dashboard stats load error:", err);
+          return { data: { orders: 0, saved: 0, addresses: 0 } };
+        }),
+      api
+        .get("/orders")
+        .catch((err) => {
+          console.warn("Dashboard orders load error:", err);
+          return { data: [] };
+        }),
+      api
+        .get("/customer/address")
+        .catch((err) => {
+          console.warn("Dashboard address load error:", err);
+          return { data: [] };
+        }),
+      api
+        .get("/customer/saved-suppliers")
+        .catch((err) => {
+          console.warn("Dashboard suppliers load error:", err);
+          return { data: [] };
+        }),
+    ]);
+
+    setStats(statsRes?.data && typeof statsRes.data === "object" ? statsRes.data : { orders: 0, saved: 0, addresses: 0 });
+    setOrders(Array.isArray(ordersRes?.data) ? ordersRes.data : []);
+    setAddresses(Array.isArray(addressRes?.data) ? addressRes.data : []);
+    setSuppliers(Array.isArray(suppliersRes?.data) ? suppliersRes.data : []);
+  }
+
+  const downloadInvoice = async (orderId) => {
+    try {
+      const response = await api.get(`/orders/${orderId}/invoice`, {
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Invoice-${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentElement.removeChild(link);
+    } catch (err) {
+      console.error("Invoice download error:", err);
+      alert("Failed to download invoice");
+    }
+  };
+
+  if (!profile) return <p className="loading">{loadError || "Loading dashboard..."}</p>;
+
+  return (
+    <div className="dash-container">
+      <div className="dash-welcome">
+        <h2 className="welcome-name">Welcome, {profile.name || "Customer"}</h2>
+        <p className="welcome-phone">Mobile: {profile.mobile}</p>
+        {profile.email && <p className="welcome-email">Email: {profile.email}</p>}
+      </div>
+      {loadError && <p className="empty-message">{loadError}</p>}
+
+      <div className="dash-cards">
+        <div className="dash-card" onClick={() => setActiveTab("orders")}>
+          <div className="card-number">{stats.orders}</div>
+          <div className="card-label">My Orders</div>
+        </div>
+
+        <div className="dash-card" onClick={() => setActiveTab("suppliers")}>
+          <div className="card-number">{stats.saved}</div>
+          <div className="card-label">Regular Shops</div>
+        </div>
+
+        <div className="dash-card" onClick={() => setActiveTab("addresses")}>
+          <div className="card-number">{stats.addresses}</div>
+          <div className="card-label">Addresses</div>
+        </div>
+
+        <div className="dash-card" onClick={() => navigate("/profile")}>
+          <div className="card-label">My Profile</div>
+        </div>
+      </div>
+
+      <div className="dash-tabs">
+        <button
+          className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
+          onClick={() => setActiveTab("overview")}
+        >
+          Overview
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
+          onClick={() => setActiveTab("orders")}
+        >
+          Orders & Invoices
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "suppliers" ? "active" : ""}`}
+          onClick={() => setActiveTab("suppliers")}
+        >
+          Regular Shops
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "addresses" ? "active" : ""}`}
+          onClick={() => setActiveTab("addresses")}
+        >
+          Addresses
+        </button>
+      </div>
+
+      {activeTab === "overview" && (
+        <>
+          <div className="dash-section">
+            <div className="section-header">
+              <h3>Recent Orders</h3>
+              <button onClick={() => setActiveTab("orders")} className="view-all-btn">View All</button>
+            </div>
+            {orders.length === 0 ? (
+              <p className="empty-message">No orders yet</p>
+            ) : (
+              <div className="orders-list">
+                {orders.slice(0, 5).map((order) => (
+                  <div key={order.id} className="order-item" onClick={() => navigate(`/my-orders/${order.id}`)}>
+                    <div className="order-info">
+                      <span className="order-id">Order #{order.id}</span>
+                      <span className="order-date">{new Date(order.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div className="order-details">
+                      <span className="order-amount">Rs {order.totalAmount}</span>
+                      <span className={`order-status status-${order.status}`}>
+                        {order.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="dash-section">
+            <div className="section-header">
+              <h3>My Addresses</h3>
+              <button onClick={() => setActiveTab("addresses")} className="view-all-btn">Manage</button>
+            </div>
+            {addresses.length === 0 ? (
+              <p className="empty-message">No addresses saved</p>
+            ) : (
+              <div className="addresses-list">
+                {addresses.slice(0, 3).map((addr) => (
+                  <div key={addr.id} className="address-item">
+                    <div className="address-label">{addr.label || "Home"} {addr.isDefault && <span className="default-badge">Default</span>}</div>
+                    <div className="address-text">{addr.addressLine}</div>
+                    <div className="address-subtext">{addr.city}, {addr.state} {addr.pincode}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {activeTab === "orders" && (
+        <div className="dash-section">
+          <h3>All Orders</h3>
+          {orders.length === 0 ? (
+            <p className="empty-message">No orders yet. <button onClick={() => navigate("/")} className="link-btn">Start Shopping</button></p>
+          ) : (
+            <div className="orders-detailed-list">
+              {orders.map((order) => (
+                <div key={order.id} className="order-detailed-item">
+                  <div className="order-header">
+                    <div>
+                      <h4>Order #{order.id}</h4>
+                      <p className="order-date">{new Date(order.createdAt).toLocaleDateString("en-IN", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}</p>
+                    </div>
+                    <div className="order-status-section">
+                      <span className={`badge status-${order.status}`}>{order.status}</span>
+                      <span className={`badge payment-${order.paymentStatus}`}>{order.paymentStatus}</span>
+                    </div>
+                  </div>
+
+                  <div className="order-body">
+                    {order.Product && (
+                      <div className="order-product">
+                        <img
+                          src={order.Product?.image || "https://via.placeholder.com/80"}
+                          alt={order.Product?.title ? `Product image of ${order.Product.title}` : "Product image"}
+                          className="product-img"
+                        />
+                        <div className="product-info">
+                          <h5>{order.Product?.title || "Product"}</h5>
+                          <p className="product-price">Rs {order.totalAmount}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="order-meta">
+                      <p><strong>Address:</strong> {order.customerAddress || "Not specified"}</p>
+                      <p><strong>Type:</strong> {order.type || "Delivery"}</p>
+                    </div>
+                  </div>
+
+                  <div className="order-actions">
+                    <button onClick={() => navigate(`/my-orders/${order.id}`)} className="btn-secondary">
+                      View Details
+                    </button>
+                    <button onClick={() => downloadInvoice(order.id)} className="btn-primary" title="Download invoice as PDF">
+                      Download Invoice
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "suppliers" && (
+        <div className="dash-section">
+          <h3>Regular Shops</h3>
+          {suppliers.length === 0 ? (
+            <p className="empty-message">No saved shops yet. <button onClick={() => navigate("/products")} className="link-btn">Browse Shops</button></p>
+          ) : (
+            <div className="suppliers-grid">
+              {suppliers.map((supplier) => (
+                <div key={supplier.id} className="supplier-card">
+                  <div className="supplier-header">
+                    <h4>{supplier.shopName}</h4>
+                    {supplier.rating && <span className="rating">Star {supplier.rating}</span>}
+                  </div>
+                  <p className="supplier-location">{supplier.location || "Location not specified"}</p>
+                  <p className="supplier-contact">Phone {supplier.phoneNumber}</p>
+                  {supplier.description && <p className="supplier-desc">{supplier.description}</p>}
+                  <button onClick={() => navigate(`/shops/${supplier.id}`)} className="btn-secondary">
+                    View Shop
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeTab === "addresses" && (
+        <div className="dash-section">
+          <div className="section-header">
+            <h3>Manage Addresses</h3>
+            <button onClick={() => navigate("/address")} className="btn-primary">+ Add New Address</button>
+          </div>
+          {addresses.length === 0 ? (
+            <p className="empty-message">No addresses saved yet.</p>
+          ) : (
+            <div className="addresses-grid">
+              {addresses.map((addr) => (
+                <div key={addr.id} className="address-card">
+                  <div className="address-header">
+                    <h4>{addr.label || "Home"}</h4>
+                    {addr.isDefault && <span className="default-badge">Default</span>}
+                  </div>
+                  <div className="address-content">
+                    <p><strong>{addr.name}</strong></p>
+                    <p>{addr.addressLine}</p>
+                    <p>{addr.city}, {addr.state} - {addr.pincode}</p>
+                  </div>
+                  <div className="address-actions">
+                    <button onClick={() => navigate(`/address/${addr.id}`)} className="btn-secondary">
+                      Edit
+                    </button>
+                    {!addr.isDefault && (
+                      <button className="btn-secondary" style={{ color: "#666" }}>
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
