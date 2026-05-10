@@ -1,13 +1,8 @@
-import { API_BASE } from "../config/api";
+import api from "./client";
 
 export const fetchOrder = async (orderId) => {
   try {
-    const res = await fetch(`${API_BASE}/orders/${orderId}`, {
-      credentials: "include",
-    });
-
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message);
+    const { data } = await api.get(`/orders/${orderId}`);
 
     return data;
   } catch (err) {
@@ -15,6 +10,3 @@ export const fetchOrder = async (orderId) => {
     return null;
   }
 };
-
-
-

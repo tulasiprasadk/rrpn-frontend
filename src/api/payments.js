@@ -1,14 +1,9 @@
-import { API_BASE, sanitizeBase64DataUrl } from "../config/api";
+import api from "./client";
+import { sanitizeBase64DataUrl } from "../config/api";
 
 export async function fetchOrder(orderId) {
   try {
-    const res = await fetch(`${API_BASE}/orders/${orderId}`, {
-      credentials: "include",
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data?.message || data?.error || "Failed to load order");
-    }
+    const { data } = await api.get(`/orders/${orderId}`);
     return data || null;
   } catch (err) {
     console.error("fetchOrder error:", err);
@@ -22,19 +17,7 @@ export async function updateOrder(orderId, patch) {
     paymentEvidence: sanitizeBase64DataUrl(patch?.paymentEvidence),
   };
 
-  const res = await fetch(`${API_BASE}/orders/${orderId}`, {
-    method: "PUT",
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(data?.message || data?.error || "Failed to update order");
-  }
+  const { data } = await api.put(`/orders/${orderId}`, payload);
 
   return data || null;
 }
@@ -45,16 +28,9 @@ export async function fetchOrdersForBuyer(buyerId) {
   }
 
   try {
-    const url = new URL(`${API_BASE}/orders`);
-    url.searchParams.set("buyerId", buyerId);
-
-    const res = await fetch(url.toString(), {
-      credentials: "include",
+    const { data } = await api.get("/orders", {
+      params: { buyerId }
     });
-    const data = await res.json();
-    if (!res.ok) {
-      throw new Error(data?.message || data?.error || "Failed to load orders");
-    }
     return Array.isArray(data) ? data : [];
   } catch (err) {
     console.error("fetchOrdersForBuyer error:", err);

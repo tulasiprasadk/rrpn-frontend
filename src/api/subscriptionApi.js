@@ -1,6 +1,4 @@
-// d:\RRPN\frontend\src\api\subscriptionApi.js
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'; // Adjust as per your actual API base URL
+import api from "./client";
 
 /**
  * Fetches subscription plans from the backend.
@@ -8,11 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api'; // Adjust as p
  */
 export const fetchSubscriptionPlans = async () => {
   try {
-    const response = await fetch(`${API_BASE_URL}/subscriptions/plans`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
+    const { data } = await api.get("/subscriptions/plans");
     // Map backend response to the desired frontend format
     return data.map(plan => ({
       id: plan.id,
