@@ -1,3 +1,3 @@
 export default function handler(req, res) {
-  return res.status(200).send("WORKING FINAL");
+  res.status(200).end("OK");
 }
