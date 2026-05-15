@@ -1,13 +1,13 @@
 {
   "outputDirectory": "dist",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "https://rrpn-backend.vercel.app/api/$1"
+      "src": "^/api/(.*)",
+      "dest": "https://rrpn-backend.vercel.app/api/$1"
     },
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "^(?!/api/)(.*)",
+      "dest": "/"
     }
   ]
 }
