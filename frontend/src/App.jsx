@@ -114,10 +114,6 @@ function AppWrapper() {
       window.location.replace(target);
       return;
     }
-    if (host.includes("vercel.app")) {
-      const target = `https://rrnagar.com${window.location.pathname}${window.location.search}${window.location.hash}`;
-      window.location.replace(target);
-    }
   }, []);
 
   useEffect(() => {

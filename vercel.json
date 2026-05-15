@@ -1,1 +1,7 @@
-{}
+{
+  "routes": [
+    { "src": "^/categories$", "dest": "/api/categories" },
+    { "src": "^/subscriptions/create$", "dest": "/api/subscriptions/create" },
+    { "src": "^/auth/(.*)", "dest": "/api/auth/$1" }
+  ]
+}
