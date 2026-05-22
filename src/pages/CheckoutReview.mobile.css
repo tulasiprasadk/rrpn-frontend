@@ -73,7 +73,7 @@
     font-size: 15px;
   }
 
-  .checkout-review-mobile-cta button:first-of-type {
+  .checkout-review-mobile-cta .checkout-review-page-order-btn {
     background: #c8102e;
   }
 

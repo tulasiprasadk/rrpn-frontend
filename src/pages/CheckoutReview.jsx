@@ -10,6 +10,7 @@ import "./CheckoutReview.mobile.css";
 export default function CheckoutReview() {
   const location = useLocation();
   const navigate = useNavigate();
+  const pageOrderEnabled = import.meta.env.VITE_PAGE_ORDER_ENABLED === "true";
 
   const [defaultAddress, setDefaultAddress] = useState(null);
   const [isGuest, setIsGuest] = useState(false);
@@ -613,7 +614,8 @@ export default function CheckoutReview() {
               </div>
 
               <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
-                <button
+                {pageOrderEnabled && <button
+                  className="checkout-review-page-order-btn"
                   onClick={placeOrder}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
                   style={{
@@ -630,7 +632,7 @@ export default function CheckoutReview() {
                   }}
                 >
                   {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
-                </button>
+                </button>}
                 <button
                   onClick={sendOrderOnWhatsApp}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
@@ -677,7 +679,7 @@ export default function CheckoutReview() {
                     <strong style={{ fontSize: 22, color: '#C8102E' }}>₹{totalAfterDiscount.toFixed(2)}</strong>
                   </div>
                 </div>
-                <button
+                {pageOrderEnabled && <button
                   onClick={placeOrder}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
                   style={{
@@ -693,7 +695,7 @@ export default function CheckoutReview() {
                   }}
                 >
                   {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
-                </button>
+                </button>}
                 <button
                   onClick={sendOrderOnWhatsApp}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
@@ -778,12 +780,13 @@ export default function CheckoutReview() {
 
           <div className="checkout-review-mobile-cta">
             <div className="checkout-review-mobile-total">Total: ₹{totalAfterDiscount.toFixed(2)}</div>
-            <button
+            {pageOrderEnabled && <button
+              className="checkout-review-page-order-btn"
               onClick={placeOrder}
               disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
             >
               {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
-            </button>
+            </button>}
             <button
               onClick={sendOrderOnWhatsApp}
               disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
