@@ -5,6 +5,7 @@ import { getProducts, getCategories } from "../api";
 import ProductCard from "../components/ProductCard";
 import CategoryIcon from "../components/CategoryIcon";
 import CartPanel from "../components/CartPanel";
+import groceryGroups from "../data/groceries.json";
 
 function normalizeVariety(value) {
   return (value || "Others").toString().trim() || "Others";
@@ -20,6 +21,35 @@ function cleanTitle(product) {
 
   const [name] = rawTitle.split(" - ");
   return (name || rawTitle).trim();
+}
+
+function buildLocalGroceryProducts() {
+  return groceryGroups.flatMap((group, groupIndex) =>
+    (Array.isArray(group.items) ? group.items : []).map((item, itemIndex) => ({
+      id: `local-grocery-${groupIndex}-${itemIndex}`,
+      title: item.title,
+      titleKannada: item.kn,
+      price: Number(item.price || 0),
+      unit: item.unit || "",
+      variety: group.category || "Others",
+      category: "Groceries",
+      CategoryId: "groceries",
+      Category: { id: "groceries", name: "Groceries" }
+    }))
+  );
+}
+
+const localGroceryProducts = buildLocalGroceryProducts();
+
+function fillUnderloadedCatalog(products) {
+  const apiProducts = Array.isArray(products) ? products : [];
+  if (apiProducts.length >= 10) return apiProducts;
+
+  const ids = new Set(apiProducts.map((product) => String(product.id)));
+  return [
+    ...apiProducts,
+    ...localGroceryProducts.filter((product) => !ids.has(String(product.id)))
+  ];
 }
 
 export default function Groceries() {
@@ -74,7 +104,7 @@ export default function Groceries() {
         }
 
         if (mounted) {
-          setProducts(groceries);
+          setProducts(fillUnderloadedCatalog(groceries));
         }
       } catch (error) {
         console.error("Groceries page - load error:", error);

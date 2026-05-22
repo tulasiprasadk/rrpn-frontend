@@ -1,17 +1,14 @@
-import { applyCors } from './_utils';
+import { getCategories } from "./_lib/catalog.js";
+import { json, setCors } from "./_lib/auth.js";
 
 export default async function handler(req, res) {
-  // Handle CORS and OPTIONS preflight
-  if (applyCors(req, res)) return;
+  setCors(req, res);
+  if (req.method === "OPTIONS") return res.status(204).end();
 
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET, OPTIONS");
+    return json(res, 405, { error: "Method Not Allowed" });
   }
 
-  const categories = [
-    { id: 1, name: "Technology" },
-    { id: 2, name: "Environment" }
-  ];
-
-  return res.status(200).json(categories);
+  return json(res, 200, await getCategories());
 }

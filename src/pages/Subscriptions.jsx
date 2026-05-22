@@ -4,7 +4,7 @@ import CategoryLayout from "../components/CategoryLayout";
 import SubscriptionPopup from "../components/subscription/SubscriptionPopup";
 import api from "../api/client";
 import { fetchSubscriptionPlans } from "../api/subscriptionApi";
-import { normalizeSubscriptionCategory } from "../components/subscription/subscriptionConfig";
+import { GROCERY_PLANS, normalizeSubscriptionCategory } from "../components/subscription/subscriptionConfig";
 import { useCrackerCart } from "../context/CrackerCartContext";
 import { savePendingSubscriptionDraft } from "../components/SubscriptionWidget";
 
@@ -17,6 +17,80 @@ function buildAddressText(address) {
   ]
     .filter(Boolean)
     .join(", ");
+}
+
+function parseProductMetadata(metadata) {
+  if (!metadata) return {};
+  if (typeof metadata === "object") return metadata;
+
+  try {
+    return JSON.parse(metadata);
+  } catch (_err) {
+    return {};
+  }
+}
+
+function getIncludedPreviewItems(product) {
+  const metadata = parseProductMetadata(product?.metadata);
+  if (Array.isArray(metadata.items) && metadata.items.length) {
+    return metadata.items;
+  }
+
+  const category = normalizeSubscriptionCategory(product?.category?.name || product?.category || "");
+  if (category === "groceries") {
+    return GROCERY_PLANS[0].items;
+  }
+
+  return [];
+}
+
+function getCategoryLabel(product) {
+  return product?.Category?.name || product?.category?.name || product?.category || "Category";
+}
+
+function IncludedItemsPreview({ product, label }) {
+  const items = getIncludedPreviewItems(product);
+  if (!items.length) return null;
+
+  return (
+    <details
+      style={{
+        marginTop: 10,
+        background: "#fff",
+        border: "1px solid #f0d995",
+        borderRadius: 10,
+        padding: "8px 10px",
+        color: "#5A3A00"
+      }}
+    >
+      <summary style={{ cursor: "pointer", fontSize: 13, fontWeight: 800 }}>
+        {label || "View included products"}
+      </summary>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(145px, 1fr))",
+          gap: 6,
+          marginTop: 8,
+          fontSize: 12
+        }}
+      >
+        {items.slice(0, 12).map((item) => (
+          <div key={item.key || item.title} style={{ minWidth: 0 }}>
+            <strong>{item.title}</strong>
+            <div style={{ color: "#8b5e00" }}>
+              {Number(item.quantity || 1)} {item.unit || "item"}
+            </div>
+          </div>
+        ))}
+      </div>
+      {items.length > 12 && (
+        <div style={{ color: "#8b5e00", fontSize: 12, fontWeight: 700, marginTop: 8 }}>
+          Plus {items.length - 12} more products.
+        </div>
+      )}
+    </details>
+  );
 }
 
 export default function Subscriptions() {
@@ -54,19 +128,19 @@ export default function Subscriptions() {
     const excluded = ["crackers", "local services", "consultancy"];
     return products
       .filter((product) => {
-        const category = normalizeSubscriptionCategory(product.category?.name || product.category || "");
+        const category = normalizeSubscriptionCategory(getCategoryLabel(product));
         return !excluded.includes(category);
       })
       .sort((a, b) => String(a.title || "").localeCompare(String(b.title || "")));
   }, [products]);
 
   const rationProducts = useMemo(
-    () => listedProducts.filter((product) => normalizeSubscriptionCategory(product.category?.name || product.category || "") === "ration"),
+    () => listedProducts.filter((product) => normalizeSubscriptionCategory(getCategoryLabel(product)) === "ration"),
     [listedProducts]
   );
 
   const regularProducts = useMemo(
-    () => listedProducts.filter((product) => normalizeSubscriptionCategory(product.category?.name || product.category || "") !== "ration"),
+    () => listedProducts.filter((product) => normalizeSubscriptionCategory(getCategoryLabel(product)) !== "ration"),
     [listedProducts]
   );
 
@@ -106,7 +180,7 @@ export default function Subscriptions() {
           subscriptionCandidate: {
             productId: activeProduct.id,
             title: activeProduct.title || "Product",
-            category: normalizeSubscriptionCategory(activeProduct.category?.name || activeProduct.category || ""),
+            category: normalizeSubscriptionCategory(getCategoryLabel(activeProduct)),
             basePrice: Number(activeProduct.price || 0),
             quantity: 1,
             unit: activeProduct.unit || ""
@@ -115,7 +189,7 @@ export default function Subscriptions() {
             {
               productId: activeProduct.id,
               title: activeProduct.title || "Product",
-              category: normalizeSubscriptionCategory(activeProduct.category?.name || activeProduct.category || ""),
+              category: normalizeSubscriptionCategory(getCategoryLabel(activeProduct)),
               basePrice: Number(activeProduct.price || 0),
               quantity: 1,
               unit: activeProduct.unit || ""
@@ -138,7 +212,7 @@ export default function Subscriptions() {
           const localDraft = {
             id: `local-${Date.now()}`,
             productId: activeProduct?.id,
-            category: normalizeSubscriptionCategory(activeProduct?.category?.name || activeProduct?.category || ""),
+            category: normalizeSubscriptionCategory(getCategoryLabel(activeProduct)),
             pricing: pricing || {},
             items: items || [],
             savedAt: new Date().toISOString()
@@ -228,6 +302,7 @@ export default function Subscriptions() {
                         <div style={{ color: "#666", fontSize: 14, marginTop: 8 }}>
                           {product.description}
                         </div>
+                        <IncludedItemsPreview product={product} />
                       </div>
 
                       <div>
@@ -283,8 +358,11 @@ export default function Subscriptions() {
                       <div>
                         <div style={{ fontWeight: 800, color: "#C8102E", fontSize: 20 }}>{product.title}</div>
                         <div style={{ color: "#666", fontSize: 13, marginTop: 4 }}>
-                          {product.category?.name || "Category"} {product.unit ? `| ${product.unit}` : ""}
+                          {getCategoryLabel(product)} {product.unit ? `| ${product.unit}` : ""}
                         </div>
+                        {normalizeSubscriptionCategory(getCategoryLabel(product)) === "groceries" && (
+                          <IncludedItemsPreview product={product} label="Preview Basic basket products" />
+                        )}
                       </div>
 
                       <div>

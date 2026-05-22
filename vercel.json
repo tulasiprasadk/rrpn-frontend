@@ -1,7 +1,12 @@
 {
-  "routes": [
-    { "src": "^/categories$", "dest": "/api/categories" },
-    { "src": "^/subscriptions/create$", "dest": "/api/subscriptions/create" },
-    { "src": "^/auth/(.*)", "dest": "/api/auth/$1" }
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://rrpn-backend.vercel.app/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

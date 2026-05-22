@@ -57,7 +57,11 @@ export default function CheckoutReview() {
             setShowGuestForm(true);
             setDefaultAddress(null);
           } else if (addrErr.code === 'ERR_NETWORK') {
-            setError("Cannot connect to server. Please check if the backend is running.");
+            // Public deployments may not expose the saved-address service.
+            // Keep checkout usable through the existing guest and WhatsApp flow.
+            setIsGuest(true);
+            setShowGuestForm(true);
+            setDefaultAddress(null);
           } else if (addrErr.response?.status === 404) {
             // No address found, but do not block checkout
             setDefaultAddress(null);
