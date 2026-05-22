@@ -155,7 +155,7 @@ export function getGroceryPlan(planType) {
 export function calculateSubscriptionPreview({ category, duration, frequency, planType, items }) {
   const normalizedCategory = normalizeSubscriptionCategory(category);
   const durationConfig = getDurationConfig(duration);
-  const frequencyConfig = getFrequencyConfig(frequency);
+  const frequencyConfig = needsFrequency(normalizedCategory) ? getFrequencyConfig(frequency) : null;
   const plan = getGroceryPlan(planType);
 
   const normalizedItems = (Array.isArray(items) ? items : []).map((item) => {

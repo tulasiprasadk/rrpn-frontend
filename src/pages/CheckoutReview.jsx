@@ -33,6 +33,7 @@ export default function CheckoutReview() {
   const [discount, setDiscount] = useState(0);
   const [checkoutOffers, setCheckoutOffers] = useState([]);
   const [checkoutAds, setCheckoutAds] = useState([]);
+  const [orderSubmitting, setOrderSubmitting] = useState(false);
   const selectedAddress = location.state?.selectedAddress || defaultAddress;
   const pendingSubscriptionDraft = readPendingSubscriptionDraft();
 
@@ -116,9 +117,8 @@ export default function CheckoutReview() {
   }, [navigate]);
 
   const cartTotal = cart.reduce((sum, item) => sum + (item.price || 0) * item.quantity, 0);
-  const effectiveCartTotal = pendingSubscriptionDraft?.pricing?.totalPayable
-    ? Number(pendingSubscriptionDraft.pricing.totalPayable)
-    : cartTotal;
+  const subscriptionTotal = Number(pendingSubscriptionDraft?.pricing?.totalPayable || 0);
+  const effectiveCartTotal = cartTotal + subscriptionTotal;
   const totalAfterDiscount = Math.max(effectiveCartTotal - discount, 0);
   const selectedAddressText = selectedAddress
     ? [
@@ -148,6 +148,7 @@ export default function CheckoutReview() {
     }
 
     try {
+      setOrderSubmitting(true);
       // Get cart items from localStorage (prefer `bag`)
       const bag = JSON.parse(localStorage.getItem("bag") || "null");
       const cart = Array.isArray(bag) && bag.length ? bag.map(i => ({ ...i, quantity: i.quantity || i.qty || 1 })) : JSON.parse(localStorage.getItem("cart") || "[]");
@@ -188,6 +189,8 @@ export default function CheckoutReview() {
           customerName: selectedAddress.name || "",
           customerPhone: selectedAddress.phone || "",
           customerAddress: selectedAddressText,
+          totalAmount: totalAfterDiscount,
+          items: cart,
           promoCode: promoCode || null,
           discount: discount || 0,
         };
@@ -226,6 +229,8 @@ export default function CheckoutReview() {
         customerName: guestName,
         customerPhone: guestPhone,
         customerAddress: guestAddr,
+        totalAmount: totalAfterDiscount,
+        items: cart,
         promoCode: promoCode || null,
         discount: discount || 0,
       };
@@ -267,6 +272,8 @@ export default function CheckoutReview() {
     } catch (err) {
       console.error("Order creation error:", err);
       alert("Failed to create order: " + (err.response?.data?.error || err.message));
+    } finally {
+      setOrderSubmitting(false);
     }
   };
 
@@ -605,21 +612,39 @@ export default function CheckoutReview() {
                 )}
               </div>
 
-              <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
+              <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
                 <button
-                  onClick={sendOrderOnWhatsApp}
-                  disabled={!((selectedAddress || isGuest) && cart.length > 0)}
+                  onClick={placeOrder}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
                   style={{
                     padding: '12px 20px',
-                    background: (selectedAddress || isGuest) && cart.length > 0 ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
-                    color: (selectedAddress || isGuest) && cart.length > 0 ? 'white' : '#888',
+                    background: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '#C8102E' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'white' : '#888',
                     border: 'none',
                     borderRadius: 8,
                     fontSize: 15,
                     fontWeight: 700,
                     minWidth: 200,
-                    cursor: (selectedAddress || isGuest) && cart.length > 0 ? 'pointer' : 'not-allowed',
-                    boxShadow: (selectedAddress || isGuest) && cart.length > 0 ? '0 6px 18px rgba(46,125,50,0.18)' : 'none'
+                    cursor: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'pointer' : 'not-allowed',
+                    boxShadow: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '0 6px 18px rgba(200,16,46,0.16)' : 'none'
+                  }}
+                >
+                  {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
+                </button>
+                <button
+                  onClick={sendOrderOnWhatsApp}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
+                  style={{
+                    padding: '12px 20px',
+                    background: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'white' : '#888',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontSize: 15,
+                    fontWeight: 700,
+                    minWidth: 200,
+                    cursor: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'pointer' : 'not-allowed',
+                    boxShadow: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '0 6px 18px rgba(46,125,50,0.18)' : 'none'
                   }}
                 >
                   Send Order on WhatsApp
@@ -653,14 +678,31 @@ export default function CheckoutReview() {
                   </div>
                 </div>
                 <button
-                  onClick={sendOrderOnWhatsApp}
-                  disabled={!((selectedAddress || isGuest) && cart.length > 0)}
+                  onClick={placeOrder}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
                   style={{
                     marginTop: 14,
                     width: '100%',
                     padding: '12px 16px',
-                    background: (selectedAddress || isGuest) && cart.length > 0 ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
-                    color: (selectedAddress || isGuest) && cart.length > 0 ? 'white' : '#888',
+                    background: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? '#C8102E' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'white' : '#888',
+                    border: 'none',
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 700
+                  }}
+                >
+                  {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
+                </button>
+                <button
+                  onClick={sendOrderOnWhatsApp}
+                  disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
+                  style={{
+                    marginTop: 10,
+                    width: '100%',
+                    padding: '11px 16px',
+                    background: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'linear-gradient(90deg,#28a745,#1e7e34)' : '#e0e0e0',
+                    color: (selectedAddress || isGuest) && cart.length > 0 && !orderSubmitting ? 'white' : '#888',
                     border: 'none',
                     borderRadius: 10,
                     fontSize: 15,
@@ -737,8 +779,14 @@ export default function CheckoutReview() {
           <div className="checkout-review-mobile-cta">
             <div className="checkout-review-mobile-total">Total: ₹{totalAfterDiscount.toFixed(2)}</div>
             <button
+              onClick={placeOrder}
+              disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
+            >
+              {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
+            </button>
+            <button
               onClick={sendOrderOnWhatsApp}
-              disabled={!((selectedAddress || isGuest) && cart.length > 0)}
+              disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
             >
               Send Order on WhatsApp
             </button>

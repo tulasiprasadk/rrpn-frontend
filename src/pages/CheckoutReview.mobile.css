@@ -73,6 +73,10 @@
     font-size: 15px;
   }
 
+  .checkout-review-mobile-cta button:first-of-type {
+    background: #c8102e;
+  }
+
   .checkout-review-mobile-cta button:disabled {
     background: #e0e0e0;
     color: #888;

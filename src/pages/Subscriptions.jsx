@@ -79,7 +79,7 @@ function IncludedItemsPreview({ product, label }) {
           <div key={item.key || item.title} style={{ minWidth: 0 }}>
             <strong>{item.title}</strong>
             <div style={{ color: "#8b5e00" }}>
-              {Number(item.quantity || 1)} {item.unit || "item"}
+              Qty: {Number(item.quantity || 1)} {item.unit || "item"}
             </div>
           </div>
         ))}

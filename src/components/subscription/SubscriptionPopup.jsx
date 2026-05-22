@@ -350,7 +350,9 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
                               }}
                             >
                               <div style={{ fontWeight: 800, color: "#5a3a00" }}>{item.title}</div>
-                              <div style={{ fontSize: 13, color: "#7a5a00", marginTop: 4 }}>{item.unit}</div>
+                              <div style={{ fontSize: 13, color: "#7a5a00", marginTop: 4 }}>
+                                Qty: {Number(item.quantity || 1)} {item.unit || "item"}
+                              </div>
                               <div style={{ fontSize: 12, color: "#9a6f00", marginTop: 4 }}>{item.section}</div>
                             </div>
                           ))}
