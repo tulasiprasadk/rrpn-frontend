@@ -6,7 +6,10 @@ function getSegments(req) {
   const path = req.query?.path;
   if (Array.isArray(path)) return path.map(String);
   if (path) return String(path).split("/").filter(Boolean);
-  return [];
+
+  const pathname = String(req.url || "").split("?")[0];
+  const [, orderPath = ""] = pathname.split("/api/orders/");
+  return orderPath.split("/").filter(Boolean);
 }
 
 function getTextBody(req) {
