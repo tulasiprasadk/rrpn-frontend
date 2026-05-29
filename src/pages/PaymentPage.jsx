@@ -459,7 +459,7 @@ export default function PaymentPage() {
       const existingPayments = JSON.parse(localStorage.getItem("pendingPagePayments") || "[]");
       localStorage.setItem("pendingPagePayments", JSON.stringify([paymentRecord, ...existingPayments].slice(0, 25)));
 
-      if (subscriptionDraft?.id || selectedSubscriptionPeriod) {
+      if (subscriptionDraft?.id || subscriptionDraft?.pricing || selectedSubscriptionPeriod) {
         clearPendingSubscriptionDraft();
       } else if (activeSubscriptionCandidate?.productId) {
         savePendingSubscriptionCandidate(activeSubscriptionCandidate);
@@ -536,7 +536,7 @@ export default function PaymentPage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      if (draftId) {
+      if (draftId || subscriptionDraft?.pricing) {
         clearPendingSubscriptionDraft();
       } else if (!selectedSubscriptionPeriod && activeSubscriptionCandidate?.productId) {
         savePendingSubscriptionCandidate(activeSubscriptionCandidate);

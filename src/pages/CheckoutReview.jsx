@@ -2,8 +2,12 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../api/client";
 import { trackEvent } from "../utils/analytics";
-import { readPendingSubscriptionDraft } from "../components/SubscriptionWidget";
-import { normalizeSubscriptionCategory } from "../components/subscription/subscriptionConfig";
+import {
+  clearPendingSubscriptionDraft,
+  readPendingSubscriptionDraft,
+  savePendingSubscriptionDraft
+} from "../components/SubscriptionWidget";
+import { SUBSCRIPTION_DURATIONS, normalizeSubscriptionCategory } from "../components/subscription/subscriptionConfig";
 import { openWhatsAppOrder } from "../utils/whatsappOrderHelper";
 import "./CheckoutReview.mobile.css";
 
@@ -32,6 +36,43 @@ function isCompatibleCheckoutUpsell(activeCategory, item) {
   const compatible = CHECKOUT_UPSELL_COMPATIBILITY[activeCategory];
   if (!compatible) return false;
   return compatible.has(getCheckoutUpsellCategory(item));
+}
+
+function buildCheckoutSubscriptionDraft(cartItems, durationValue) {
+  const duration = SUBSCRIPTION_DURATIONS.find((item) => item.value === durationValue) || SUBSCRIPTION_DURATIONS[0];
+  const items = cartItems.map((item) => {
+    const quantity = Number(item.quantity || item.qty || 1);
+    const unitPrice = Number(item.price || item.basePrice || 0);
+    return {
+      productId: item.id || item.productId || null,
+      title: item.title || item.productName || item.name || "Product",
+      quantity,
+      unit: item.unit || "",
+      unitPrice,
+      lineTotal: Number((quantity * unitPrice).toFixed(2))
+    };
+  });
+  const cycleSubtotal = Number(items.reduce((sum, item) => sum + item.lineTotal, 0).toFixed(2));
+  const durationBasePrice = Number((cycleSubtotal * duration.months).toFixed(2));
+  const totalPayable = Number((durationBasePrice * (1 - duration.discountPercent / 100)).toFixed(2));
+
+  return {
+    id: null,
+    category: "order_items",
+    source: "checkout_order_subscription",
+    savedAt: new Date().toISOString(),
+    pricing: {
+      duration: duration.value,
+      durationLabel: duration.label,
+      itemCount: items.length,
+      cycleSubtotal,
+      durationBasePrice,
+      totalPayable,
+      savings: Number((durationBasePrice - totalPayable).toFixed(2)),
+      items
+    },
+    items
+  };
 }
 
 export default function CheckoutReview() {
@@ -63,8 +104,8 @@ export default function CheckoutReview() {
   const [upsellRecommendations, setUpsellRecommendations] = useState([]);
   const [upsellLoading, setUpsellLoading] = useState(false);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
+  const [pendingSubscriptionDraft, setPendingSubscriptionDraft] = useState(() => readPendingSubscriptionDraft());
   const selectedAddress = location.state?.selectedAddress || defaultAddress;
-  const pendingSubscriptionDraft = readPendingSubscriptionDraft();
 
   useEffect(() => {
     async function loadData() {
@@ -170,6 +211,18 @@ export default function CheckoutReview() {
     .filter((item) => !cartProductIds.has(Number(item.id)))
     .filter((item) => isCompatibleCheckoutUpsell(activeCartCategory, item))
     .slice(0, 4);
+  const subscribableCartItems = cart.filter((item) => {
+    if (item.source === "checkout_upsell") return false;
+    const category = getCheckoutUpsellCategory(item);
+    return ["groceries", "ration", "flowers", "pet_services"].includes(category);
+  });
+  const canSubscribeOrderItems = subscribableCartItems.length > 0;
+  const selectedCheckoutDuration = pendingSubscriptionDraft?.source === "checkout_order_subscription"
+    ? pendingSubscriptionDraft.pricing?.duration
+    : "";
+  const checkoutSubscriptionPlans = canSubscribeOrderItems
+    ? SUBSCRIPTION_DURATIONS.map((duration) => buildCheckoutSubscriptionDraft(subscribableCartItems, duration.value).pricing)
+    : [];
 
   const persistCart = (nextCart) => {
     setCart(nextCart);
@@ -198,6 +251,23 @@ export default function CheckoutReview() {
       item_id: nextItem.id,
       value: nextItem.price,
     });
+  };
+
+  const selectCheckoutSubscription = (duration) => {
+    const draft = buildCheckoutSubscriptionDraft(subscribableCartItems, duration);
+    setPendingSubscriptionDraft(draft);
+    savePendingSubscriptionDraft(draft);
+    trackEvent("select_subscription_plan", {
+      source: "checkout_order_subscription",
+      duration,
+      value: draft.pricing.totalPayable,
+      savings: draft.pricing.savings
+    });
+  };
+
+  const removeCheckoutSubscription = () => {
+    setPendingSubscriptionDraft(null);
+    clearPendingSubscriptionDraft();
   };
 
   const removeCheckoutUpsell = (itemToRemove) => {
@@ -248,6 +318,17 @@ export default function CheckoutReview() {
       });
     }
   }, [loading, cart.length, totalAfterDiscount]);
+
+  useEffect(() => {
+    if (pendingSubscriptionDraft?.source !== "checkout_order_subscription") return;
+    if (!canSubscribeOrderItems) {
+      removeCheckoutSubscription();
+      return;
+    }
+    const nextDraft = buildCheckoutSubscriptionDraft(subscribableCartItems, pendingSubscriptionDraft.pricing?.duration || "monthly");
+    setPendingSubscriptionDraft(nextDraft);
+    savePendingSubscriptionDraft(nextDraft);
+  }, [cartSignature]);
 
   useEffect(() => {
     if (!cart.length) {
@@ -717,6 +798,67 @@ export default function CheckoutReview() {
                   )}
                   <div style={{ textAlign: 'right', paddingTop: 10, borderTop: '1px dashed #e0e0e0', fontWeight: 700 }}>
                     Total: ₹{totalAfterDiscount.toFixed(2)}
+                  </div>
+                </div>
+              )}
+
+              {canSubscribeOrderItems && (
+                <div style={{ marginBottom: 16, background: '#fffdf0', borderRadius: 10, padding: 14, border: '1px solid #f2d060', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, marginBottom: 12 }}>
+                    <div>
+                      <div style={{ fontWeight: 900, color: '#5A3A00', fontSize: 18 }}>Subscribe this order</div>
+                      <div style={{ marginTop: 4, color: '#7a4b00', fontSize: 13 }}>
+                        Repeat the selected items monthly. Pick a duration and see the payable price upfront.
+                      </div>
+                    </div>
+                    {selectedCheckoutDuration && (
+                      <button
+                        type="button"
+                        onClick={removeCheckoutSubscription}
+                        style={{
+                          border: '1px solid #C8102E',
+                          color: '#C8102E',
+                          background: '#fff',
+                          borderRadius: 8,
+                          padding: '7px 10px',
+                          fontWeight: 800,
+                          cursor: 'pointer',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))', gap: 10 }}>
+                    {checkoutSubscriptionPlans.map((plan) => {
+                      const active = selectedCheckoutDuration === plan.duration;
+                      return (
+                        <button
+                          key={plan.duration}
+                          type="button"
+                          onClick={() => selectCheckoutSubscription(plan.duration)}
+                          style={{
+                            textAlign: 'left',
+                            border: active ? '2px solid #C8102E' : '1px solid #f0df95',
+                            background: active ? '#fff6f8' : '#fff',
+                            borderRadius: 10,
+                            padding: 12,
+                            cursor: 'pointer',
+                            boxShadow: active ? '0 8px 18px rgba(200,16,46,0.12)' : 'none'
+                          }}
+                        >
+                          <div style={{ fontWeight: 900, color: '#4a2c00', marginBottom: 6 }}>{plan.durationLabel}</div>
+                          <div style={{ color: '#C8102E', fontWeight: 900, fontSize: 18 }}>₹{Number(plan.totalPayable || 0).toFixed(2)}</div>
+                          <div style={{ color: '#2e7d32', fontSize: 13, fontWeight: 800, marginTop: 4 }}>
+                            Save ₹{Number(plan.savings || 0).toFixed(2)}
+                          </div>
+                          <div style={{ color: '#8b5e00', fontSize: 12, marginTop: 4 }}>
+                            Base ₹{Number(plan.durationBasePrice || 0).toFixed(2)}
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}
