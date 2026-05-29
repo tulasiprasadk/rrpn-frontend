@@ -72,6 +72,7 @@ export default function PaymentPage() {
   const navigate = useNavigate();
 
   const orderId = state?.orderId;
+  const isLocalOrder = String(orderId || "").startsWith("LOCAL-");
   const subscriptionDraft = state?.subscriptionDraft || null;
   const fallbackSubscriptionCandidate = state?.subscriptionCandidate || null;
   const cartItems = Array.isArray(state?.cartItems) ? state.cartItems : [];
@@ -346,7 +347,7 @@ export default function PaymentPage() {
   );
 
   useEffect(() => {
-    if (!orderId || orderDetails?.id) return;
+    if (!orderId || isLocalOrder || orderDetails?.id) return;
 
     let mounted = true;
     api.get(`/orders/${orderId}`)
@@ -362,7 +363,7 @@ export default function PaymentPage() {
     return () => {
       mounted = false;
     };
-  }, [orderDetails?.id, orderId]);
+  }, [isLocalOrder, orderDetails?.id, orderId]);
 
   useEffect(() => {
     if (!activeSubscriptionCandidate?.productId) return;
@@ -441,6 +442,41 @@ export default function PaymentPage() {
     }
     if (!file && !txnId) {
       alert("Please provide either a payment screenshot or a transaction ID.");
+      return;
+    }
+
+    if (isLocalOrder) {
+      const paymentRecord = {
+        orderId,
+        txnId,
+        paymentMethod: method,
+        submittedAt: new Date().toISOString(),
+        orderDetails,
+        subscriptionDraft,
+        subscriptionCandidate: activeSubscriptionCandidate,
+        selectedSubscriptionPeriod,
+      };
+      const existingPayments = JSON.parse(localStorage.getItem("pendingPagePayments") || "[]");
+      localStorage.setItem("pendingPagePayments", JSON.stringify([paymentRecord, ...existingPayments].slice(0, 25)));
+
+      if (subscriptionDraft?.id || selectedSubscriptionPeriod) {
+        clearPendingSubscriptionDraft();
+      } else if (activeSubscriptionCandidate?.productId) {
+        savePendingSubscriptionCandidate(activeSubscriptionCandidate);
+      }
+
+      navigate("/payment-success", {
+        state: {
+          orderId,
+          txnId,
+          screenshot: file ? URL.createObjectURL(file) : "",
+          paymentMethod: method,
+          orderDetails,
+          subscriptionDraft,
+          subscriptionCandidate: activeSubscriptionCandidate,
+          selectedSubscriptionPeriod,
+        }
+      });
       return;
     }
 

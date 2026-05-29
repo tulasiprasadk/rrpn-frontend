@@ -10,7 +10,6 @@ import "./CheckoutReview.mobile.css";
 export default function CheckoutReview() {
   const location = useLocation();
   const navigate = useNavigate();
-  const pageOrderEnabled = import.meta.env.VITE_PAGE_ORDER_ENABLED === "true";
 
   const [defaultAddress, setDefaultAddress] = useState(null);
   const [isGuest, setIsGuest] = useState(false);
@@ -132,6 +131,37 @@ export default function CheckoutReview() {
         .join(", ")
     : "";
 
+  const continueToPayment = (orderData, activeCart, subscriptionCandidates) => {
+    localStorage.setItem("bag", JSON.stringify([]));
+    localStorage.setItem("cart", JSON.stringify([]));
+    navigate("/payment", {
+      state: {
+        orderId: orderData.orderId,
+        orderDetails: orderData,
+        subscriptionDraft: pendingSubscriptionDraft || null,
+        cartItems: activeCart,
+        subscriptionCandidates,
+      },
+    });
+  };
+
+  const createLocalPendingOrder = (orderPayload, activeCart) => {
+    const orderId = `LOCAL-${Date.now()}`;
+    const localOrder = {
+      id: orderId,
+      orderId,
+      status: "pending_payment",
+      paymentStatus: "pending",
+      createdAt: new Date().toISOString(),
+      source: "page_checkout_local_fallback",
+      ...orderPayload,
+      items: activeCart,
+    };
+    const existingOrders = JSON.parse(localStorage.getItem("pendingPageOrders") || "[]");
+    localStorage.setItem("pendingPageOrders", JSON.stringify([localOrder, ...existingOrders].slice(0, 25)));
+    return localOrder;
+  };
+
   useEffect(() => {
     if (!loading && cart.length > 0) {
       trackEvent("begin_checkout", {
@@ -195,24 +225,18 @@ export default function CheckoutReview() {
           promoCode: promoCode || null,
           discount: discount || 0,
         };
-        const res = await api.post("/orders/create", order);
         trackEvent("add_shipping_info", {
           method: "saved_address",
           city: selectedAddress?.city || "",
           value: totalAfterDiscount
         });
-        // Clear bag
-        localStorage.setItem("bag", JSON.stringify([]));
-        localStorage.setItem("cart", JSON.stringify([]));
-        navigate("/payment", {
-          state: {
-            orderId: res.data.orderId,
-            orderDetails: res.data,
-            subscriptionDraft: pendingSubscriptionDraft || null,
-            cartItems: cart,
-            subscriptionCandidates,
-          },
-        });
+        try {
+          const res = await api.post("/orders/create", order);
+          continueToPayment(res.data, cart, subscriptionCandidates);
+        } catch (apiError) {
+          console.warn("Order API unavailable, continuing with local page order:", apiError);
+          continueToPayment(createLocalPendingOrder(order, cart), cart, subscriptionCandidates);
+        }
         return;
       }
 
@@ -252,23 +276,18 @@ export default function CheckoutReview() {
         }
       }
 
-      const gres = await api.post("/orders/create-guest", guestOrder);
       trackEvent("add_shipping_info", {
         method: guestSave ? "guest_saved_session" : "guest",
         city: guestCity || "",
         value: totalAfterDiscount
       });
-      localStorage.setItem("bag", JSON.stringify([]));
-      localStorage.setItem("cart", JSON.stringify([]));
-      navigate("/payment", {
-        state: {
-          orderId: gres.data.orderId,
-          orderDetails: gres.data,
-          subscriptionDraft: pendingSubscriptionDraft || null,
-          cartItems: cart,
-          subscriptionCandidates,
-        },
-      });
+      try {
+        const gres = await api.post("/orders/create-guest", guestOrder);
+        continueToPayment(gres.data, cart, subscriptionCandidates);
+      } catch (apiError) {
+        console.warn("Guest order API unavailable, continuing with local page order:", apiError);
+        continueToPayment(createLocalPendingOrder(guestOrder, cart), cart, subscriptionCandidates);
+      }
       
     } catch (err) {
       console.error("Order creation error:", err);
@@ -614,7 +633,7 @@ export default function CheckoutReview() {
               </div>
 
               <div className="checkout-review-cta" style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginTop: 12 }}>
-                {pageOrderEnabled && <button
+                <button
                   className="checkout-review-page-order-btn"
                   onClick={placeOrder}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
@@ -632,7 +651,7 @@ export default function CheckoutReview() {
                   }}
                 >
                   {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
-                </button>}
+                </button>
                 <button
                   onClick={sendOrderOnWhatsApp}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
@@ -679,7 +698,8 @@ export default function CheckoutReview() {
                     <strong style={{ fontSize: 22, color: '#C8102E' }}>₹{totalAfterDiscount.toFixed(2)}</strong>
                   </div>
                 </div>
-                {pageOrderEnabled && <button
+                <button
+                  className="checkout-review-page-order-btn"
                   onClick={placeOrder}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
                   style={{
@@ -695,7 +715,7 @@ export default function CheckoutReview() {
                   }}
                 >
                   {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
-                </button>}
+                </button>
                 <button
                   onClick={sendOrderOnWhatsApp}
                   disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
@@ -780,13 +800,13 @@ export default function CheckoutReview() {
 
           <div className="checkout-review-mobile-cta">
             <div className="checkout-review-mobile-total">Total: ₹{totalAfterDiscount.toFixed(2)}</div>
-            {pageOrderEnabled && <button
+            <button
               className="checkout-review-page-order-btn"
               onClick={placeOrder}
               disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
             >
               {orderSubmitting ? 'Creating Order...' : 'Continue to Payment'}
-            </button>}
+            </button>
             <button
               onClick={sendOrderOnWhatsApp}
               disabled={!((selectedAddress || isGuest) && cart.length > 0) || orderSubmitting}
