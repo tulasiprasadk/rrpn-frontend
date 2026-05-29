@@ -150,6 +150,32 @@
     { "title": "Sambar Powder", "kn": "ಸಾಂಬಾರ್ ಪುಡಿ", "price": 80, "unit": "Kg" },
     { "title": "Rasam Powder", "kn": "ರಸಂ ಪುಡಿ", "price": 80, "unit": "Kg" },
     { "title": "Papad", "kn": "ಹಪ್ಪಳ", "price": 40, "unit": "Kg" },
-    { "title": "Breakfast Cereal", "kn": "ಉಪಹಾರ ಧಾನ್ಯ", "price": 120, "unit": "Kg" }
+    { "title": "Breakfast Cereal", "kn": "ಉಪಹಾರ ಧಾನ್ಯ", "price": 120, "unit": "Kg" },
+    { "title": "Rice", "kn": "", "price": 58, "unit": "Kg" },
+    { "title": "Atta", "kn": "", "price": 54, "unit": "Kg" },
+    { "title": "Cooking Oil", "kn": "", "price": 170, "unit": "Litre" },
+    { "title": "Pulses", "kn": "", "price": 120, "unit": "Kg" },
+    { "title": "Sugar", "kn": "", "price": 48, "unit": "Kg" },
+    { "title": "Salt", "kn": "", "price": 24, "unit": "Kg" },
+    { "title": "Turmeric Powder", "kn": "", "price": 35, "unit": "Pack" },
+    { "title": "Chilly Powder", "kn": "", "price": 55, "unit": "Pack" },
+    { "title": "Coriander/Dhaniya Powder", "kn": "", "price": 50.4, "unit": "Pack" },
+    { "title": "Tea Powder", "kn": "", "price": 232.5, "unit": "Pack" },
+    { "title": "Coffee Powder", "kn": "", "price": 210, "unit": "Pack" },
+    { "title": "Dry Coconut", "kn": "", "price": 118.75, "unit": "200 g Pack" },
+    { "title": "Mixed Pickle", "kn": "", "price": 110.5, "unit": "400 g Jar" }
+  ] },
+  { "category": "Ration Vegetables", "items": [
+    { "title": "Onion", "kn": "", "price": 60.27, "unit": "Kg" },
+    { "title": "Potato", "kn": "", "price": 19.76, "unit": "Kg" },
+    { "title": "Garlic", "kn": "", "price": 41.5, "unit": "250 g Pack" }
+  ] },
+  { "category": "Household Essentials", "items": [
+    { "title": "Toilet Soap", "kn": "", "price": 40, "unit": "Bar" },
+    { "title": "Tooth Paste", "kn": "", "price": 97, "unit": "Pack" },
+    { "title": "Detergent Powder", "kn": "", "price": 90, "unit": "Kg" },
+    { "title": "Washing Soap", "kn": "", "price": 22, "unit": "Bar" },
+    { "title": "Dettol", "kn": "", "price": 140.54, "unit": "250 ml" },
+    { "title": "Toilet Cleaner", "kn": "", "price": 95, "unit": "Bottle" }
   ] }
 ]

@@ -353,6 +353,11 @@ export default function SubscriptionPopup({ open, onClose, product, quantity = 1
                               <div style={{ fontSize: 13, color: "#7a5a00", marginTop: 4 }}>
                                 Qty: {Number(item.quantity || 1)} {item.unit || "item"}
                               </div>
+                              {Number(item.unitPrice || 0) > 0 && (
+                                <div style={{ fontSize: 12, color: "#6b3f00", marginTop: 4, fontWeight: 700 }}>
+                                  Rs {Number(item.unitPrice || 0).toFixed(2)} per {item.unit || "unit"} | Total Rs {Number((Number(item.quantity || 1) * Number(item.unitPrice || 0)) || 0).toFixed(2)}
+                                </div>
+                              )}
                               <div style={{ fontSize: 12, color: "#9a6f00", marginTop: 4 }}>{item.section}</div>
                             </div>
                           ))}
