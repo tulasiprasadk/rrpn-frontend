@@ -33,6 +33,8 @@ export default function CheckoutReview() {
   const [discount, setDiscount] = useState(0);
   const [checkoutOffers, setCheckoutOffers] = useState([]);
   const [checkoutAds, setCheckoutAds] = useState([]);
+  const [upsellRecommendations, setUpsellRecommendations] = useState([]);
+  const [upsellLoading, setUpsellLoading] = useState(false);
   const [orderSubmitting, setOrderSubmitting] = useState(false);
   const selectedAddress = location.state?.selectedAddress || defaultAddress;
   const pendingSubscriptionDraft = readPendingSubscriptionDraft();
@@ -130,6 +132,54 @@ export default function CheckoutReview() {
         .filter(Boolean)
         .join(", ")
     : "";
+  const cartProductIds = new Set(
+    cart
+      .map((item) => Number(item.id || item.productId || item.product_id || 0))
+      .filter(Boolean)
+  );
+  const activeCartCategory = normalizeSubscriptionCategory(
+    cart[0]?.category || cart[0]?.categoryName || cart[0]?.Category?.name || ""
+  );
+  const visibleUpsellRecommendations = upsellRecommendations
+    .filter((item) => !cartProductIds.has(Number(item.id)))
+    .slice(0, 4);
+
+  const persistCart = (nextCart) => {
+    setCart(nextCart);
+    localStorage.setItem("bag", JSON.stringify(nextCart));
+    localStorage.setItem("cart", JSON.stringify(nextCart));
+    window.dispatchEvent(new Event("cart-updated"));
+  };
+
+  const addUpsellToCart = (item) => {
+    const nextItem = {
+      id: item.id,
+      productId: item.id,
+      title: item.title || item.name || "Recommended item",
+      productName: item.title || item.name || "Recommended item",
+      price: Number(item.price || item.basePrice || 0),
+      quantity: 1,
+      qty: 1,
+      image: item.image || item.imageUrl || "",
+      category: item.category?.name || item.category || "",
+      unit: item.unit || "",
+      source: "checkout_upsell",
+    };
+    persistCart([...cart, nextItem]);
+    trackEvent("add_to_cart", {
+      source: "checkout_upsell",
+      item_id: nextItem.id,
+      value: nextItem.price,
+    });
+  };
+
+  const removeCheckoutUpsell = (itemToRemove) => {
+    const nextCart = cart.filter((item, index) => {
+      const sameId = String(item.id || item.productId || "") === String(itemToRemove.id || itemToRemove.productId || "");
+      return !(sameId && item.source === "checkout_upsell" && index === cart.indexOf(itemToRemove));
+    });
+    persistCart(nextCart);
+  };
 
   const continueToPayment = (orderData, activeCart, subscriptionCandidates) => {
     localStorage.setItem("bag", JSON.stringify([]));
@@ -171,6 +221,52 @@ export default function CheckoutReview() {
       });
     }
   }, [loading, cart.length, totalAfterDiscount]);
+
+  useEffect(() => {
+    if (!cart.length) {
+      setUpsellRecommendations([]);
+      return;
+    }
+
+    let mounted = true;
+    async function loadUpsells() {
+      setUpsellLoading(true);
+      try {
+        const res = await api.get("/subscriptions/plans");
+        const rows = Array.isArray(res.data?.plans)
+          ? res.data.plans
+          : Array.isArray(res.data?.monthly)
+            ? res.data.monthly
+            : Array.isArray(res.data)
+              ? res.data
+              : [];
+
+        const nextRows = rows
+          .filter((item) => item && Number(item.price || item.basePrice || 0) > 0)
+          .filter((item) => !cartProductIds.has(Number(item.id)))
+          .sort((left, right) => {
+            const leftCategory = normalizeSubscriptionCategory(left.category?.name || left.category || "");
+            const rightCategory = normalizeSubscriptionCategory(right.category?.name || right.category || "");
+            const leftScore = leftCategory && leftCategory === activeCartCategory ? 1 : 0;
+            const rightScore = rightCategory && rightCategory === activeCartCategory ? 1 : 0;
+            return rightScore - leftScore;
+          })
+          .slice(0, 8);
+
+        if (mounted) setUpsellRecommendations(nextRows);
+      } catch (err) {
+        console.warn("Checkout upsell load failed:", err);
+        if (mounted) setUpsellRecommendations([]);
+      } finally {
+        if (mounted) setUpsellLoading(false);
+      }
+    }
+
+    loadUpsells();
+    return () => {
+      mounted = false;
+    };
+  }, [activeCartCategory, cart.length]);
 
   const placeOrder = async () => {
     if (!selectedAddress && !isGuest) {
@@ -561,6 +657,24 @@ export default function CheckoutReview() {
                           {item.title || item.productName || `Product #${item.id}`}
                         </strong>
                         <div style={{ color: '#666', fontSize: 13 }}>Quantity: {item.quantity}</div>
+                        {item.source === "checkout_upsell" && (
+                          <button
+                            type="button"
+                            onClick={() => removeCheckoutUpsell(item)}
+                            style={{
+                              marginTop: 6,
+                              padding: 0,
+                              border: "none",
+                              background: "transparent",
+                              color: "#C8102E",
+                              fontSize: 12,
+                              fontWeight: 700,
+                              cursor: "pointer"
+                            }}
+                          >
+                            Remove add-on
+                          </button>
+                        )}
                       </div>
                       <div style={{ fontWeight: "bold", color: "#28a745" }}>
                         ₹{item.price ? (item.price * item.quantity).toFixed(2) : "N/A"}
@@ -590,6 +704,74 @@ export default function CheckoutReview() {
                   <div style={{ marginTop: 4, fontSize: 13, color: '#8b5e00' }}>
                     {pendingSubscriptionDraft.pricing.itemCount} item{pendingSubscriptionDraft.pricing.itemCount === 1 ? '' : 's'} | Save â‚¹{Number(pendingSubscriptionDraft.pricing.savings || 0).toFixed(2)}
                   </div>
+                </div>
+              )}
+
+              {(upsellLoading || visibleUpsellRecommendations.length > 0) && (
+                <div style={{ marginTop: 16, background: '#fffdf0', borderRadius: 10, padding: 14, border: '1px solid #f2d060', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline', marginBottom: 10 }}>
+                    <div>
+                      <div style={{ fontWeight: 800, color: '#5A3A00' }}>Add a little extra</div>
+                      <div style={{ fontSize: 13, color: '#8b5e00', marginTop: 2 }}>Recommended items customers often add before checkout.</div>
+                    </div>
+                  </div>
+                  {upsellLoading ? (
+                    <div style={{ color: '#666', fontSize: 14 }}>Loading recommendations...</div>
+                  ) : (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
+                      {visibleUpsellRecommendations.map((item) => {
+                        const title = item.title || item.name || "Recommended item";
+                        const price = Number(item.price || item.basePrice || 0);
+                        return (
+                          <div
+                            key={item.id}
+                            style={{
+                              background: '#fff',
+                              border: '1px solid #f0df95',
+                              borderRadius: 8,
+                              padding: 10,
+                              display: 'grid',
+                              gap: 8,
+                              minHeight: 120
+                            }}
+                          >
+                            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                              {item.image || item.imageUrl ? (
+                                <img
+                                  src={item.image || item.imageUrl}
+                                  alt={title}
+                                  style={{ width: 42, height: 42, borderRadius: 6, objectFit: 'cover', background: '#fff8cc' }}
+                                />
+                              ) : (
+                                <div style={{ width: 42, height: 42, borderRadius: 6, background: '#fff3b0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                  +
+                                </div>
+                              )}
+                              <div style={{ minWidth: 0 }}>
+                                <div style={{ fontWeight: 800, color: '#4a2c00', fontSize: 14, lineHeight: 1.2 }}>{title}</div>
+                                <div style={{ color: '#C8102E', fontWeight: 800, fontSize: 13, marginTop: 3 }}>₹{price.toFixed(2)}</div>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => addUpsellToCart(item)}
+                              style={{
+                                padding: '8px 10px',
+                                border: '1px solid #C8102E',
+                                borderRadius: 8,
+                                background: '#C8102E',
+                                color: '#fff',
+                                fontWeight: 800,
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Add to order
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
 
