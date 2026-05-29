@@ -7,6 +7,33 @@ import { normalizeSubscriptionCategory } from "../components/subscription/subscr
 import { openWhatsAppOrder } from "../utils/whatsappOrderHelper";
 import "./CheckoutReview.mobile.css";
 
+const CHECKOUT_UPSELL_COMPATIBILITY = {
+  groceries: new Set(["groceries", "ration", "flowers"]),
+  ration: new Set(["groceries", "ration", "flowers"]),
+  flowers: new Set(["flowers"]),
+  crackers: new Set(["crackers"]),
+  pet_services: new Set(["pet_services"]),
+};
+
+function getCheckoutUpsellCategory(item) {
+  const category = normalizeSubscriptionCategory(item?.category?.name || item?.category || item?.categoryName || item?.Category?.name || "");
+  if (category && category !== "general") return category;
+
+  const label = String(item?.title || item?.name || item?.productName || "").toLowerCase();
+  if (label.includes("vegetable") || label.includes("onion") || label.includes("potato") || label.includes("tomato")) return "groceries";
+  if (label.includes("grocery") || label.includes("rice") || label.includes("atta") || label.includes("oil") || label.includes("dal")) return "groceries";
+  if (label.includes("flower") || label.includes("garland") || label.includes("bouquet")) return "flowers";
+  if (label.includes("cracker") || label.includes("firework")) return "crackers";
+  if (label.includes("pet")) return "pet_services";
+  return category || "general";
+}
+
+function isCompatibleCheckoutUpsell(activeCategory, item) {
+  const compatible = CHECKOUT_UPSELL_COMPATIBILITY[activeCategory];
+  if (!compatible) return false;
+  return compatible.has(getCheckoutUpsellCategory(item));
+}
+
 export default function CheckoutReview() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -137,11 +164,11 @@ export default function CheckoutReview() {
       .map((item) => Number(item.id || item.productId || item.product_id || 0))
       .filter(Boolean)
   );
-  const activeCartCategory = normalizeSubscriptionCategory(
-    cart[0]?.category || cart[0]?.categoryName || cart[0]?.Category?.name || ""
-  );
+  const activeCartCategory = getCheckoutUpsellCategory(cart[0]);
+  const cartSignature = cart.map((item) => item.id || item.productId || item.product_id || item.title || item.productName || "").join("|");
   const visibleUpsellRecommendations = upsellRecommendations
     .filter((item) => !cartProductIds.has(Number(item.id)))
+    .filter((item) => isCompatibleCheckoutUpsell(activeCartCategory, item))
     .slice(0, 4);
 
   const persistCart = (nextCart) => {
@@ -244,9 +271,10 @@ export default function CheckoutReview() {
         const nextRows = rows
           .filter((item) => item && Number(item.price || item.basePrice || 0) > 0)
           .filter((item) => !cartProductIds.has(Number(item.id)))
+          .filter((item) => isCompatibleCheckoutUpsell(activeCartCategory, item))
           .sort((left, right) => {
-            const leftCategory = normalizeSubscriptionCategory(left.category?.name || left.category || "");
-            const rightCategory = normalizeSubscriptionCategory(right.category?.name || right.category || "");
+            const leftCategory = getCheckoutUpsellCategory(left);
+            const rightCategory = getCheckoutUpsellCategory(right);
             const leftScore = leftCategory && leftCategory === activeCartCategory ? 1 : 0;
             const rightScore = rightCategory && rightCategory === activeCartCategory ? 1 : 0;
             return rightScore - leftScore;
@@ -266,7 +294,7 @@ export default function CheckoutReview() {
     return () => {
       mounted = false;
     };
-  }, [activeCartCategory, cart.length]);
+  }, [activeCartCategory, cart.length, cartSignature]);
 
   const placeOrder = async () => {
     if (!selectedAddress && !isGuest) {
