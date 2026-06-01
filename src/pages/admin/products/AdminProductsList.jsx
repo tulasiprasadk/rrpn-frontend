@@ -17,10 +17,10 @@ const AdminProductsList = () => {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/admin/products");
-      let list = Array.isArray(res.data) ? res.data : res.data?.products || [];
+      const res = await api.get("/products", { params: { limit: 50000 } });
+      let list = Array.isArray(res.data) ? res.data : res.data?.products || res.data?.value || [];
       if (list.length === 0) {
-        const fallback = await api.get("/products?limit=50000");
+        const fallback = await api.get("/admin/products");
         list = Array.isArray(fallback.data) ? fallback.data : [];
       }
       setProducts(list);
