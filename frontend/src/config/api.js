@@ -34,6 +34,9 @@ export function resolveApiRequestUrl(url = "") {
   if (/^https?:\/\//i.test(cleanUrl)) {
     return cleanUrl;
   }
+  if (cleanUrl === API_BASE || cleanUrl.startsWith(`${API_BASE}/`)) {
+    return cleanUrl;
+  }
 
   // Ensure leading slash
   const path = cleanUrl.startsWith("/") ? cleanUrl : `/${cleanUrl}`;

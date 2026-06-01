@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE, resolveApiRequestUrl, sanitizeBase64DataUrl } from "../config/api";
+import { resolveApiRequestUrl, sanitizeBase64DataUrl } from "../config/api";
 
 function getTokenForRequest(url = "") {
   const normalizedUrl = String(url || "");
@@ -20,7 +20,7 @@ function getTokenForRequest(url = "") {
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: undefined,
   withCredentials: true,
   timeout: 30000, // 30 second timeout
 });

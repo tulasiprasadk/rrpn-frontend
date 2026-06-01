@@ -1,6 +1,5 @@
 import axios from "axios";
-
-const API_BASE = import.meta.env.VITE_API_URL;
+import { resolveApiRequestUrl } from "../config/api";
 
 function getTokenForRequest(url = "") {
   const normalizedUrl = String(url || "");
@@ -22,7 +21,7 @@ function getTokenForRequest(url = "") {
 
 // Create axios instance
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: undefined,
   withCredentials: true,
   timeout: 30000, // 30 seconds
   headers: {
@@ -33,14 +32,15 @@ const api = axios.create({
 // Request interceptor
 api.interceptors.request.use(
   (config) => {
-    // Only attach token for internal API calls
-    if (config.url && !/^https?:\/\//.test(config.url)) {
-      const token = getTokenForRequest(config.url);
+    const nextUrl = resolveApiRequestUrl(config.url || "");
+    if (nextUrl) {
+      config.url = nextUrl;
+    }
 
-      if (token) {
-        config.headers = config.headers || {};
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = getTokenForRequest(config.url);
+    if (token) {
+      config.headers = config.headers || {};
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
