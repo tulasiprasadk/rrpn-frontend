@@ -5,6 +5,68 @@ import ProductSuppliers from "./ProductSuppliers";
 import "./AdminProductsList.css";
 
 const formatCurrency = (value) => `Rs ${Number(value || 0).toFixed(2)}`;
+const CSV_PREVIEW_LIMIT = 500;
+
+const parseCsvLine = (line) => {
+  const values = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    const next = line[index + 1];
+
+    if (char === '"' && inQuotes && next === '"') {
+      current += '"';
+      index += 1;
+    } else if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      values.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+
+  values.push(current.trim());
+  return values;
+};
+
+const loadCsvCatalogProducts = async () => {
+  const response = await fetch("/groceries_27000.csv", { cache: "force-cache" });
+  if (!response.ok) return [];
+
+  const text = await response.text();
+  const lines = text.split(/\r?\n/).filter(Boolean);
+  const headers = parseCsvLine(lines[0] || "").map((header) => header.toLowerCase());
+
+  return lines.slice(1, CSV_PREVIEW_LIMIT + 1).map((line, rowIndex) => {
+    const values = parseCsvLine(line);
+    const row = headers.reduce((acc, header, index) => {
+      acc[header] = values[index] || "";
+      return acc;
+    }, {});
+
+    const id = row.index || rowIndex + 1;
+    const variety = row.variety || "Groceries";
+    const subVariety = row.sub_variety || "";
+
+    return {
+      id: `csv-grocery-${id}`,
+      title: row.product || "Grocery Product",
+      price: Number(row.market_price || 0),
+      basePrice: Number(row.market_price || 0),
+      variety,
+      subVariety,
+      unit: "",
+      category: "Groceries",
+      CategoryId: "groceries",
+      Category: { id: "groceries", name: "Groceries" },
+      metadata: { source: "groceries_27000.csv" },
+    };
+  });
+};
 
 const AdminProductsList = () => {
   const [products, setProducts] = useState([]);
@@ -23,6 +85,14 @@ const AdminProductsList = () => {
         const fallback = await api.get("/admin/products");
         list = Array.isArray(fallback.data) ? fallback.data : [];
       }
+      if (list.length < 300) {
+        const csvProducts = await loadCsvCatalogProducts();
+        const existingTitles = new Set(list.map((product) => String(product.title || "").toLowerCase()));
+        const csvOnlyProducts = csvProducts.filter(
+          (product) => !existingTitles.has(String(product.title || "").toLowerCase())
+        );
+        list = [...list, ...csvOnlyProducts];
+      }
       setProducts(list);
       setPriceDrafts(
         list.reduce((acc, product) => {
@@ -34,7 +104,10 @@ const AdminProductsList = () => {
       console.error("Failed to load products", err);
       try {
         const fallback = await api.get("/products?limit=50000");
-        const list = Array.isArray(fallback.data) ? fallback.data : [];
+        let list = Array.isArray(fallback.data) ? fallback.data : [];
+        if (list.length < 300) {
+          list = [...list, ...(await loadCsvCatalogProducts())];
+        }
         setProducts(list);
         setPriceDrafts(
           list.reduce((acc, product) => {
@@ -161,6 +234,11 @@ const AdminProductsList = () => {
         }}
       >
         Use the inline price box to update one product quickly. Use Bulk Catalog and Price Update when market prices change for many products together.
+        {products.some((product) => product.metadata?.source === "groceries_27000.csv") && (
+          <div style={{ marginTop: 8, fontSize: 14 }}>
+            Showing API products plus the first {CSV_PREVIEW_LIMIT} grocery CSV products. Search works across this loaded catalog.
+          </div>
+        )}
       </div>
 
       {loading ? (
@@ -208,17 +286,17 @@ const AdminProductsList = () => {
                       />
                       <button
                         onClick={() => savePrice(product.id)}
-                        disabled={savingId === product.id}
+                        disabled={savingId === product.id || product.metadata?.source === "groceries_27000.csv"}
                         style={{
-                          background: savingId === product.id ? "#9ca3af" : "#1f7a1f",
+                          background: savingId === product.id || product.metadata?.source === "groceries_27000.csv" ? "#9ca3af" : "#1f7a1f",
                           color: "white",
                           border: "none",
                           padding: "8px 12px",
                           borderRadius: 6,
-                          cursor: savingId === product.id ? "not-allowed" : "pointer"
+                          cursor: savingId === product.id || product.metadata?.source === "groceries_27000.csv" ? "not-allowed" : "pointer"
                         }}
                       >
-                        {savingId === product.id ? "Saving..." : "Save Price"}
+                        {product.metadata?.source === "groceries_27000.csv" ? "CSV Item" : savingId === product.id ? "Saving..." : "Save Price"}
                       </button>
                     </div>
                   </td>
@@ -226,47 +304,53 @@ const AdminProductsList = () => {
                   <td style={{ padding: 12, borderBottom: "1px solid #eee" }}>{product.Category?.name || "-"}</td>
                   <td style={{ padding: 12, borderBottom: "1px solid #eee" }}>
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <Link
-                        to={`/admin/products/${product.id}/edit`}
-                        className="admin-button"
-                        style={{
-                          background: "#007bff",
-                          color: "white",
-                          border: "none",
-                          padding: "6px 12px",
-                          borderRadius: 4,
-                          cursor: "pointer",
-                          textDecoration: "none"
-                        }}
-                      >
-                        Full Edit
-                      </Link>
-                      <button
-                        onClick={() => setManagingProductId(product.id)}
-                        style={{
-                          background: "#28a745",
-                          color: "white",
-                          border: "none",
-                          padding: "6px 12px",
-                          borderRadius: 4,
-                          cursor: "pointer"
-                        }}
-                      >
-                        Suppliers
-                      </button>
-                      <button
-                        onClick={() => deleteProduct(product.id)}
-                        style={{
-                          background: "#dc3545",
-                          color: "white",
-                          border: "none",
-                          padding: "6px 12px",
-                          borderRadius: 4,
-                          cursor: "pointer"
-                        }}
-                      >
-                        Delete
-                      </button>
+                      {product.metadata?.source === "groceries_27000.csv" ? (
+                        <span style={{ color: "#666", fontSize: 13 }}>Catalog CSV</span>
+                      ) : (
+                        <>
+                          <Link
+                            to={`/admin/products/${product.id}/edit`}
+                            className="admin-button"
+                            style={{
+                              background: "#007bff",
+                              color: "white",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: 4,
+                              cursor: "pointer",
+                              textDecoration: "none"
+                            }}
+                          >
+                            Full Edit
+                          </Link>
+                          <button
+                            onClick={() => setManagingProductId(product.id)}
+                            style={{
+                              background: "#28a745",
+                              color: "white",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: 4,
+                              cursor: "pointer"
+                            }}
+                          >
+                            Suppliers
+                          </button>
+                          <button
+                            onClick={() => deleteProduct(product.id)}
+                            style={{
+                              background: "#dc3545",
+                              color: "white",
+                              border: "none",
+                              padding: "6px 12px",
+                              borderRadius: 4,
+                              cursor: "pointer"
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </>
+                      )}
                     </div>
                   </td>
                 </tr>
