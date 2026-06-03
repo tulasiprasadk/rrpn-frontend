@@ -158,7 +158,7 @@ const AdminProductsList = () => {
 
     try {
       setSavingId(id);
-      await api.patch(`/admin/products/${id}/price`, { price: nextPrice });
+      await api.patch(`/products/${id}`, { price: nextPrice });
       setProducts((current) =>
         current.map((product) =>
           product.id === id ? { ...product, price: nextPrice } : product
@@ -176,7 +176,7 @@ const AdminProductsList = () => {
     if (!window.confirm("Delete this product?")) return;
 
     try {
-      await api.delete(`/admin/products/${id}`);
+      await api.delete(`/products/${id}`);
       loadProducts();
     } catch (err) {
       console.error("Failed to delete product", err);

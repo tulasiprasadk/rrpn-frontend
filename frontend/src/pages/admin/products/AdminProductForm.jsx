@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAdminAuth } from "../../../context/AdminAuthContext";
 import { API_BASE } from "../../../config/api";
 
 const AdminProductForm = ({ mode }) => {
-  const { adminToken } = useAdminAuth();
   const { id } = useParams();
   const navigate = useNavigate();
 
@@ -33,7 +31,7 @@ const AdminProductForm = ({ mode }) => {
   useEffect(() => {
     if (mode === "edit" && id) {
       setLoading(true);
-      fetch(`${API_BASE}/admin/products/${id}`, {
+      fetch(`${API_BASE}/products/${id}`, {
         credentials: 'include',
         headers: { 
           'Content-Type': 'application/json'
@@ -86,8 +84,8 @@ const AdminProductForm = ({ mode }) => {
 
     const method = mode === "edit" ? "PUT" : "POST";
     const url = mode === "edit"
-      ? `${API_BASE}/admin/products/${id}`
-      : `${API_BASE}/admin/products`;
+      ? `${API_BASE}/products/${id}`
+      : `${API_BASE}/products`;
 
     // Prepare data - convert price to number
     const submitData = {
@@ -98,6 +96,10 @@ const AdminProductForm = ({ mode }) => {
       variety: product.variety || "",
       subVariety: product.subVariety || "",
       categoryId: product.categoryId ? parseInt(product.categoryId) : null,
+      category: "Groceries",
+      categoryName: "Groceries",
+      CategoryId: product.categoryId ? parseInt(product.categoryId) : 1,
+      Category: { id: product.categoryId ? parseInt(product.categoryId) : 1, name: "Groceries" },
       monthlyPrice: product.monthlyPrice ? parseFloat(product.monthlyPrice) : null,
       hasMonthlyPackage: product.hasMonthlyPackage === true || product.hasMonthlyPackage === 'true',
       yearlyPrice: product.yearlyPrice ? parseFloat(product.yearlyPrice) : null,

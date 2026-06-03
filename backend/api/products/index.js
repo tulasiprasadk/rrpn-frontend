@@ -1,5 +1,6 @@
 import { getProducts } from "../_lib/catalog.js";
 import { setCors } from "../_lib/auth.js";
+import { createStoredProduct } from "../_lib/productStore.js";
 
 export default async function handler(req, res) {
   setCors(req, res);
@@ -9,16 +10,21 @@ export default async function handler(req, res) {
     return res.status(204).end();
   }
 
-  if (req.method !== "GET") {
-    res.setHeader("Allow", "GET, OPTIONS");
+  if (!["GET", "POST"].includes(req.method)) {
+    res.setHeader("Allow", "GET, POST, OPTIONS");
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   try {
+    if (req.method === "POST") {
+      const product = await createStoredProduct(req.body || {});
+      return res.status(201).json(product);
+    }
+
     const products = await getProducts(req.query || {});
     return res.status(200).json(products);
   } catch (err) {
     console.error("Products error:", err);
-    return res.status(500).json({ error: "Failed to load products" });
+    return res.status(500).json({ error: err.message || "Failed to load products" });
   }
 }

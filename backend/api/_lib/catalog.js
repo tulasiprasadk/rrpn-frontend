@@ -1,4 +1,5 @@
 import fs from "node:fs/promises";
+import { getStoredProductById, listStoredProducts } from "./productStore.js";
 
 let catalogCache = null;
 
@@ -50,13 +51,20 @@ function decodeJsonBuffer(buffer) {
 
 export async function getProducts(query = {}) {
   const rows = await getCatalog();
+  const storedRows = await listStoredProducts();
 
   const q = String(query.q || query.search || "").trim().toLowerCase();
   const categoryId = String(query.categoryId || "").trim();
   const category = String(query.category || "").trim().toLowerCase();
   const limit = Math.max(1, Math.min(Number(query.limit || 50000), 50000));
 
-  const filteredRows = rows
+  const ids = new Set(rows.map((product) => String(product.id)));
+  const combinedRows = [
+    ...storedRows.filter((product) => !ids.has(String(product.id))),
+    ...rows,
+  ];
+
+  const filteredRows = combinedRows
     .filter((product) => product.status !== "rejected")
     .filter((product) => {
       if (!q) return true;
@@ -92,7 +100,7 @@ export async function getProducts(query = {}) {
 
 export async function getProductById(id) {
   const rows = await getCatalog();
-  return rows.find((p) => String(p.id) === String(id)) || null;
+  return await getStoredProductById(id) || rows.find((p) => String(p.id) === String(id)) || null;
 }
 
 export async function getCategories() {
