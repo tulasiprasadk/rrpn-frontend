@@ -2,6 +2,15 @@ import { getProducts } from "../_lib/catalog.js";
 import { setCors } from "../_lib/auth.js";
 import { createStoredProduct } from "../_lib/productStore.js";
 
+function readBody(body) {
+  if (!body || typeof body === "object") return body || {};
+  try {
+    return JSON.parse(body);
+  } catch {
+    return {};
+  }
+}
+
 export default async function handler(req, res) {
   setCors(req, res);
   res.setHeader("X-API-Source", "NEW_HANDLER_V2");
@@ -17,7 +26,7 @@ export default async function handler(req, res) {
 
   try {
     if (req.method === "POST") {
-      const product = await createStoredProduct(req.body || {});
+      const product = await createStoredProduct(readBody(req.body));
       return res.status(201).json(product);
     }
 
