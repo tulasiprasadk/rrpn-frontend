@@ -1,6 +1,499 @@
 {
   "value": [
     {
+      "id": "cracker-aerial-jumbo-shooters-116",
+      "title": "Mojo (2 Pcs/box) Jumbo size",
+      "titleKannada": "ಮೊಜೋ (2 ತುಂಡುಗಳು/ಬಾಕ್ಸ್) ಜಂಬೋ ಗಾತ್ರ",
+      "description": "AERIAL JUMBO SHOOTERS cracker product.",
+      "descriptionKannada": null,
+      "price": 1628,
+      "basePrice": 1628,
+      "variety": "AERIAL JUMBO SHOOTERS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-aerial-jumbo-shooters-116",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-aerial-jumbo-shooters-116",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-aerial-jumbo-shooters-117",
+      "title": "Big Splash (2 Pcs/box) Jumbo size",
+      "titleKannada": "ಬಿಗ್ ಸ್ಪ್ಲ್ಯಾಶ್ (2 ತುಂಡುಗಳು/ಬಾಕ್ಸ್) ಜಂಬೋ ಗಾತ್ರ",
+      "description": "AERIAL JUMBO SHOOTERS cracker product.",
+      "descriptionKannada": null,
+      "price": 1628,
+      "basePrice": 1628,
+      "variety": "AERIAL JUMBO SHOOTERS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-aerial-jumbo-shooters-117",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-aerial-jumbo-shooters-117",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-aerial-jumbo-shooters-118",
+      "title": "Piknik (2 Pcs/box) Jumbo size",
+      "titleKannada": "ಪಿಕ್ನಿಕ್ (2 ತುಂಡುಗಳು/ಬಾಕ್ಸ್) ಜಂಬೋ ಗಾತ್ರ",
+      "description": "AERIAL JUMBO SHOOTERS cracker product.",
+      "descriptionKannada": null,
+      "price": 1628,
+      "basePrice": 1628,
+      "variety": "AERIAL JUMBO SHOOTERS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-aerial-jumbo-shooters-118",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-aerial-jumbo-shooters-118",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-aerial-jumbo-shooters-119",
+      "title": "Spot (2 Pcs/box) Jumbo size",
+      "titleKannada": null,
+      "description": "AERIAL JUMBO SHOOTERS cracker product.",
+      "descriptionKannada": null,
+      "price": 1628,
+      "basePrice": 1628,
+      "variety": "AERIAL JUMBO SHOOTERS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-aerial-jumbo-shooters-119",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-aerial-jumbo-shooters-119",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-aerial-jumbo-shooters-120",
+      "title": "Boochie (2 Pcs/box) Jumbo size",
+      "titleKannada": null,
+      "description": "AERIAL JUMBO SHOOTERS cracker product.",
+      "descriptionKannada": null,
+      "price": 1628,
+      "basePrice": 1628,
+      "variety": "AERIAL JUMBO SHOOTERS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-aerial-jumbo-shooters-120",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-aerial-jumbo-shooters-120",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-aerial-turbo-shooters-111",
+      "title": "Skinny Girl (2 pcs) Window Pack",
+      "titleKannada": null,
+      "description": "AERIAL TURBO SHOOTERS cracker product.",
+      "descriptionKannada": null,
+      "price": 1295,
+      "basePrice": 1295,
+      "variety": "AERIAL TURBO SHOOTERS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-aerial-turbo-shooters-111",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-aerial-turbo-shooters-111",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-aerial-turbo-shooters-112",
+      "title": "Big Bang (2 pcs) Window Pack",
+      "titleKannada": null,
+      "description": "AERIAL TURBO SHOOTERS cracker product.",
+      "descriptionKannada": null,
+      "price": 1295,
+      "basePrice": 1295,
+      "variety": "AERIAL TURBO SHOOTERS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-aerial-turbo-shooters-112",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-aerial-turbo-shooters-112",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-celebration-products-196",
+      "title": "RAINBOW SMOKE",
+      "titleKannada": null,
+      "description": "CELEBRATION PRODUCTS cracker product.",
+      "descriptionKannada": null,
+      "price": 308.95,
+      "basePrice": 308.95,
+      "variety": "CELEBRATION PRODUCTS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-celebration-products-196",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-celebration-products-196",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-celebration-products-197",
+      "title": "MONEY BANK",
+      "titleKannada": null,
+      "description": "CELEBRATION PRODUCTS cracker product.",
+      "descriptionKannada": null,
+      "price": 434.75,
+      "basePrice": 434.75,
+      "variety": "CELEBRATION PRODUCTS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-celebration-products-197",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-celebration-products-197",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-combo-packs-192",
+      "title": "SELVA COMBO PACK 2000",
+      "titleKannada": null,
+      "description": "COMBO PACKS cracker product.",
+      "descriptionKannada": null,
+      "price": 3700,
+      "basePrice": 3700,
+      "variety": "COMBO PACKS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-combo-packs-192",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-combo-packs-192",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-combo-packs-193",
+      "title": "SELVA COMBO PACK 3000",
+      "titleKannada": null,
+      "description": "COMBO PACKS cracker product.",
+      "descriptionKannada": null,
+      "price": 5550,
+      "basePrice": 5550,
+      "variety": "COMBO PACKS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-combo-packs-193",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-combo-packs-193",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-flower-pots-9",
+      "title": "Flower Pot Big",
+      "titleKannada": null,
+      "description": "FLOWER POTS cracker product.",
+      "descriptionKannada": null,
+      "price": 120.25,
+      "basePrice": 120.25,
+      "variety": "FLOWER POTS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-flower-pots-9",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-flower-pots-9",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-flower-pots-10",
+      "title": "Flower Pot Special",
+      "titleKannada": null,
+      "description": "FLOWER POTS cracker product.",
+      "descriptionKannada": null,
+      "price": 157.25,
+      "basePrice": 157.25,
+      "variety": "FLOWER POTS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-flower-pots-10",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-flower-pots-10",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-flower-pots-11",
+      "title": "Flower Pot Asoka",
+      "titleKannada": null,
+      "description": "FLOWER POTS cracker product.",
+      "descriptionKannada": null,
+      "price": 240.5,
+      "basePrice": 240.5,
+      "variety": "FLOWER POTS",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-flower-pots-11",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-flower-pots-11",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-sparklers-special-159",
+      "title": "7 CM ELECTRIC SPARKLERS",
+      "titleKannada": null,
+      "description": "SPARKLERS SPECIAL cracker product.",
+      "descriptionKannada": null,
+      "price": 20.35,
+      "basePrice": 20.35,
+      "variety": "SPARKLERS SPECIAL",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-sparklers-special-159",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-sparklers-special-159",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-sparklers-special-160",
+      "title": "7 CM CRACKLING SPARKLERS",
+      "titleKannada": null,
+      "description": "SPARKLERS SPECIAL cracker product.",
+      "descriptionKannada": null,
+      "price": 24.05,
+      "basePrice": 24.05,
+      "variety": "SPARKLERS SPECIAL",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-sparklers-special-160",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-sparklers-special-160",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
+      "id": "cracker-sparklers-special-161",
+      "title": "10 CM ELECTRIC SPARKLERS",
+      "titleKannada": null,
+      "description": "SPARKLERS SPECIAL cracker product.",
+      "descriptionKannada": null,
+      "price": 33.3,
+      "basePrice": 33.3,
+      "variety": "SPARKLERS SPECIAL",
+      "subVariety": null,
+      "unit": "box",
+      "sku": "cracker-sparklers-special-161",
+      "supplierId": null,
+      "isService": false,
+      "deliveryAvailable": true,
+      "isTemplate": false,
+      "metadata": {
+        "sku": "cracker-sparklers-special-161",
+        "source": "cracker_catalog_sync"
+      },
+      "status": "approved",
+      "createdAt": "2026-07-09T00:00:00.000Z",
+      "updatedAt": "2026-07-09T00:00:00.000Z",
+      "CategoryId": 6,
+      "Category": {
+        "id": 6,
+        "name": "Crackers"
+      }
+    },
+    {
       "id": 28,
       "title": "Toilet Cleaner",
       "titleKannada": null,
@@ -637,31 +1130,6 @@
         "id": 1,
         "name": "Groceries"
       }
-    },
-    {
-      "id": 6,
-      "title": "Diwali Crackers Box",
-      "titleKannada": null,
-      "description": "Assorted crackers for Diwali.",
-      "descriptionKannada": null,
-      "price": 800,
-      "variety": null,
-      "subVariety": null,
-      "unit": "box",
-      "supplierId": null,
-      "isService": true,
-      "deliveryAvailable": true,
-      "isTemplate": false,
-      "metadata": null,
-      "status": "approved",
-      "createdAt": "2026-01-03T06:02:03.697Z",
-      "updatedAt": "2026-01-03T06:02:03.697Z",
-      "CategoryId": 6,
-      "Category": {
-        "id": 6,
-        "name": "Crackers"
-      },
-      "basePrice": 800
     },
     {
       "id": 5,

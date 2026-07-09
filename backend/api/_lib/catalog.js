@@ -1,5 +1,5 @@
 import fs from "node:fs/promises";
-import { getStoredProductById, listStoredProducts } from "./productStore.js";
+import { getStoredProductById, listDeletedProductIds, listStoredProducts } from "./productStore.js";
 
 let catalogCache = null;
 
@@ -52,16 +52,21 @@ function decodeJsonBuffer(buffer) {
 export async function getProducts(query = {}) {
   const rows = await getCatalog();
   const storedRows = await listStoredProducts();
+  const deletedProductIds = await listDeletedProductIds();
 
   const q = String(query.q || query.search || "").trim().toLowerCase();
   const categoryId = String(query.categoryId || "").trim();
   const category = String(query.category || "").trim().toLowerCase();
   const limit = Math.max(1, Math.min(Number(query.limit || 50000), 50000));
 
-  const ids = new Set(rows.map((product) => String(product.id)));
+  const storedById = new Map(storedRows.map((product) => [String(product.id), product]));
+  const catalogRows = rows
+    .filter((product) => !deletedProductIds.has(String(product.id)))
+    .map((product) => storedById.get(String(product.id)) || product);
+  const catalogIds = new Set(rows.map((product) => String(product.id)));
   const combinedRows = [
-    ...storedRows.filter((product) => !ids.has(String(product.id))),
-    ...rows,
+    ...storedRows.filter((product) => !catalogIds.has(String(product.id))),
+    ...catalogRows,
   ];
 
   const filteredRows = combinedRows
@@ -99,6 +104,9 @@ export async function getProducts(query = {}) {
 }
 
 export async function getProductById(id) {
+  const deletedProductIds = await listDeletedProductIds();
+  if (deletedProductIds.has(String(id))) return null;
+
   const rows = await getCatalog();
   return await getStoredProductById(id) || rows.find((p) => String(p.id) === String(id)) || null;
 }

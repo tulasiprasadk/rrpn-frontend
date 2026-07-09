@@ -2,6 +2,22 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/customer/address/guest",
+      "destination": "/api/customer/address?guest=1"
+    },
+    {
+      "source": "/api/customer/address/:id/default",
+      "destination": "/api/customer/address?id=:id&default=1"
+    },
+    {
+      "source": "/api/customer/address/:id",
+      "destination": "/api/customer/address?id=:id"
+    },
+    {
+      "source": "/api/products/:id",
+      "destination": "/api/products?id=:id"
+    },
+    {
       "source": "/auth/:path*",
       "destination": "/api/auth/:path*"
     },

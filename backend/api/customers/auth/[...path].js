@@ -1,11 +1,38 @@
-import { env, getBackendUrl, getFrontendUrl, isConfiguredSecret, signToken } from "../../../_lib/auth.js";
+import {
+  env,
+  getBackendUrl,
+  getFrontendUrl,
+  isConfiguredSecret,
+  signToken,
+} from "../../_lib/auth.js";
 
-export default async function handler(req, res) {
-  if (req.method !== "GET") {
-    res.setHeader("Allow", "GET");
-    return res.status(405).end("Method Not Allowed");
+function getParts(req) {
+  const pathname = new URL(req.url || "/", "https://backend.local").pathname;
+  const route = pathname
+    .replace(/^\/api\/customers\/auth\/?/, "")
+    .replace(/^\/customers\/auth\/?/, "");
+  return route.split("/").filter(Boolean);
+}
+
+function redirectToGoogle(req, res) {
+  const clientId = env("GOOGLE_CLIENT_ID");
+  if (!isConfiguredSecret(clientId)) {
+    return res.status(500).end("GOOGLE_CLIENT_ID is not configured");
   }
 
+  const redirectUri = `${getBackendUrl(req)}/api/customers/auth/google/callback`;
+  const googleUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+  googleUrl.searchParams.set("client_id", clientId);
+  googleUrl.searchParams.set("redirect_uri", redirectUri);
+  googleUrl.searchParams.set("response_type", "code");
+  googleUrl.searchParams.set("scope", "openid email profile");
+  googleUrl.searchParams.set("access_type", "offline");
+  googleUrl.searchParams.set("prompt", "select_account");
+
+  return res.redirect(302, googleUrl.toString());
+}
+
+async function handleGoogleCallback(req, res) {
   const frontendUrl = getFrontendUrl();
   const errorRedirect = (message) => {
     const url = new URL("/login", frontendUrl);
@@ -65,7 +92,19 @@ export default async function handler(req, res) {
     successUrl.searchParams.set("token", token);
     successUrl.searchParams.set("role", "user");
     return res.redirect(302, successUrl.toString());
-  } catch (err) {
+  } catch {
     return errorRedirect("google_auth_failed");
   }
+}
+
+export default async function handler(req, res) {
+  if (req.method !== "GET") {
+    res.setHeader("Allow", "GET");
+    return res.status(405).end("Method Not Allowed");
+  }
+
+  const parts = getParts(req);
+  if (parts[0] !== "google") return res.status(404).end("Not Found");
+  if (parts[1] === "callback") return handleGoogleCallback(req, res);
+  return redirectToGoogle(req, res);
 }
