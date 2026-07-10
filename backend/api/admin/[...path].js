@@ -1,4 +1,5 @@
 import { setCors } from "../_lib/auth.js";
+import { listPageOrderCustomers } from "../_lib/pageOrders.js";
 
 function getRoute(req) {
   const pathname = new URL(req.url || "/", "https://backend.local").pathname;
@@ -25,6 +26,21 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Method Not Allowed" });
     }
     return res.status(200).json({ success: true });
+  }
+
+  if (route === "users") {
+    if (req.method !== "GET") {
+      res.setHeader("Allow", "GET, OPTIONS");
+      return res.status(405).json({ error: "Method Not Allowed" });
+    }
+
+    try {
+      const users = await listPageOrderCustomers();
+      return res.status(200).json({ data: users, users });
+    } catch (error) {
+      console.error("Admin users error:", error);
+      return res.status(500).json({ error: error.message || "Failed to load users" });
+    }
   }
 
   return res.status(404).json({ error: "Resource not found" });

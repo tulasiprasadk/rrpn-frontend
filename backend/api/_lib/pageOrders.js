@@ -156,3 +156,32 @@ export async function submitPageOrderPayment(orderId, paymentSubmission = {}) {
   );
   return toOrder(result.rows[0]);
 }
+
+export async function listPageOrderCustomers() {
+  await ensureTable();
+
+  const result = await getPool().query(`
+    SELECT
+      customer_phone,
+      (ARRAY_AGG(customer_name ORDER BY created_at DESC))[1] AS customer_name,
+      MIN(created_at) AS first_seen_at,
+      MAX(created_at) AS last_seen_at,
+      COUNT(*)::int AS orders_count,
+      COALESCE(SUM(total_amount), 0) AS total_spent
+    FROM page_orders
+    GROUP BY customer_phone
+    ORDER BY last_seen_at DESC
+  `);
+
+  return result.rows.map((row) => ({
+    id: row.customer_phone || row.customer_name || `customer-${row.last_seen_at}`,
+    name: row.customer_name || "Guest / Unnamed",
+    mobile: row.customer_phone || "",
+    email: "",
+    createdAt: row.first_seen_at,
+    lastSeenAt: row.last_seen_at,
+    ordersCount: Number(row.orders_count || 0),
+    totalSpent: Number(row.total_spent || 0),
+    source: "page_orders",
+  }));
+}
