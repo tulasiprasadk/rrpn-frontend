@@ -106,6 +106,9 @@ export default function AdminOrdersList() {
       });
 
       const payload = extractOrdersPayload(res.data);
+      if (res.data?.warning) {
+        setError(res.data.warning);
+      }
       if (payload.length > 0) {
         setOrders(payload);
       } else {

@@ -142,6 +142,47 @@ export async function getPageOrder(orderId) {
   return toOrder(result.rows[0]);
 }
 
+export async function listPageOrders({ status = "", limit = 200 } = {}) {
+  await ensureTable();
+
+  const params = [];
+  const where = [];
+  if (status) {
+    params.push(String(status));
+    where.push(`status = $${params.length}`);
+  }
+
+  params.push(Math.max(1, Math.min(Number(limit || 200), 500)));
+  const limitParam = `$${params.length}`;
+
+  const result = await getPool().query(
+    `SELECT *
+       FROM page_orders
+      ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
+      ORDER BY created_at DESC
+      LIMIT ${limitParam}`,
+    params
+  );
+
+  return result.rows.map(toOrder).filter(Boolean);
+}
+
+export async function updatePageOrderStatus(orderId, status, paymentStatus) {
+  await ensureTable();
+
+  const result = await getPool().query(
+    `UPDATE page_orders
+        SET status = $2,
+            payment_status = COALESCE($3, payment_status),
+            updated_at = NOW()
+      WHERE order_ref = $1
+      RETURNING *`,
+    [String(orderId || ""), String(status || "created"), paymentStatus || null]
+  );
+
+  return toOrder(result.rows[0]);
+}
+
 export async function submitPageOrderPayment(orderId, paymentSubmission = {}) {
   await ensureTable();
   const result = await getPool().query(

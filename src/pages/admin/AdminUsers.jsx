@@ -17,6 +17,7 @@ export default function AdminUsers() {
         const nextUsers = Array.isArray(res.data?.data) ? res.data.data : Array.isArray(res.data) ? res.data : [];
         console.log("[AdminUsers] loaded", nextUsers.length);
         if (mounted) {
+          setError(res.data?.warning || "");
           setUsers(nextUsers);
         }
       } catch (err) {
