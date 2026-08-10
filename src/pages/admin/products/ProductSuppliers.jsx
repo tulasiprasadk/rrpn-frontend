@@ -8,6 +8,7 @@ function ProductSuppliers({ productId, onClose }) {
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
+  const [margin, setMargin] = useState('');
 
   useEffect(() => {
     fetchProductSuppliers();
@@ -33,8 +34,15 @@ function ProductSuppliers({ productId, onClose }) {
       const res = await fetch('/api/admin/suppliers', { credentials: 'include' });
       if (res.ok) {
         const data = await res.json();
+        const list = Array.isArray(data)
+          ? data
+          : Array.isArray(data?.suppliers)
+            ? data.suppliers
+            : Array.isArray(data?.data)
+              ? data.data
+              : [];
         // Only show approved suppliers
-        setAllSuppliers((data || []).filter((s) => s.status === 'approved'));
+        setAllSuppliers(list.filter((s) => s.status === 'approved'));
       }
     } catch (err) {
       console.error('Error fetching suppliers:', err);
@@ -55,7 +63,8 @@ function ProductSuppliers({ productId, onClose }) {
         body: JSON.stringify({
           supplierId: selectedSupplier,
           price: price || null,
-          stock: stock || 0
+          stock: stock || 0,
+          margin: margin || null
         })
       });
 
@@ -65,6 +74,7 @@ function ProductSuppliers({ productId, onClose }) {
         setSelectedSupplier('');
         setPrice('');
         setStock('');
+        setMargin('');
       } else {
         const error = await res.json();
         alert(`Error: ${error.error || 'Failed to assign supplier'}`);
@@ -127,6 +137,11 @@ function ProductSuppliers({ productId, onClose }) {
                             Stock: {supplier.ProductSupplier.stock}
                           </span>
                         )}
+                        {supplier.ProductSupplier?.margin !== null && supplier.ProductSupplier?.margin !== undefined && (
+                          <span className="supplier-price">
+                            Margin: {supplier.ProductSupplier.margin}%
+                          </span>
+                        )}
                       </div>
                       <button
                         className="btn-remove"
@@ -177,6 +192,16 @@ function ProductSuppliers({ productId, onClose }) {
                   placeholder="Initial stock quantity"
                   value={stock}
                   onChange={(e) => setStock(e.target.value)}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Supplier Margin % (optional):</label>
+                <input
+                  type="number"
+                  placeholder="Use platform default if blank"
+                  value={margin}
+                  onChange={(e) => setMargin(e.target.value)}
                 />
               </div>
 

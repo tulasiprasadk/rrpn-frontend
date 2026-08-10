@@ -18,6 +18,15 @@ const AdminAdForm = ({ mode }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const isEditing = mode === "edit";
 
+  const readImageAsDataUrl = (file) =>
+    new Promise((resolve, reject) => {
+      if (!file) return resolve("");
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ""));
+      reader.onerror = () => reject(new Error("Failed to read selected image"));
+      reader.readAsDataURL(file);
+    });
+
   const placementOptions = {
     cms: [
       { value: "checkout_ads", label: "Checkout Ads" },
@@ -42,7 +51,10 @@ const AdminAdForm = ({ mode }) => {
           setTitle(payload.title || payload.name || "");
           setTargetUrl(payload.link || payload.targetUrl || "");
           setPrice(String(payload.price ?? ""));
-          setSourceType(payload.sourceType || "cms");
+          const nextSourceType = ["cms", "legacy", "featured"].includes(payload.sourceType)
+            ? payload.sourceType
+            : "cms";
+          setSourceType(nextSourceType);
           if (payload.sourceType === "featured" && (payload.placement === "mega" || payload.placement === "scroll")) {
             setPlacement(payload.placement === "scroll" ? "featured_scroll" : "featured_mega");
           } else {
@@ -64,16 +76,6 @@ const AdminAdForm = ({ mode }) => {
     e.preventDefault();
     setErrorMessage("");
 
-    const form = new FormData();
-    form.append("title", title);
-    form.append("link", targetUrl);
-    form.append("sourceType", sourceType);
-    form.append("placement", placement);
-    form.append("active", String(active));
-    form.append("text", text);
-    form.append("price", price);
-    if (image) form.append("image", image);
-
     console.log("[AdminAdForm] saving ad", {
       mode,
       id,
@@ -88,21 +90,32 @@ const AdminAdForm = ({ mode }) => {
     });
 
     try {
+      const imageUrl = image ? await readImageAsDataUrl(image) : preview;
+      const payload = {
+        title,
+        name: title,
+        link: targetUrl,
+        targetUrl,
+        sourceType,
+        placement,
+        active,
+        text,
+        price: Number(price || 0),
+        imageUrl
+      };
+
       if (mode === "edit") {
-        await api.put(`/admin/ads/${id}`, form, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
+        await api.put(`/admin/ads/${id}`, payload);
       } else {
-        await api.post("/admin/ads", form, {
-          headers: { "Content-Type": "multipart/form-data" }
-        });
+        await api.post("/admin/ads", payload);
       }
       navigate("/admin/ads");
     } catch (err) {
       console.error("[AdminAdForm] save failed", err?.response?.data || err);
       const message =
-        err?.response?.data?.message ||
-        err?.response?.data?.error ||
+        (typeof err?.response?.data?.message === "string" ? err.response.data.message : "") ||
+        (typeof err?.response?.data?.error === "string" ? err.response.data.error : "") ||
+        (err?.response?.data ? JSON.stringify(err.response.data) : "") ||
         err?.message ||
         "Failed to save advertisement";
       setErrorMessage(message);

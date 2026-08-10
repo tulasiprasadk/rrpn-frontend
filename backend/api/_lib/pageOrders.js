@@ -1,54 +1,8 @@
 import crypto from "node:crypto";
-import pg from "pg";
-import { env } from "./auth.js";
+import fs from "node:fs/promises";
+import path from "node:path";
 
-const { Pool } = pg;
-let pool = null;
-let tableReady = null;
-
-function getPool() {
-  if (pool) return pool;
-
-  const connectionString = env("DATABASE_URL");
-  if (!connectionString) {
-    throw new Error("DATABASE_URL is not configured");
-  }
-
-  pool = new Pool({
-    connectionString,
-    ssl: process.env.DB_SSL === "false" ? false : { rejectUnauthorized: false },
-    max: 2,
-    idleTimeoutMillis: 5000,
-    connectionTimeoutMillis: 8000,
-  });
-  return pool;
-}
-
-async function ensureTable() {
-  if (!tableReady) {
-    tableReady = getPool().query(`
-      CREATE TABLE IF NOT EXISTS page_orders (
-        id BIGSERIAL PRIMARY KEY,
-        order_ref TEXT UNIQUE NOT NULL,
-        payload JSONB NOT NULL DEFAULT '{}'::jsonb,
-        customer_name TEXT NOT NULL,
-        customer_phone TEXT NOT NULL,
-        customer_address TEXT NOT NULL DEFAULT '',
-        total_amount NUMERIC(12, 2) NOT NULL DEFAULT 0,
-        status TEXT NOT NULL DEFAULT 'created',
-        payment_status TEXT NOT NULL DEFAULT 'pending',
-        payment_submission JSONB,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      )
-    `).catch((error) => {
-      tableReady = null;
-      throw error;
-    });
-  }
-
-  await tableReady;
-}
+const orderStoreFile = process.env.PAGE_ORDER_STORE_FILE || "/tmp/rrpn-page-orders.json";
 
 function buildRef() {
   const suffix = crypto.randomBytes(3).toString("hex").toUpperCase();
@@ -85,28 +39,52 @@ function amountFromItems(items) {
   );
 }
 
-function toOrder(row) {
-  if (!row) return null;
+function normalizeOrder(order = {}) {
+  const id = order.orderId || order.id || buildRef();
+  const items = normalizeItems(order);
+  const totalAmount = Number(order.totalAmount || amountFromItems(items) || 0);
+  const createdAt = order.createdAt || new Date().toISOString();
 
   return {
-    id: row.order_ref,
-    orderId: row.order_ref,
-    customerName: row.customer_name,
-    customerPhone: row.customer_phone,
-    customerAddress: row.customer_address,
-    totalAmount: Number(row.total_amount || 0),
-    status: row.status,
-    paymentStatus: row.payment_status,
-    paymentSubmission: row.payment_submission || null,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    ...(row.payload || {}),
+    ...order,
+    id,
+    orderId: id,
+    customerName: String(order.customerName || order.name || "").trim(),
+    customerPhone: String(order.customerPhone || order.phone || "").trim(),
+    customerAddress: String(order.customerAddress || order.address || "").trim(),
+    items,
+    totalAmount,
+    status: order.status || "created",
+    paymentStatus: order.paymentStatus || "pending",
+    paymentSubmission: order.paymentSubmission || null,
+    createdAt,
+    updatedAt: order.updatedAt || createdAt,
   };
 }
 
-export async function createPageOrder(data = {}, isGuest = false) {
-  await ensureTable();
+async function readOrders() {
+  try {
+    const raw = await fs.readFile(orderStoreFile, "utf8");
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(normalizeOrder) : [];
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.warn("Order store read failed:", error.message);
+    }
+    return [];
+  }
+}
 
+async function writeOrders(orders) {
+  await fs.mkdir(path.dirname(orderStoreFile), { recursive: true });
+  await fs.writeFile(
+    orderStoreFile,
+    JSON.stringify(orders.map(normalizeOrder), null, 2),
+    "utf8"
+  );
+}
+
+export async function createPageOrder(data = {}, isGuest = false) {
   const customerName = String(data.customerName || data.name || "").trim();
   const customerPhone = String(data.customerPhone || data.phone || "").trim();
   const customerAddress = String(data.customerAddress || data.address || "").trim();
@@ -114,115 +92,104 @@ export async function createPageOrder(data = {}, isGuest = false) {
     throw new Error("Name, phone, and delivery address are required");
   }
 
-  const items = normalizeItems(data);
-  const totalAmount = Number(data.totalAmount || amountFromItems(items) || 0);
-  const payload = {
+  const order = normalizeOrder({
     ...data,
+    id: buildRef(),
+    orderId: undefined,
     isGuest,
-    items,
-  };
+    customerName,
+    customerPhone,
+    customerAddress,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
 
-  const result = await getPool().query(
-    `INSERT INTO page_orders (
-       order_ref, payload, customer_name, customer_phone, customer_address, total_amount
-     ) VALUES ($1, $2::jsonb, $3, $4, $5, $6)
-     RETURNING *`,
-    [buildRef(), JSON.stringify(payload), customerName, customerPhone, customerAddress, totalAmount]
-  );
-
-  return toOrder(result.rows[0]);
+  const orders = await readOrders();
+  await writeOrders([order, ...orders.filter((item) => item.orderId !== order.orderId)]);
+  return order;
 }
 
 export async function getPageOrder(orderId) {
-  await ensureTable();
-  const result = await getPool().query(
-    "SELECT * FROM page_orders WHERE order_ref = $1 LIMIT 1",
-    [String(orderId || "")]
-  );
-  return toOrder(result.rows[0]);
+  const id = String(orderId || "");
+  return (await readOrders()).find((order) => String(order.orderId) === id || String(order.id) === id) || null;
 }
 
 export async function listPageOrders({ status = "", limit = 200 } = {}) {
-  await ensureTable();
-
-  const params = [];
-  const where = [];
-  if (status) {
-    params.push(String(status));
-    where.push(`status = $${params.length}`);
-  }
-
-  params.push(Math.max(1, Math.min(Number(limit || 200), 500)));
-  const limitParam = `$${params.length}`;
-
-  const result = await getPool().query(
-    `SELECT *
-       FROM page_orders
-      ${where.length ? `WHERE ${where.join(" AND ")}` : ""}
-      ORDER BY created_at DESC
-      LIMIT ${limitParam}`,
-    params
-  );
-
-  return result.rows.map(toOrder).filter(Boolean);
+  const max = Math.max(1, Math.min(Number(limit || 200), 500));
+  return (await readOrders())
+    .filter((order) => !status || order.status === status)
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .slice(0, max);
 }
 
 export async function updatePageOrderStatus(orderId, status, paymentStatus) {
-  await ensureTable();
+  const orders = await readOrders();
+  const id = String(orderId || "");
+  const index = orders.findIndex((order) => String(order.orderId) === id || String(order.id) === id);
+  if (index < 0) return null;
 
-  const result = await getPool().query(
-    `UPDATE page_orders
-        SET status = $2,
-            payment_status = COALESCE($3, payment_status),
-            updated_at = NOW()
-      WHERE order_ref = $1
-      RETURNING *`,
-    [String(orderId || ""), String(status || "created"), paymentStatus || null]
-  );
-
-  return toOrder(result.rows[0]);
+  orders[index] = normalizeOrder({
+    ...orders[index],
+    status: status || orders[index].status || "created",
+    paymentStatus: paymentStatus || orders[index].paymentStatus || "pending",
+    updatedAt: new Date().toISOString(),
+  });
+  await writeOrders(orders);
+  return orders[index];
 }
 
 export async function submitPageOrderPayment(orderId, paymentSubmission = {}) {
-  await ensureTable();
-  const result = await getPool().query(
-    `UPDATE page_orders
-       SET payment_status = 'submitted',
-           status = 'payment_submitted',
-           payment_submission = $2::jsonb,
-           updated_at = NOW()
-     WHERE order_ref = $1
-     RETURNING *`,
-    [String(orderId || ""), JSON.stringify(paymentSubmission)]
-  );
-  return toOrder(result.rows[0]);
+  const orders = await readOrders();
+  const id = String(orderId || "");
+  const index = orders.findIndex((order) => String(order.orderId) === id || String(order.id) === id);
+  if (index < 0) return null;
+
+  orders[index] = normalizeOrder({
+    ...orders[index],
+    status: "payment_submitted",
+    paymentStatus: "submitted",
+    paymentSubmission,
+    updatedAt: new Date().toISOString(),
+  });
+  await writeOrders(orders);
+  return orders[index];
 }
 
 export async function listPageOrderCustomers() {
-  await ensureTable();
+  const customers = new Map();
 
-  const result = await getPool().query(`
-    SELECT
-      customer_phone,
-      (ARRAY_AGG(customer_name ORDER BY created_at DESC))[1] AS customer_name,
-      MIN(created_at) AS first_seen_at,
-      MAX(created_at) AS last_seen_at,
-      COUNT(*)::int AS orders_count,
-      COALESCE(SUM(total_amount), 0) AS total_spent
-    FROM page_orders
-    GROUP BY customer_phone
-    ORDER BY last_seen_at DESC
-  `);
+  for (const order of await readOrders()) {
+    const key = order.customerPhone || order.customerName || order.orderId;
+    const current = customers.get(key);
+    const next = {
+      id: key,
+      name: order.customerName || "Guest / Unnamed",
+      mobile: order.customerPhone || "",
+      email: order.customerEmail || order.email || "",
+      createdAt: order.createdAt,
+      lastSeenAt: order.createdAt,
+      ordersCount: 1,
+      totalSpent: Number(order.totalAmount || 0),
+      source: "page_orders",
+    };
 
-  return result.rows.map((row) => ({
-    id: row.customer_phone || row.customer_name || `customer-${row.last_seen_at}`,
-    name: row.customer_name || "Guest / Unnamed",
-    mobile: row.customer_phone || "",
-    email: "",
-    createdAt: row.first_seen_at,
-    lastSeenAt: row.last_seen_at,
-    ordersCount: Number(row.orders_count || 0),
-    totalSpent: Number(row.total_spent || 0),
-    source: "page_orders",
-  }));
+    if (!current) {
+      customers.set(key, next);
+      continue;
+    }
+
+    current.ordersCount += 1;
+    current.totalSpent += Number(order.totalAmount || 0);
+    if (new Date(order.createdAt || 0) > new Date(current.lastSeenAt || 0)) {
+      current.name = order.customerName || current.name;
+      current.mobile = order.customerPhone || current.mobile;
+      current.lastSeenAt = order.createdAt;
+    }
+    if (new Date(order.createdAt || 0) < new Date(current.createdAt || 0)) {
+      current.createdAt = order.createdAt;
+    }
+  }
+
+  return Array.from(customers.values())
+    .sort((a, b) => new Date(b.lastSeenAt || 0) - new Date(a.lastSeenAt || 0));
 }
