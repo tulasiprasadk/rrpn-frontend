@@ -2,6 +2,10 @@ import { setCors } from "../_lib/auth.js";
 import { listAds, readConfig } from "../_lib/adminStores.js";
 
 function getRoute(req) {
+  const queryPath = req.query?.path;
+  if (Array.isArray(queryPath)) return queryPath.map(String).join("/");
+  if (queryPath) return String(queryPath).replace(/^\/+/, "");
+
   const pathname = new URL(req.url || "/", "https://backend.local").pathname;
   return pathname.replace(/^\/api\/cms\/?/, "").replace(/^\/cms\/?/, "");
 }

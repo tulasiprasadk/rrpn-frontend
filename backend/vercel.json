@@ -2,6 +2,14 @@
   "version": 2,
   "rewrites": [
     {
+      "source": "/api/admin/:path*",
+      "destination": "/api/admin?path=:path*"
+    },
+    {
+      "source": "/api/cms/:path*",
+      "destination": "/api/cms?path=:path*"
+    },
+    {
       "source": "/api/customer/address/guest",
       "destination": "/api/customer/address?guest=1"
     },
