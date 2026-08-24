@@ -3,11 +3,15 @@
   "rewrites": [
     {
       "source": "/api/admin/:path*",
-      "destination": "/api/admin?path=:path*"
+      "destination": "/api/route?handler=admin&path=:path*"
     },
     {
       "source": "/api/cms/:path*",
-      "destination": "/api/cms?path=:path*"
+      "destination": "/api/route?handler=cms&path=:path*"
+    },
+    {
+      "source": "/api/orders/:path*",
+      "destination": "/api/route?handler=orders&path=:path*"
     },
     {
       "source": "/api/customer/address/guest",

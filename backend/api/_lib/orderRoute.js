@@ -1,11 +1,11 @@
-import { json, setCors } from "../_lib/auth.js";
-import { createPageOrder, getPageOrder, submitPageOrderPayment } from "../_lib/pageOrders.js";
-import { readJsonBody } from "../_lib/subscription.js";
+import { json, setCors } from "./auth.js";
+import { createPageOrder, getPageOrder, submitPageOrderPayment } from "./pageOrders.js";
+import { readJsonBody } from "./subscription.js";
 
 function getSegments(req) {
-  const path = req.query?.path;
-  if (Array.isArray(path)) return path.map(String);
-  if (path) return String(path).split("/").filter(Boolean);
+  const routePath = req.query?.path;
+  if (Array.isArray(routePath)) return routePath.map(String);
+  if (routePath) return String(routePath).split("/").filter(Boolean);
 
   const pathname = String(req.url || "").split("?")[0];
   const [, orderPath = ""] = pathname.split("/api/orders/");
@@ -92,7 +92,7 @@ async function submitPayment(req, res) {
   }
 }
 
-export default async function handler(req, res) {
+export default async function orderHandler(req, res) {
   setCors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
 
