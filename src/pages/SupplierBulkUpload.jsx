@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { post } from "../api/client";
 import { parsePrice, applyMargin, formatPrice } from "../utils/price";
+import { loadPlatformMargin } from "../utils/platformConfig";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
@@ -14,6 +15,7 @@ export default function SupplierBulkUpload() {
   const [errors, setErrors] = useState([]);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [platformMargin, setPlatformMargin] = useState(15);
 
   const TEMPLATE_HEADERS = ["title", "price", "description", "category", "sku", "stock"];
 
@@ -37,8 +39,10 @@ export default function SupplierBulkUpload() {
     if (!f) return;
 
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       try {
+        const margin = await loadPlatformMargin();
+        setPlatformMargin(margin);
         const wb = XLSX.read(evt.target.result, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
         const json = XLSX.utils.sheet_to_json(ws, { defval: "" });
@@ -55,7 +59,7 @@ export default function SupplierBulkUpload() {
           // compute numeric and platform prices
           const supplierNum = parsePrice(item.price_raw || "");
           item.supplier_price = supplierNum;
-          item.platform_price = parsePrice(applyMargin(supplierNum, 15));
+          item.platform_price = parsePrice(applyMargin(supplierNum, margin));
           return item;
         });
         // basic validation
@@ -116,7 +120,7 @@ export default function SupplierBulkUpload() {
   return (
     <main style={{ padding: 24, maxWidth: 980 }}>
       <h1>Bulk upload listings</h1>
-      <p>Download the template, fill rows and upload. Platform margin 15% will be computed for each row.</p>
+      <p>Download the template, fill rows and upload. Platform margin {platformMargin}% will be computed for each row.</p>
 
       <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
         <button onClick={downloadTemplate} style={{ padding: "8px 12px", background: "#ffd600", border: "none", borderRadius: 6 }}>

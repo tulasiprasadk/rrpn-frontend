@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { loadPlatformMargin } from '../../../utils/platformConfig';
 import './ProductSuppliers.css';
 
 function ProductSuppliers({ productId, onClose }) {
@@ -9,10 +10,12 @@ function ProductSuppliers({ productId, onClose }) {
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [margin, setMargin] = useState('');
+  const [platformMargin, setPlatformMargin] = useState(15);
 
   useEffect(() => {
     fetchProductSuppliers();
     fetchAllSuppliers();
+    loadPlatformMargin().then(setPlatformMargin);
   }, [productId]);
 
   const fetchProductSuppliers = async () => {
@@ -199,7 +202,7 @@ function ProductSuppliers({ productId, onClose }) {
                 <label>Supplier Margin % (optional):</label>
                 <input
                   type="number"
-                  placeholder="Use platform default if blank"
+                  placeholder={`Default ${platformMargin}%`}
                   value={margin}
                   onChange={(e) => setMargin(e.target.value)}
                 />

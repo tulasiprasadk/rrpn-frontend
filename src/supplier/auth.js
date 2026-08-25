@@ -48,6 +48,10 @@ export function isSupplierLoggedIn() {
   return !!localStorage.getItem("supplierToken");
 }
 
+export function getSupplierToken() {
+  return localStorage.getItem("supplierToken") || localStorage.getItem("token") || "";
+}
+
 /**
  * Get current supplier data
  */

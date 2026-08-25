@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { get, post } from "../api/client";
 import { logoutSupplier, getSupplierToken } from "../supplier/auth";
 import { parsePrice, applyMargin, formatPrice } from "../utils/price";
+import { loadPlatformMargin } from "../utils/platformConfig";
 
 /**
  * Updated SupplierDashboard: redirect to /supplier/kyc if KYC incomplete.
@@ -13,6 +14,8 @@ export default function SupplierDashboard() {
   const [err, setErr] = useState("");
   const [form, setForm] = useState({ title: "", price: "" });
   const [busy, setBusy] = useState(false);
+  const [kycCompleted, setKycCompleted] = useState(false);
+  const [platformMargin, setPlatformMargin] = useState(15);
 
   useEffect(() => {
     let mounted = true;
@@ -33,16 +36,20 @@ export default function SupplierDashboard() {
           return;
         }
 
+        const margin = await loadPlatformMargin();
+        if (!mounted) return;
+        setPlatformMargin(margin);
+
         const res = await get("/supplier/products");
         const data = res && (res.data || res) ? (res.data || res) : [];
         const normalized = (Array.isArray(data) ? data : []).map((it) => {
           const supplierNum = parsePrice(it.supplier_price ?? it.price ?? it.price_display ?? it);
-          const platformNum = applyMargin(supplierNum, 15);
+          const platformNum = applyMargin(supplierNum, margin);
           return { ...it, supplier_price: supplierNum, platform_price: platformNum };
         });
         setItems(normalized);
       } catch (err) {
-        if (mounted) setErr(e.message || "Failed to load");
+        if (mounted) setErr(err.message || "Failed to load");
       }
     }
 
@@ -61,7 +68,7 @@ export default function SupplierDashboard() {
     setBusy(true);
     try {
       const supplierNum = parsePrice(form.price || "");
-      const platformNum = applyMargin(supplierNum, 15);
+      const platformNum = applyMargin(supplierNum, platformMargin);
       const payload = {
         title: form.title,
         supplier_price: supplierNum,
@@ -75,7 +82,7 @@ export default function SupplierDashboard() {
       const data = res && (res.data || res) ? (res.data || res) : [];
       const normalized = (Array.isArray(data) ? data : []).map((it) => {
         const sNum = parsePrice(it.supplier_price ?? it.price ?? it);
-        return { ...it, supplier_price: sNum, platform_price: applyMargin(sNum, 15) };
+        return { ...it, supplier_price: sNum, platform_price: applyMargin(sNum, platformMargin) };
       });
       setItems(normalized);
       setForm({ title: "", price: "" });
@@ -104,6 +111,7 @@ export default function SupplierDashboard() {
 
       <section style={{ marginTop: 18 }}>
         <h2>Your Listings</h2>
+        <p style={{ color: "#ddd" }}>Platform margin: {platformMargin}%</p>
         {!items ? <p>Loading…</p> : items.length === 0 ? <p>No listings yet.</p> : (
           <ul style={{ listStyle: "none", padding: 0 }}>
             {items.map((it) => (

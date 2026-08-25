@@ -138,6 +138,8 @@ async function writeAssignments(rows) {
 
 export async function listProductSuppliers(productId) {
   const suppliers = await listSuppliers();
+  const config = await readConfig();
+  const defaultMargin = Number(config.platform_commission ?? 15);
   const rows = (await listAssignments()).filter((row) => row.productId === String(productId));
 
   return rows
@@ -151,7 +153,7 @@ export async function listProductSuppliers(productId) {
           supplierId: row.supplierId,
           price: row.price,
           stock: row.stock,
-          margin: row.margin,
+          margin: row.margin ?? defaultMargin,
           createdAt: row.createdAt,
           updatedAt: row.updatedAt,
         },
@@ -170,13 +172,14 @@ export async function assignProductSupplier(productId, data = {}) {
   const product = await getProductById(productId);
   if (!product) throw new Error("Product not found");
 
+  const config = await readConfig();
   const rows = await listAssignments();
   const assignment = normalizeAssignment({
     productId,
     supplierId,
     price: data.price,
     stock: data.stock,
-    margin: data.margin,
+    margin: data.margin ?? config.platform_commission ?? 15,
     updatedAt: new Date().toISOString(),
   });
 
@@ -199,6 +202,8 @@ export async function removeProductSupplier(productId, supplierId) {
 }
 
 export async function listSupplierProducts(supplierId) {
+  const config = await readConfig();
+  const defaultMargin = Number(config.platform_commission ?? 15);
   const rows = (await listAssignments()).filter((row) => row.supplierId === String(supplierId));
   const products = [];
   for (const row of rows) {
@@ -208,7 +213,7 @@ export async function listSupplierProducts(supplierId) {
         ...product,
         supplierPrice: row.price,
         supplierStock: row.stock,
-        supplierMargin: row.margin,
+        supplierMargin: row.margin ?? defaultMargin,
       });
     }
   }
