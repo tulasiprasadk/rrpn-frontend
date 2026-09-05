@@ -8,6 +8,10 @@ let pool = null;
 let tableReady = null;
 const fallbackStoreFile = process.env.ADMIN_PRODUCT_STORE_FILE || "/tmp/rrpn-admin-products.json";
 
+function usePostgresStore() {
+  return process.env.ADMIN_PRODUCT_STORE_DRIVER === "postgres";
+}
+
 function isLocalDatabaseUrl(connectionString) {
   try {
     const parsed = new URL(connectionString);
@@ -185,7 +189,7 @@ async function createFallbackProduct(data = {}, error) {
     metadata: {
       ...(data.metadata || {}),
       source: "fallback_product_store",
-      warning: "Database unavailable; saved in fallback store.",
+      ...(error ? { warning: "Database unavailable; saved in fallback store." } : {}),
       databaseError: error?.message || "",
     },
   });
@@ -213,7 +217,7 @@ async function updateFallbackProduct(id, data = {}, error) {
       ...(current?.metadata || {}),
       ...(data.metadata || {}),
       source: "fallback_product_store",
-      warning: "Database unavailable; saved in fallback store.",
+      ...(error ? { warning: "Database unavailable; saved in fallback store." } : {}),
       databaseError: error?.message || "",
     },
   });
@@ -223,6 +227,10 @@ async function updateFallbackProduct(id, data = {}, error) {
 }
 
 export async function listStoredProducts() {
+  if (!usePostgresStore()) {
+    return (await readFallbackProducts()).filter((item) => item.status !== "deleted");
+  }
+
   try {
     await ensureTable();
     const result = await getPool().query(
@@ -238,6 +246,10 @@ export async function listStoredProducts() {
 
 export async function getStoredProductById(id) {
   if (!isAdminProductId(id)) {
+    return (await readFallbackProducts()).find((item) => String(item.id) === String(id)) || null;
+  }
+
+  if (!usePostgresStore()) {
     return (await readFallbackProducts()).find((item) => String(item.id) === String(id)) || null;
   }
 
@@ -261,6 +273,10 @@ export async function getStoredProductById(id) {
 export async function createStoredProduct(data = {}) {
   const payload = buildProductPayload(data);
 
+  if (!usePostgresStore()) {
+    return createFallbackProduct(payload);
+  }
+
   try {
     await ensureTable();
     const result = await getPool().query(
@@ -279,6 +295,10 @@ export async function createStoredProduct(data = {}) {
 
 export async function updateStoredProduct(id, data = {}) {
   if (!isAdminProductId(id)) {
+    return updateFallbackProduct(id, data);
+  }
+
+  if (!usePostgresStore()) {
     return updateFallbackProduct(id, data);
   }
 
@@ -321,6 +341,14 @@ export async function updateStoredProduct(id, data = {}) {
 
 export async function deleteStoredProduct(id) {
   if (isAdminProductId(id)) {
+    if (!usePostgresStore()) {
+      const rows = await readFallbackProducts();
+      const nextRows = rows.filter((item) => String(item.id) !== String(id));
+      if (nextRows.length === rows.length) return false;
+      await writeFallbackProducts(nextRows);
+      return true;
+    }
+
     try {
       await ensureTable();
       const result = await getPool().query(
@@ -344,6 +372,23 @@ export async function deleteStoredProduct(id) {
   }
 
   const deletedAt = new Date().toISOString();
+  if (!usePostgresStore()) {
+    const rows = await readFallbackProducts();
+    const tombstone = normalizeProduct({
+      id: `deleted-${id}`,
+      title: `Deleted catalog product ${id}`,
+      price: 0,
+      status: "deleted",
+      metadata: {
+        source: "fallback_product_store",
+        deletedProductId: String(id),
+        deletedAt,
+      },
+    });
+    await writeFallbackProducts([tombstone, ...rows.filter((item) => item.metadata?.deletedProductId !== String(id))]);
+    return true;
+  }
+
   try {
     await ensureTable();
     await getPool().query(
@@ -383,19 +428,21 @@ export async function deleteStoredProduct(id) {
 export async function listDeletedProductIds() {
   const deletedIds = new Set();
 
-  try {
-    await ensureTable();
-    const result = await getPool().query(
-      `SELECT payload->>'deletedProductId' AS deleted_product_id
-         FROM admin_products
-        WHERE status = 'deleted'
-          AND payload ? 'deletedProductId'`
-    );
-    result.rows.forEach((row) => {
-      if (row.deleted_product_id) deletedIds.add(String(row.deleted_product_id));
-    });
-  } catch (error) {
-    console.warn("Deleted product lookup unavailable:", error.message);
+  if (usePostgresStore()) {
+    try {
+      await ensureTable();
+      const result = await getPool().query(
+        `SELECT payload->>'deletedProductId' AS deleted_product_id
+           FROM admin_products
+          WHERE status = 'deleted'
+            AND payload ? 'deletedProductId'`
+      );
+      result.rows.forEach((row) => {
+        if (row.deleted_product_id) deletedIds.add(String(row.deleted_product_id));
+      });
+    } catch (error) {
+      console.warn("Deleted product lookup unavailable:", error.message);
+    }
   }
 
   const fallbackRows = await readFallbackProducts();
