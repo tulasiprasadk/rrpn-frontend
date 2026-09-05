@@ -2,6 +2,8 @@ import fs from "node:fs/promises";
 import { getStoredProductById, listDeletedProductIds, listStoredProducts } from "./productStore.js";
 
 let catalogCache = null;
+const configStoreFile = process.env.ADMIN_CONFIG_STORE_FILE || "/tmp/rrpn-admin-config.json";
+const defaultPlatformCommission = 15;
 
 export async function getCatalog() {
   if (catalogCache) return catalogCache;
@@ -58,6 +60,12 @@ export async function getProducts(query = {}) {
   const categoryId = String(query.categoryId || "").trim();
   const category = String(query.category || "").trim().toLowerCase();
   const limit = Math.max(1, Math.min(Number(query.limit || 50000), 50000));
+  const priceMode = String(query.priceMode || "").trim().toLowerCase();
+  const useBasePrices =
+    query.supplier === true ||
+    query.supplier === "true" ||
+    priceMode === "base" ||
+    priceMode === "supplier";
 
   const storedById = new Map(storedRows.map((product) => [String(product.id), product]));
   const catalogRows = rows
@@ -100,7 +108,10 @@ export async function getProducts(query = {}) {
     )
     .slice(0, limit);
 
-  return filteredRows;
+  if (useBasePrices) return filteredRows;
+
+  const margin = await readPlatformCommission();
+  return filteredRows.map((product) => applyPlatformPricing(product, margin));
 }
 
 export async function getProductById(id) {
@@ -108,7 +119,11 @@ export async function getProductById(id) {
   if (deletedProductIds.has(String(id))) return null;
 
   const rows = await getCatalog();
-  return await getStoredProductById(id) || rows.find((p) => String(p.id) === String(id)) || null;
+  const product = await getStoredProductById(id) || rows.find((p) => String(p.id) === String(id)) || null;
+  if (!product) return null;
+
+  const margin = await readPlatformCommission();
+  return applyPlatformPricing(product, margin);
 }
 
 export async function getCategories() {
@@ -163,5 +178,67 @@ export function normalizeProduct(product) {
       name: categoryName,
       ...(product.Category || {}),
     },
+  };
+}
+
+async function readPlatformCommission() {
+  try {
+    const raw = await fs.readFile(configStoreFile, "utf8");
+    const config = JSON.parse(raw);
+    const margin = Number(config?.platform_commission);
+    return Number.isFinite(margin) ? margin : defaultPlatformCommission;
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.warn("Catalog config read failed:", error.message);
+    }
+    return defaultPlatformCommission;
+  }
+}
+
+function isCatalogPricedProduct(product = {}) {
+  const source = String(product.metadata?.source || "").toLowerCase();
+  const category = String(product.Category?.name || product.category || "").toLowerCase();
+  return source.includes("cracker_price_upload") || category === "crackers";
+}
+
+function roundPrice(value) {
+  return Math.round(value * 100) / 100;
+}
+
+function applyPlatformPricing(product = {}, margin = defaultPlatformCommission) {
+  const explicitPlatformPrice = Number(product.platform_price ?? product.platformPrice);
+  const supplierPrice = Number(product.supplier_price ?? product.supplierPrice);
+  const basePrice = Number(product.basePrice ?? product.price ?? 0);
+
+  if (Number.isFinite(explicitPlatformPrice) && explicitPlatformPrice > 0) {
+    return {
+      ...product,
+      supplier_price: Number.isFinite(supplierPrice) ? supplierPrice : basePrice,
+      supplierPrice: Number.isFinite(supplierPrice) ? supplierPrice : basePrice,
+      platform_price: explicitPlatformPrice,
+      platformPrice: explicitPlatformPrice,
+      price: explicitPlatformPrice,
+      margin,
+    };
+  }
+
+  const shouldApplyMargin =
+    Number.isFinite(supplierPrice) ||
+    (Number.isFinite(basePrice) && basePrice > 0 && isCatalogPricedProduct(product));
+
+  if (!shouldApplyMargin) return product;
+
+  const rawSupplierPrice = Number.isFinite(supplierPrice) ? supplierPrice : basePrice;
+  const platformPrice = roundPrice(rawSupplierPrice + (rawSupplierPrice * margin) / 100);
+
+  return {
+    ...product,
+    basePrice: rawSupplierPrice,
+    supplier_price: rawSupplierPrice,
+    supplierPrice: rawSupplierPrice,
+    platform_price: platformPrice,
+    platformPrice,
+    price: platformPrice,
+    margin,
   };
 }
