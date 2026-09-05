@@ -6,6 +6,7 @@ const supplierStoreFile = process.env.ADMIN_SUPPLIER_STORE_FILE || "/tmp/rrpn-su
 const productSupplierStoreFile = process.env.ADMIN_PRODUCT_SUPPLIER_STORE_FILE || "/tmp/rrpn-product-suppliers.json";
 const configStoreFile = process.env.ADMIN_CONFIG_STORE_FILE || "/tmp/rrpn-admin-config.json";
 const adStoreFile = process.env.ADMIN_AD_STORE_FILE || "/tmp/rrpn-admin-ads.json";
+const customerStoreFile = process.env.ADMIN_CUSTOMER_STORE_FILE || "/tmp/rrpn-customers.json";
 
 const defaultConfig = {
   platform_commission: 15,
@@ -74,6 +75,50 @@ function normalizeAssignment(row = {}) {
     createdAt: row.createdAt || new Date().toISOString(),
     updatedAt: row.updatedAt || new Date().toISOString(),
   };
+}
+
+function normalizeCustomer(customer = {}) {
+  const now = new Date().toISOString();
+  const id = String(customer.id || customer.sub || customer.email || customer.mobile || `customer-${Date.now()}`);
+  return {
+    ...customer,
+    id,
+    name: customer.name || customer.customerName || customer.email || customer.mobile || "Customer",
+    email: customer.email || customer.customerEmail || "",
+    mobile: customer.mobile || customer.phone || customer.customerPhone || "",
+    picture: customer.picture || null,
+    role: customer.role || "user",
+    createdAt: customer.createdAt || now,
+    updatedAt: now,
+    lastSeenAt: now,
+    source: customer.source || "auth",
+  };
+}
+
+export async function listCustomers() {
+  const rows = await readJson(customerStoreFile, []);
+  return Array.isArray(rows) ? rows.map(normalizeCustomer) : [];
+}
+
+export async function upsertCustomer(data = {}) {
+  const customers = await listCustomers();
+  const current = customers.find((item) =>
+    String(item.id) === String(data.id || "") ||
+    (item.email && item.email === data.email) ||
+    (item.mobile && item.mobile === data.mobile)
+  );
+  const customer = normalizeCustomer({
+    ...(current || {}),
+    ...data,
+    id: current?.id || data.id,
+    createdAt: current?.createdAt,
+  });
+
+  await writeJson(customerStoreFile, [
+    customer,
+    ...customers.filter((item) => String(item.id) !== String(customer.id)),
+  ]);
+  return customer;
 }
 
 export async function listSuppliers() {
@@ -246,6 +291,34 @@ export async function updateConfigValue(key, data = {}) {
   configs[key] = value;
   await writeJson(configStoreFile, configs);
   return { key, value, configs };
+}
+
+export async function applyConfiguredMargin(data = {}) {
+  const supplierPrice = Number(data.supplier_price ?? data.supplierPrice);
+  if (!Number.isFinite(supplierPrice) || supplierPrice < 0) return data;
+
+  const explicitPlatformPrice = Number(data.platform_price ?? data.platformPrice);
+  if (Number.isFinite(explicitPlatformPrice) && explicitPlatformPrice > 0) {
+    return {
+      ...data,
+      platform_price: explicitPlatformPrice,
+      platformPrice: explicitPlatformPrice,
+      price: data.price ?? explicitPlatformPrice,
+    };
+  }
+
+  const config = await readConfig();
+  const margin = Number(config.platform_commission ?? 15);
+  const platformPrice = Math.round((supplierPrice + (supplierPrice * margin) / 100) * 100) / 100;
+  return {
+    ...data,
+    supplier_price: supplierPrice,
+    supplierPrice,
+    platform_price: platformPrice,
+    platformPrice,
+    price: platformPrice,
+    margin,
+  };
 }
 
 function normalizeAd(ad = {}) {

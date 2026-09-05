@@ -5,15 +5,20 @@ import {
   json,
   setCors,
   verifyToken,
-} from "../_lib/auth.js";
+} from "./auth.js";
+import { upsertCustomer } from "./adminStores.js";
 
 function getPath(req) {
+  const routePath = req.query?.path;
+  if (Array.isArray(routePath)) return routePath.map(String);
+  if (routePath) return String(routePath).split("/").filter(Boolean);
+
   const pathname = new URL(req.url || "/", "https://backend.local").pathname;
   const route = pathname.replace(/^\/api\/auth\/?/, "").replace(/^\/auth\/?/, "");
   return route.split("/").filter(Boolean);
 }
 
-export default function handler(req, res) {
+export default async function authRoute(req, res) {
   setCors(req, res);
 
   if (req.method === "OPTIONS") {
@@ -43,13 +48,13 @@ export default function handler(req, res) {
       return json(res, 401, { loggedIn: false });
     }
 
-    const user = {
+    const user = await upsertCustomer({
       id: payload.sub,
       email: payload.email,
       name: payload.name,
       picture: payload.picture,
       role: payload.role || "user",
-    };
+    });
 
     return json(res, 200, {
       loggedIn: true,

@@ -7,12 +7,14 @@ import {
 } from "../_lib/pageOrders.js";
 import {
   assignProductSupplier,
+  applyConfiguredMargin,
   deleteAd,
   deleteSupplier,
   getAd,
   getSupplier,
   getSupplierStats,
   listAds,
+  listCustomers,
   listProductSuppliers,
   listSupplierProducts,
   listSuppliers,
@@ -23,6 +25,7 @@ import {
   updateSupplier,
   upsertSupplier,
 } from "../_lib/adminStores.js";
+import productsHandler from "../products/index.js";
 
 function getRoute(req) {
   const queryPath = req.query?.path;
@@ -227,6 +230,24 @@ export default async function handler(req, res) {
       if (!deleted) return res.status(404).json({ error: "Product supplier not found" });
       return res.status(200).json({ success: true });
     }
+
+    if (productId && !resource) {
+      req.query = {
+        ...(req.query || {}),
+        id: productId,
+      };
+      if (["POST", "PUT", "PATCH"].includes(req.method)) {
+        req.body = await applyConfiguredMargin(readBody(req.body));
+      }
+      return productsHandler(req, res);
+    }
+  }
+
+  if (route === "products") {
+    if (["POST", "PUT", "PATCH"].includes(req.method)) {
+      req.body = await applyConfiguredMargin(readBody(req.body));
+    }
+    return productsHandler(req, res);
   }
 
   if (route === "users") {
@@ -236,7 +257,15 @@ export default async function handler(req, res) {
     }
 
     try {
-      const users = await listPageOrderCustomers();
+      const customers = await listCustomers();
+      const orderCustomers = await listPageOrderCustomers();
+      const seen = new Set();
+      const users = [...customers, ...orderCustomers].filter((user) => {
+        const key = user.email || user.mobile || user.id;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
       return res.status(200).json({ data: users, users });
     } catch (error) {
       console.error("Admin users error:", error);

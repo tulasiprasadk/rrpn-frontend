@@ -14,6 +14,10 @@
       "destination": "/api/route?handler=orders&path=:path*"
     },
     {
+      "source": "/api/auth/:path*",
+      "destination": "/api/route?handler=auth&path=:path*"
+    },
+    {
       "source": "/api/customer/address/guest",
       "destination": "/api/customer/address?guest=1"
     },
